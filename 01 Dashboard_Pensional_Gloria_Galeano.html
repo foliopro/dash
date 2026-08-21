@@ -1,0 +1,1225 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Su Pensión Plus - Dashboard de Estudio Pensional</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        gold: {
+                            400: '#FDE047',
+                            500: '#D4AF37',
+                            600: '#B8860B',
+                            700: '#996515',
+                        },
+                        darkbase: '#070B14',
+                        cardbg: '#0F172A',
+                        cardborder: '#1E293B'
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+    <!-- FontAwesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #070B14;
+            color: #E2E8F0;
+        }
+        .glass-card {
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .gold-gradient-text {
+            background: linear-gradient(135deg, #FFF5C0 0%, #D4AF37 50%, #AA7C11 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .gold-border-glow {
+            border: 1px solid rgba(212, 175, 55, 0.4);
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.15);
+        }
+        .nav-tab.active {
+            background-color: rgba(212, 175, 55, 0.15);
+            color: #FDE047;
+            border-bottom: 2px solid #D4AF37;
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #070B14;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1E293B;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #D4AF37;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- TOP HEADER / BRAND BAR -->
+    <header class="border-b border-slate-800 bg-slate-950/80 sticky top-0 z-50 backdrop-blur-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-yellow-600 via-gold-500 to-amber-300 flex items-center justify-center text-slate-950 font-black text-xl shadow-lg shadow-gold-500/20">
+                    <i class="fa-solid fa-chart-line"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight text-white flex items-center gap-2">
+                        SU PENSIÓN PLUS
+                        <span class="text-xs font-normal px-2 py-0.5 rounded bg-gold-500/10 text-gold-400 border border-gold-500/20">Plataforma Ejecutiva</span>
+                    </h1>
+                    <p class="text-xs text-slate-400">Expertos en Liquidación y Auditoría Pensional</p>
+                </div>
+            </div>
+
+            <!-- Client Summary Badge Header -->
+            <div class="hidden md:flex items-center space-x-6 text-sm">
+                <div class="text-right">
+                    <p class="text-xs text-slate-400 uppercase tracking-wider">Cliente Asegurada</p>
+                    <p class="font-semibold text-slate-200">GLORIA CATALINA GALEANO GALLON</p>
+                </div>
+                <div class="h-8 w-px bg-slate-800"></div>
+                <div class="text-right">
+                    <p class="text-xs text-slate-400 uppercase tracking-wider">Cédula</p>
+                    <p class="font-semibold text-slate-200">43.203.461</p>
+                </div>
+                <div class="h-8 w-px bg-slate-800"></div>
+                <div class="text-right">
+                    <p class="text-xs text-slate-400 uppercase tracking-wider">Fecha Liquidación</p>
+                    <p class="font-semibold text-gold-400">31/01/2037</p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN DASHBOARD CONTENT AREA -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col gap-6">
+
+        <!-- NAVIGATION TABS -->
+        <nav class="flex space-x-1 border-b border-slate-800 overflow-x-auto pb-1 scrollbar-none">
+            <button onclick="switchTab('tab-resumen')" id="btn-tab-resumen" class="nav-tab active px-4 py-2.5 text-sm font-medium rounded-t-lg transition-all flex items-center gap-2 whitespace-nowrap">
+                <i class="fa-solid fa-house-laptop"></i> Resumen Ejecutivo
+            </button>
+            <button onclick="switchTab('tab-escenarios')" id="btn-tab-escenarios" class="nav-tab px-4 py-2.5 text-sm font-medium text-slate-400 hover:text-slate-200 rounded-t-lg transition-all flex items-center gap-2 whitespace-nowrap">
+                <i class="fa-solid fa-scale-balanced"></i> Escenarios Comparativos
+            </button>
+            <button onclick="switchTab('tab-liquidacion')" id="btn-tab-liquidacion" class="nav-tab px-4 py-2.5 text-sm font-medium text-slate-400 hover:text-slate-200 rounded-t-lg transition-all flex items-center gap-2 whitespace-nowrap">
+                <i class="fa-solid fa-calculator"></i> Liquidación IBL & Fórmulas
+            </button>
+            <button onclick="switchTab('tab-retorno')" id="btn-tab-retorno" class="nav-tab px-4 py-2.5 text-sm font-medium text-slate-400 hover:text-slate-200 rounded-t-lg transition-all flex items-center gap-2 whitespace-nowrap">
+                <i class="fa-solid fa-chart-pie"></i> Retorno Inversión (RIM)
+            </button>
+            <button onclick="switchTab('tab-historial')" id="btn-tab-historial" class="nav-tab px-4 py-2.5 text-sm font-medium text-slate-400 hover:text-slate-200 rounded-t-lg transition-all flex items-center gap-2 whitespace-nowrap">
+                <i class="fa-solid fa-calendar-days"></i> Cronograma Cotización
+            </button>
+            <button onclick="switchTab('tab-dictamen')" id="btn-tab-dictamen" class="nav-tab px-4 py-2.5 text-sm font-medium text-slate-400 hover:text-slate-200 rounded-t-lg transition-all flex items-center gap-2 whitespace-nowrap">
+                <i class="fa-solid fa-award"></i> Dictamen & Certificación
+            </button>
+        </nav>
+
+        <!-- TAB 1: RESUMEN EJECUTIVO -->
+        <section id="tab-resumen" class="tab-content flex flex-col gap-6">
+            <!-- Header Badge Obligatorio -->
+            <div class="flex justify-between items-center bg-slate-900/60 px-4 py-2 rounded-lg border border-slate-800">
+                <span class="text-xs text-slate-400"><i class="fa-solid fa-file-circle-check text-gold-500 mr-1"></i> Tipo de Estudio: Proyección Multi-Escenario (Tipo A - 3 Escenarios)</span>
+                <span class="text-xs font-semibold text-slate-300 bg-slate-800 px-3 py-1 rounded-full border border-slate-700">Elaborado por: CONSULTORES JURÍDICOS</span>
+            </div>
+
+            <!-- Top Banner -->
+            <div class="glass-card rounded-2xl p-6 relative overflow-hidden bg-gradient-to-r from-slate-900 via-slate-900/90 to-indigo-950/40 border-l-4 border-l-gold-500">
+                <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+                    <div>
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="px-2.5 py-0.5 rounded-md text-xs font-bold bg-amber-500/10 text-amber-400 border border-amber-500/30">Análisis Decenal 2027 - 2037</span>
+                            <span class="text-xs text-slate-400"><i class="fa-regular fa-calendar mr-1"></i> Fecha de emisión: 20/08/2026</span>
+                        </div>
+                        <h2 class="text-2xl font-extrabold text-white">Estudio de Proyección Pensional — <span class="gold-gradient-text">Gloria Catalina Galeano Gallón</span></h2>
+                        <p class="text-sm text-slate-300 mt-1 max-w-3xl">
+                            Evaluación técnico-financiera multi-escenario para optimizar la mesada de jubilación a la edad requerida (57 años en enero de 2037), capitalizando la <strong>Sentencia C-197/2023</strong> que reduce la exigencia a 1.000 semanas para mujeres.
+                        </p>
+                    </div>
+                    <div class="bg-slate-950/60 p-4 rounded-xl border border-slate-800 text-right min-w-[240px]">
+                        <p class="text-xs text-slate-400 uppercase font-semibold">Conclusión Principal IBL</p>
+                        <p class="text-sm font-bold text-amber-300 mt-0.5">E1 & E2: <span class="text-white">Toda la Vida</span></p>
+                        <p class="text-sm font-bold text-emerald-400">E3 (4 SMLMV): <span class="text-white">Últimos 10 Años</span></p>
+                        <span class="text-[11px] text-slate-400 block mt-1">($9.244.298 vs $7.944.347 IBL)</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Fila 1: Grid 4 KPIs Fijos -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="glass-card p-5 rounded-xl border-l-2 border-gold-500">
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="text-xs text-slate-400 font-medium uppercase tracking-wider">1. Mesada Óptima / Máxima</span>
+                        <div class="w-8 h-8 rounded-lg bg-gold-500/10 flex items-center justify-center text-gold-400">
+                            <i class="fa-solid fa-sack-dollar"></i>
+                        </div>
+                    </div>
+                    <p class="text-2xl font-black text-white">$6.997.933 <span class="text-xs text-slate-400 font-normal">COP</span></p>
+                    <p class="text-xs text-emerald-400 mt-1 flex items-center gap-1">
+                        <i class="fa-solid fa-arrow-up text-[10px]"></i> +68.9% frente a Escenario 1
+                    </p>
+                </div>
+
+                <div class="glass-card p-5 rounded-xl border-l-2 border-indigo-500">
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="text-xs text-slate-400 font-medium uppercase tracking-wider">2. Opción Recomendada</span>
+                        <div class="w-8 h-8 rounded-lg bg-indigo-500/10 flex items-center justify-center text-indigo-400">
+                            <i class="fa-solid fa-bullseye"></i>
+                        </div>
+                    </div>
+                    <p class="text-xl font-bold text-indigo-300">Escenario 2 (2 SMLMV)</p>
+                    <p class="text-xs text-slate-400 mt-1">
+                        Punto medio óptimo: Mesada $4.775.968 | RIM 35.7 meses
+                    </p>
+                </div>
+
+                <div class="glass-card p-5 rounded-xl border-l-2 border-emerald-500">
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="text-xs text-slate-400 font-medium uppercase tracking-wider">3. Mesada Base / Inmediata</span>
+                        <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400">
+                            <i class="fa-solid fa-piggy-bank"></i>
+                        </div>
+                    </div>
+                    <p class="text-2xl font-black text-white">$4.142.650 <span class="text-xs text-slate-400 font-normal">COP</span></p>
+                    <p class="text-xs text-emerald-400 mt-1">
+                        Escenario 1 (1 SMLMV) | RIM ultra veloz: 20.6 meses
+                    </p>
+                </div>
+
+                <div class="glass-card p-5 rounded-xl border-l-2 border-amber-500">
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="text-xs text-slate-400 font-medium uppercase tracking-wider">4. Bonificación Semanas</span>
+                        <div class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400">
+                            <i class="fa-solid fa-award"></i>
+                        </div>
+                    </div>
+                    <p class="text-2xl font-black text-amber-300">+12.00% <span class="text-xs text-slate-400 font-normal">en TR</span></p>
+                    <p class="text-xs text-slate-400 mt-1">
+                        419.30 semanas excedentes / 8 bloques de 50 sem.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Fila 2: Layout Dividido 7:5 -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Columna Izquierda (7 cols): Canvas Chart.js -->
+                <div class="lg:col-span-7 glass-card p-6 rounded-2xl flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-center mb-4">
+                            <div>
+                                <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                                    <i class="fa-solid fa-chart-column text-gold-500"></i>
+                                    Comparativo de Mesada Bruta vs Inversión Total
+                                </h3>
+                                <p class="text-xs text-slate-400">Análisis proyectado de los 3 escenarios de cotización a 2037</p>
+                            </div>
+                        </div>
+                        <div class="h-72 w-full relative">
+                            <canvas id="chartResumen"></canvas>
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-4 border-t border-slate-800 grid grid-cols-3 text-center text-xs">
+                        <div>
+                            <span class="text-slate-400 block">E1 Inversión</span>
+                            <span class="font-bold text-slate-200">$75.111.258</span>
+                        </div>
+                        <div>
+                            <span class="text-slate-400 block">E2 Inversión</span>
+                            <span class="font-bold text-slate-200">$150.222.515</span>
+                        </div>
+                        <div>
+                            <span class="text-slate-400 block">E3 Inversión</span>
+                            <span class="font-bold text-slate-200">$310.986.960</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Columna Derecha (5 cols): 3 Hallazgos Relevantes y Alertas Técnicas -->
+                <div class="lg:col-span-5 glass-card p-6 rounded-2xl flex flex-col justify-between">
+                    <div>
+                        <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                            <i class="fa-solid fa-triangle-exclamation text-amber-400"></i>
+                            Hallazgos Relevantes & Alertas
+                        </h3>
+                        <div class="space-y-4">
+                            <!-- Hallazgo 1 -->
+                            <div class="p-3.5 bg-slate-900/80 rounded-xl border border-slate-800">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                                    <h4 class="text-sm font-bold text-slate-200">Impacto Sentencia C-197/2023</h4>
+                                </div>
+                                <p class="text-xs text-slate-400 leading-relaxed">
+                                    Al reducirse la exigencia a 1.000 semanas para mujeres a 2037, la cliente acumula 1.419,30 semanas, generando <strong>419,30 semanas excedentarias</strong> que otorgan un 12.00% extra de Tasa de Reemplazo (PA).
+                                </p>
+                            </div>
+
+                            <!-- Hallazgo 2 -->
+                            <div class="p-3.5 bg-slate-900/80 rounded-xl border border-slate-800">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <span class="w-2 h-2 rounded-full bg-amber-400"></span>
+                                    <h4 class="text-sm font-bold text-slate-200">Comportamiento Cruzado del IBL</h4>
+                                </div>
+                                <p class="text-xs text-slate-400 leading-relaxed">
+                                    En E1 y E2, el promedio de <strong>Toda la Vida</strong> es superior al de los Últimos 10 Años gracias a cotizaciones históricas elevadas. En E3 (4 SMLMV), el promedio de los <strong>Últimos 10 Años ($9.244.298)</strong> supera a Toda la Vida ($7.944.347).
+                                </p>
+                            </div>
+
+                            <!-- Hallazgo 3 -->
+                            <div class="p-3.5 bg-slate-900/80 rounded-xl border border-slate-800">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <span class="w-2 h-2 rounded-full bg-indigo-400"></span>
+                                    <h4 class="text-sm font-bold text-slate-200">Carga del Fondo de Solidaridad (FSP)</h4>
+                                </div>
+                                <p class="text-xs text-slate-400 leading-relaxed">
+                                    Optar por el Escenario 3 (4 SMLMV) implica un aporte adicional obligatorio del 1% para FSP, totalizando <strong>$10.541.931 proyectados</strong> en el decenio dentro de la inversión de $310.9M.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400">
+                        <span><i class="fa-solid fa-shield-check text-emerald-400 mr-1"></i> Ley 797/03 & C-197/23 Auditados</span>
+                        <button onclick="switchTab('tab-dictamen')" class="text-gold-400 hover:underline font-semibold">Ver Dictamen &rarr;</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 2: ESCENARIOS COMPARATIVOS -->
+        <section id="tab-escenarios" class="tab-content hidden flex-col gap-6">
+            <!-- Header Badge Obligatorio -->
+            <div class="flex justify-between items-center bg-slate-900/60 px-4 py-2 rounded-lg border border-slate-800">
+                <span class="text-xs text-slate-400"><i class="fa-solid fa-layer-group text-gold-500 mr-1"></i> Evaluación Comparativa de Alternativas de Cotización 2027-2037</span>
+                <span class="text-xs font-semibold text-slate-300 bg-slate-800 px-3 py-1 rounded-full border border-slate-700">Elaborado por: CONSULTORES JURÍDICOS</span>
+            </div>
+
+            <!-- Grid 3 Escenarios -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+                <!-- ESCENARIO 1 -->
+                <div class="glass-card rounded-2xl p-6 flex flex-col justify-between relative border border-slate-800 hover:border-slate-700 transition">
+                    <div>
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="px-3 py-1 rounded-full text-xs font-bold bg-slate-800 text-slate-300 border border-slate-700">Escenario 1</span>
+                            <span class="text-xs text-slate-400 font-mono">1 SMLMV</span>
+                        </div>
+                        <h3 class="text-xl font-extrabold text-white mb-1">Cotización Básica</h3>
+                        <p class="text-xs text-slate-400 mb-4">Aporte sobre 1 SMLMV durante los últimos 10 años priorizando la máxima tasa de retorno.</p>
+
+                        <div class="space-y-3 border-t border-b border-slate-800/80 py-4 my-2">
+                            <div class="flex justify-between text-xs">
+                                <span class="text-slate-400">Mejor Opción IBL:</span>
+                                <span class="font-semibold text-amber-300">Toda la Vida</span>
+                            </div>
+                            <div class="flex justify-between text-xs">
+                                <span class="text-slate-400">Ingreso Base Liq. (IBL):</span>
+                                <span class="font-mono font-bold text-slate-200">$5.419.479</span>
+                            </div>
+                            <div class="flex justify-between text-xs">
+                                <span class="text-slate-400">Tasa de Reemplazo (TR):</span>
+                                <span class="font-bold text-slate-200">76.44%</span>
+                            </div>
+                            <div class="flex justify-between text-xs">
+                                <span class="text-slate-400">Semanas Totales:</span>
+                                <span class="font-bold text-slate-200">1.419,30</span>
+                            </div>
+                            <div class="flex justify-between text-xs">
+                                <span class="text-slate-400">Descuento Salud (12%):</span>
+                                <span class="font-mono text-rose-400">-$497.118</span>
+                            </div>
+                            <div class="flex justify-between text-xs font-bold pt-1 border-t border-slate-800">
+                                <span class="text-slate-300">Mesada Neta Mensual:</span>
+                                <span class="font-mono text-emerald-400">$3.645.532</span>
+                            </div>
+                        </div>
+
+                        <div class="mt-3">
+                            <p class="text-xs text-slate-400 mb-1">Inversión Total Seg. Social:</p>
+                            <p class="text-lg font-black text-slate-200">$75.111.258 COP</p>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 pt-4 border-t border-slate-800/80 flex items-center justify-between">
+                        <div>
+                            <span class="text-[11px] text-slate-400 block">Retorno Inversión (RIM):</span>
+                            <span class="text-sm font-bold text-emerald-400">20.60 Meses (~1.7 años)</span>
+                        </div>
+                        <span class="px-2 py-1 bg-emerald-500/10 text-emerald-400 text-[10px] font-bold rounded border border-emerald-500/20">Más Rápido</span>
+                    </div>
+                </div>
+
+                <!-- ESCENARIO 2 (RECOMENDADO / DORADO) -->
+                <div class="glass-card rounded-2xl p-6 flex flex-col justify-between relative gold-border-glow bg-gradient-to-b from-slate-900 via-slate-900 to-amber-950/20">
+                    <div class="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-gold-500 to-amber-400 text-slate-950 text-[11px] font-black uppercase px-4 py-0.5 rounded-full shadow-lg">
+                        <i class="fa-solid fa-star mr-1"></i> Opción Recomendada
+                    </div>
+                    <div>
+                        <div class="flex justify-between items-center mb-3 mt-1">
+                            <span class="px-3 py-1 rounded-full text-xs font-bold bg-gold-500/20 text-gold-300 border border-gold-500/40">Escenario 2</span>
+                            <span class="text-xs text-gold-400 font-mono">2 SMLMV</span>
+                        </div>
+                        <h3 class="text-xl font-extrabold text-white mb-1">Crecimiento Equilibrado</h3>
+                        <p class="text-xs text-slate-400 mb-4">Cotización sobre 2 SMLMV. Equilibrio perfecto entre flujo de caja y mayor mesada.</p>
+
+                        <div class="space-y-3 border-t border-b border-slate-800/80 py-4 my-2">
+                            <div class="flex justify-between text-xs">
+                                <span class="text-slate-400">Mejor Opción IBL:</span>
+                                <span class="font-semibold text-amber-300">Toda la Vida</span>
+                            </div>
+                            <div class="flex justify-between text-xs">
+                                <span class="text-slate-400">Ingreso Base Liq. (IBL):</span>
+                                <span class="font-mono font-bold text-slate-200">$6.261.102</span>
+                            </div>
+                            <div class="flex justify-between text-xs">
+                                <span class="text-slate-400">Tasa de Reemplazo (TR):</span>
+                                <span class="font-bold text-slate-200">76.28%</span>
+                            </div>
+                            <div class="flex justify-between text-xs">
+                                <span class="text-slate-400">Semanas Totales:</span>
+                                <span class="font-bold text-slate-200">1.419,30</span>
+                            </div>
+                            <div class="flex justify-between text-xs">
+                                <span class="text-slate-400">Descuento Salud (12%):</span>
+                                <span class="font-mono text-rose-400">-$573.116</span>
+                            </div>
+                            <div class="flex justify-between text-xs font-bold pt-1 border-t border-slate-800">
+                                <span class="text-slate-300">Mesada Neta Mensual:</span>
+                                <span class="font-mono text-gold-400">$4.202.852</span>
+                            </div>
+                        </div>
+
+                        <div class="mt-3">
+                            <p class="text-xs text-slate-400 mb-1">Inversión Total Seg. Social:</p>
+                            <p class="text-lg font-black text-slate-200">$150.222.515 COP</p>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 pt-4 border-t border-slate-800/80 flex items-center justify-between">
+                        <div>
+                            <span class="text-[11px] text-slate-400 block">Retorno Inversión (RIM):</span>
+                            <span class="text-sm font-bold text-gold-400">35.74 Meses (~3.0 años)</span>
+                        </div>
+                        <span class="px-2 py-1 bg-gold-500/10 text-gold-400 text-[10px] font-bold rounded border border-gold-500/30">Mejor Balance</span>
+                    </div>
+                </div>
+
+                <!-- ESCENARIO 3 -->
+                <div class="glass-card rounded-2xl p-6 flex flex-col justify-between relative border border-slate-800 hover:border-slate-700 transition">
+                    <div>
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="px-3 py-1 rounded-full text-xs font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">Escenario 3</span>
+                            <span class="text-xs text-indigo-400 font-mono">4 SMLMV</span>
+                        </div>
+                        <h3 class="text-xl font-extrabold text-white mb-1">Máxima Pensión</h3>
+                        <p class="text-xs text-slate-400 mb-4">Cotización sobre 4 SMLMV para activar el promedio de los Últimos 10 Años al máximo.</p>
+
+                        <div class="space-y-3 border-t border-b border-slate-800/80 py-4 my-2">
+                            <div class="flex justify-between text-xs">
+                                <span class="text-slate-400">Mejor Opción IBL:</span>
+                                <span class="font-semibold text-emerald-400">Últimos 10 Años</span>
+                            </div>
+                            <div class="flex justify-between text-xs">
+                                <span class="text-slate-400">Ingreso Base Liq. (IBL):</span>
+                                <span class="font-mono font-bold text-emerald-400">$9.244.298</span>
+                            </div>
+                            <div class="flex justify-between text-xs">
+                                <span class="text-slate-400">Tasa de Reemplazo (TR):</span>
+                                <span class="font-bold text-slate-200">75.70%</span>
+                            </div>
+                            <div class="flex justify-between text-xs">
+                                <span class="text-slate-400">Semanas Totales:</span>
+                                <span class="font-bold text-slate-200">1.419,30</span>
+                            </div>
+                            <div class="flex justify-between text-xs">
+                                <span class="text-slate-400">Descuento Salud (12%):</span>
+                                <span class="font-mono text-rose-400">-$839.752</span>
+                            </div>
+                            <div class="flex justify-between text-xs font-bold pt-1 border-t border-slate-800">
+                                <span class="text-slate-300">Mesada Neta Mensual:</span>
+                                <span class="font-mono text-indigo-400">$6.158.181</span>
+                            </div>
+                        </div>
+
+                        <div class="mt-3">
+                            <p class="text-xs text-slate-400 mb-1">Inversión Total Seg. Social:</p>
+                            <p class="text-lg font-black text-slate-200">$310.986.960 COP</p>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 pt-4 border-t border-slate-800/80 flex items-center justify-between">
+                        <div>
+                            <span class="text-[11px] text-slate-400 block">Retorno Inversión (RIM):</span>
+                            <span class="text-sm font-bold text-indigo-300">50.50 Meses (~4.2 años)</span>
+                        </div>
+                        <span class="px-2 py-1 bg-indigo-500/10 text-indigo-400 text-[10px] font-bold rounded border border-indigo-500/20">Máximo Flujo</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabla Inferior: Matriz de Incrementos Marginales -->
+            <div class="glass-card p-6 rounded-2xl">
+                <h3 class="text-base font-bold text-white mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-chart-line text-gold-500"></i> Matriz de Incrementos Marginales & Costo-Beneficio
+                </h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-xs text-left text-slate-300">
+                        <thead class="text-[11px] text-slate-400 uppercase bg-slate-900/90 border-b border-slate-800">
+                            <tr>
+                                <th class="py-3 px-4">Comparativa de Escenarios</th>
+                                <th class="py-3 px-4">Inversión Adicional</th>
+                                <th class="py-3 px-4">Incremento Mesada Bruta</th>
+                                <th class="py-3 px-4">Incremento Mesada Neta</th>
+                                <th class="py-3 px-4">Amortización Inversión Extra</th>
+                                <th class="py-3 px-4 text-center">Evaluación Estratégica</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-800">
+                            <tr class="hover:bg-slate-900/40">
+                                <td class="py-3.5 px-4 font-semibold text-white">Escenario 1 vs Escenario 2</td>
+                                <td class="py-3.5 px-4 font-mono text-slate-300">+$75.111.257 COP</td>
+                                <td class="py-3.5 px-4 font-mono text-emerald-400">+$633.318 COP/mes</td>
+                                <td class="py-3.5 px-4 font-mono text-emerald-400">+$557.320 COP/mes</td>
+                                <td class="py-3.5 px-4 font-mono text-gold-400">134.7 Meses (11.2 años)</td>
+                                <td class="py-3.5 px-4 text-center"><span class="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Equilibrado</span></td>
+                            </tr>
+                            <tr class="hover:bg-slate-900/40">
+                                <td class="py-3.5 px-4 font-semibold text-white">Escenario 2 vs Escenario 3</td>
+                                <td class="py-3.5 px-4 font-mono text-slate-300">+$160.764.445 COP</td>
+                                <td class="py-3.5 px-4 font-mono text-emerald-400">+$2.221.965 COP/mes</td>
+                                <td class="py-3.5 px-4 font-mono text-emerald-400">+$1.955.329 COP/mes</td>
+                                <td class="py-3.5 px-4 font-mono text-gold-400">82.2 Meses (6.8 años)</td>
+                                <td class="py-3.5 px-4 text-center"><span class="px-2 py-0.5 rounded bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">Alto Impacto</span></td>
+                            </tr>
+                            <tr class="hover:bg-slate-900/40 bg-slate-900/30">
+                                <td class="py-3.5 px-4 font-bold text-amber-300">Escenario 1 vs Escenario 3 (Total)</td>
+                                <td class="py-3.5 px-4 font-mono text-slate-200">+$235.875.702 COP</td>
+                                <td class="py-3.5 px-4 font-mono text-emerald-400 font-bold">+$2.855.283 COP/mes</td>
+                                <td class="py-3.5 px-4 font-mono text-emerald-400 font-bold">+$2.512.649 COP/mes</td>
+                                <td class="py-3.5 px-4 font-mono text-gold-400">93.8 Meses (7.8 años)</td>
+                                <td class="py-3.5 px-4 text-center"><span class="px-2 py-0.5 rounded bg-amber-500/10 text-amber-300 border border-amber-500/20">Máximo Salto</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 3: LIQUIDACIÓN TÉCNICA IBL & FÓRMULAS -->
+        <section id="tab-liquidacion" class="tab-content hidden flex-col gap-6">
+            <!-- Header Badge Obligatorio -->
+            <div class="flex justify-between items-center bg-slate-900/60 px-4 py-2 rounded-lg border border-slate-800">
+                <span class="text-xs text-slate-400"><i class="fa-solid fa-calculator text-gold-500 mr-1"></i> Desglose Normativo y Fórmulas Actuariales (Ley 797/2003 & Sentencia C-197/2023)</span>
+                <span class="text-xs font-semibold text-slate-300 bg-slate-800 px-3 py-1 rounded-full border border-slate-700">Elaborado por: CONSULTORES JURÍDICOS</span>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Columna Izquierda (Card 1): Desglose Matemático / LaTeX -->
+                <div class="lg:col-span-6 glass-card p-6 rounded-2xl flex flex-col justify-between">
+                    <div>
+                        <h3 class="text-lg font-bold text-white mb-2 flex items-center gap-2">
+                            <i class="fa-solid fa-square-root-variable text-gold-500"></i>
+                            Fórmula de Tasa de Reemplazo (TR)
+                        </h3>
+                        <p class="text-xs text-slate-400 mb-4">Estructura matemática de liquidación bajo el Régimen de Prima Media con Prestación Definida.</p>
+
+                        <!-- Mathematical LaTeX Display -->
+                        <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 mb-5 font-serif text-center">
+                            <p class="text-lg text-gold-300 font-bold tracking-wide">
+                                TR = R + PA
+                            </p>
+                            <p class="text-xs text-slate-300 mt-2 italic">
+                                R = 65.5 - (0.5 &times; S) &nbsp;&nbsp;|&nbsp;&nbsp; PA = &lfloor;(Semanas - Semanas Mínimas) / 50&rfloor; &times; 1.5%
+                            </p>
+                            <p class="text-[11px] text-slate-400 mt-1">
+                                Donde <span class="text-slate-200">S</span> es el número de Salarios Mínimos del IBL: <span class="text-slate-200">S = IBL / SMLMV</span>
+                            </p>
+                        </div>
+
+                        <!-- Numerical Substitution Step by Step -->
+                        <h4 class="text-xs font-bold text-slate-300 uppercase tracking-wider mb-3">Sustitución Numérica Paso a Paso</h4>
+
+                        <div class="space-y-3 text-xs">
+                            <!-- E1 Substitution -->
+                            <div class="p-3 bg-slate-900/60 rounded-lg border border-slate-800">
+                                <span class="font-bold text-gold-400 block mb-1">Escenario 1 (1 SMLMV - Toda la Vida):</span>
+                                <p class="font-mono text-slate-300 text-[11px]">
+                                    S = $5.419.479 / $2.567.372 = 2.11 SMLMV<br>
+                                    R = 65.5 - (0.5 &times; 2.11) = 64.44%<br>
+                                    PA = &lfloor;(1.419,30 - 1.000) / 50&rfloor; &times; 1.5% = 8 &times; 1.5% = 12.00%<br>
+                                    <span class="text-emerald-400 font-bold">TR = 64.44% + 12.00% = 76.44%</span>
+                                </p>
+                            </div>
+
+                            <!-- E2 Substitution -->
+                            <div class="p-3 bg-slate-900/60 rounded-lg border border-slate-800">
+                                <span class="font-bold text-gold-400 block mb-1">Escenario 2 (2 SMLMV - Toda la Vida):</span>
+                                <p class="font-mono text-slate-300 text-[11px]">
+                                    S = $6.261.102 / $2.567.372 = 2.44 SMLMV<br>
+                                    R = 65.5 - (0.5 &times; 2.44) = 64.28%<br>
+                                    PA = &lfloor;(1.419,30 - 1.000) / 50&rfloor; &times; 1.5% = 8 &times; 1.5% = 12.00%<br>
+                                    <span class="text-gold-400 font-bold">TR = 64.28% + 12.00% = 76.28%</span>
+                                </p>
+                            </div>
+
+                            <!-- E3 Substitution -->
+                            <div class="p-3 bg-slate-900/60 rounded-lg border border-slate-800">
+                                <span class="font-bold text-indigo-400 block mb-1">Escenario 3 (4 SMLMV - Últimos 10 Años):</span>
+                                <p class="font-mono text-slate-300 text-[11px]">
+                                    S = $9.244.298 / $2.567.372 = 3.60 SMLMV<br>
+                                    R = 65.5 - (0.5 &times; 3.60) = 63.70%<br>
+                                    PA = &lfloor;(1.419,30 - 1.000) / 50&rfloor; &times; 1.5% = 8 &times; 1.5% = 12.00%<br>
+                                    <span class="text-indigo-300 font-bold">TR = 63.70% + 12.00% = 75.70%</span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Columna Derecha (Card 2): Comparativa IBL & Badges de Sentencias -->
+                <div class="lg:col-span-6 flex flex-col gap-6">
+                    <!-- Tabla Comparativa: Toda la Vida vs Últimos 10 Años -->
+                    <div class="glass-card p-6 rounded-2xl">
+                        <h3 class="text-base font-bold text-white mb-2 flex items-center gap-2">
+                            <i class="fa-solid fa-arrows-split-up-and-left text-gold-500"></i>
+                            Comparativa de IBL: Toda la Vida vs Últimos 10 Años
+                        </h3>
+                        <p class="text-xs text-slate-400 mb-4">Demostración del punto de inflexión donde el decenio supera el promedio histórico.</p>
+
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-xs text-left">
+                                <thead class="text-[11px] text-slate-400 uppercase bg-slate-900 border-b border-slate-800">
+                                    <tr>
+                                        <th class="py-2.5 px-3">Escenario</th>
+                                        <th class="py-2.5 px-3">IBL Toda la Vida</th>
+                                        <th class="py-2.5 px-3">IBL Últimos 10 Años</th>
+                                        <th class="py-2.5 px-3 text-right">Opción Aplicada</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-800/80">
+                                    <tr>
+                                        <td class="py-3 px-3 font-semibold text-white">E1 (1 SMLMV)</td>
+                                        <td class="py-3 px-3 font-mono text-emerald-400 font-bold">$5.419.479</td>
+                                        <td class="py-3 px-3 font-mono text-slate-400">$2.179.378</td>
+                                        <td class="py-3 px-3 text-right"><span class="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 font-bold">Toda la Vida</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="py-3 px-3 font-semibold text-white">E2 (2 SMLMV)</td>
+                                        <td class="py-3 px-3 font-mono text-gold-400 font-bold">$6.261.102</td>
+                                        <td class="py-3 px-3 font-mono text-slate-400">$4.358.756</td>
+                                        <td class="py-3 px-3 text-right"><span class="px-2 py-0.5 rounded bg-gold-500/10 text-gold-400 font-bold">Toda la Vida</span></td>
+                                    </tr>
+                                    <tr class="bg-indigo-950/20">
+                                        <td class="py-3 px-3 font-semibold text-white">E3 (4 SMLMV)</td>
+                                        <td class="py-3 px-3 font-mono text-slate-400">$7.944.347</td>
+                                        <td class="py-3 px-3 font-mono text-indigo-300 font-bold">$9.244.298</td>
+                                        <td class="py-3 px-3 text-right"><span class="px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 font-bold">Últimos 10 Años</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Bloque de Sentencias Aplicadas -->
+                    <div class="glass-card p-6 rounded-2xl flex-1 flex flex-col justify-between">
+                        <div>
+                            <h3 class="text-base font-bold text-white mb-3 flex items-center gap-2">
+                                <i class="fa-solid fa-gavel text-amber-400"></i>
+                                Marco Normativo & Sentencias Clave
+                            </h3>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div class="p-3 bg-slate-900/80 rounded-xl border border-slate-800">
+                                    <span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 text-[10px] font-bold border border-amber-500/30">C-197/23</span>
+                                    <h4 class="text-xs font-bold text-slate-200 mt-1">Corte Constitucional</h4>
+                                    <p class="text-[11px] text-slate-400 mt-0.5">Reduce la exigencia mínima a 1.000 semanas para mujeres a 2037, liberando 419.30 semanas como bonificación pura (+12.00% TR).</p>
+                                </div>
+
+                                <div class="p-3 bg-slate-900/80 rounded-xl border border-slate-800">
+                                    <span class="px-2 py-0.5 rounded bg-blue-500/20 text-blue-300 text-[10px] font-bold border border-blue-500/30">Ley 797/03</span>
+                                    <h4 class="text-xs font-bold text-slate-200 mt-1">Art. 12 & 21</h4>
+                                    <p class="text-[11px] text-slate-400 mt-0.5">Define la fórmula de Tasa de Reemplazo R, el tope del 80% y el derecho a seleccionar el promedio más favorable (10 años vs Vida).</p>
+                                </div>
+
+                                <div class="p-3 bg-slate-900/80 rounded-xl border border-slate-800">
+                                    <span class="px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 text-[10px] font-bold border border-indigo-500/30">SL138/24</span>
+                                    <h4 class="text-xs font-bold text-slate-200 mt-1">Sala Laboral CSJ</h4>
+                                    <p class="text-[11px] text-slate-400 mt-0.5">Cómputo exacto de días calendario (365 días/año) para el cálculo preciso de semanas cotizadas continuas y discontinuas.</p>
+                                </div>
+
+                                <div class="p-3 bg-slate-900/80 rounded-xl border border-slate-800">
+                                    <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-[10px] font-bold border border-emerald-500/30">SL135/22</span>
+                                    <h4 class="text-xs font-bold text-slate-200 mt-1">Sala Laboral CSJ</h4>
+                                    <p class="text-[11px] text-slate-400 mt-0.5">Principio de la condición más beneficiosa e intocabilidad del número total de semanas acumuladas válidas.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 4: RETORNO DE INVERSIÓN (RIM) -->
+        <section id="tab-retorno" class="tab-content hidden flex-col gap-6">
+            <!-- Header Badge Obligatorio -->
+            <div class="flex justify-between items-center bg-slate-900/60 px-4 py-2 rounded-lg border border-slate-800">
+                <span class="text-xs text-slate-400"><i class="fa-solid fa-chart-pie text-gold-500 mr-1"></i> Análisis de Eficiencia del Capital y Retorno en Meses (RIM)</span>
+                <span class="text-xs font-semibold text-slate-300 bg-slate-800 px-3 py-1 rounded-full border border-slate-700">Elaborado por: CONSULTORES JURÍDICOS</span>
+            </div>
+
+            <!-- Tabla RIM Completa -->
+            <div class="glass-card p-6 rounded-2xl">
+                <h3 class="text-base font-bold text-white mb-2 flex items-center gap-2">
+                    <i class="fa-solid fa-clock-rotate-left text-gold-500"></i> Tabla Completa de Retorno de Inversión (RIM)
+                </h3>
+                <p class="text-xs text-slate-400 mb-4">
+                    Fórmula: <span class="font-mono text-gold-300">RIM = Total Inversión Seguridad Social / Mesada Neta Mensual</span> (Mesada Bruta menos 12% Descuento Salud)
+                </p>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-xs text-left text-slate-300">
+                        <thead class="text-[11px] text-slate-400 uppercase bg-slate-900 border-b border-slate-800">
+                            <tr>
+                                <th class="py-3 px-4">Escenario Evaluado</th>
+                                <th class="py-3 px-4">Mesada Bruta</th>
+                                <th class="py-3 px-4">Desc. Salud (12%)</th>
+                                <th class="py-3 px-4">Mesada Neta</th>
+                                <th class="py-3 px-4">Inversión Seg. Social (10 Años)</th>
+                                <th class="py-3 px-4 font-bold text-gold-400">Retorno en Meses (RIM)</th>
+                                <th class="py-3 px-4">Años Equiv.</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-800">
+                            <tr class="hover:bg-slate-900/40">
+                                <td class="py-3.5 px-4 font-semibold text-white">Escenario 1 (1 SMLMV)</td>
+                                <td class="py-3.5 px-4 font-mono">$4.142.650</td>
+                                <td class="py-3.5 px-4 font-mono text-rose-400">-$497.118</td>
+                                <td class="py-3.5 px-4 font-mono text-emerald-400 font-bold">$3.645.532</td>
+                                <td class="py-3.5 px-4 font-mono text-slate-200">$75.111.258</td>
+                                <td class="py-3.5 px-4 font-mono font-black text-emerald-400 text-sm">20.60 Meses</td>
+                                <td class="py-3.5 px-4 font-semibold text-slate-300">~1.7 Años</td>
+                            </tr>
+                            <tr class="hover:bg-slate-900/40 bg-gold-500/5">
+                                <td class="py-3.5 px-4 font-semibold text-gold-300">Escenario 2 (2 SMLMV) ★</td>
+                                <td class="py-3.5 px-4 font-mono">$4.775.968</td>
+                                <td class="py-3.5 px-4 font-mono text-rose-400">-$573.116</td>
+                                <td class="py-3.5 px-4 font-mono text-gold-400 font-bold">$4.202.852</td>
+                                <td class="py-3.5 px-4 font-mono text-slate-200">$150.222.515</td>
+                                <td class="py-3.5 px-4 font-mono font-black text-gold-400 text-sm">35.74 Meses</td>
+                                <td class="py-3.5 px-4 font-semibold text-slate-300">~3.0 Años</td>
+                            </tr>
+                            <tr class="hover:bg-slate-900/40">
+                                <td class="py-3.5 px-4 font-semibold text-white">Escenario 3 (4 SMLMV)</td>
+                                <td class="py-3.5 px-4 font-mono">$6.997.933</td>
+                                <td class="py-3.5 px-4 font-mono text-rose-400">-$839.752</td>
+                                <td class="py-3.5 px-4 font-mono text-indigo-300 font-bold">$6.158.181</td>
+                                <td class="py-3.5 px-4 font-mono text-slate-200">$310.986.960</td>
+                                <td class="py-3.5 px-4 font-mono font-black text-indigo-300 text-sm">50.50 Meses</td>
+                                <td class="py-3.5 px-4 font-semibold text-slate-300">~4.2 Años</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Desglose de Aportes a Seguridad Social & Simulación Flujo de Caja -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Desglose Aportes -->
+                <div class="glass-card p-6 rounded-2xl">
+                    <h3 class="text-sm font-bold text-white mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-receipt text-gold-500"></i> Desglose de Aportes Mensuales a Seguridad Social
+                    </h3>
+                    <div class="space-y-2 text-xs">
+                        <div class="p-2.5 bg-slate-900/80 rounded-lg flex justify-between items-center">
+                            <span>Pensión (16.0% IBC):</span>
+                            <span class="font-mono text-slate-200">Aporte Obligatorio Cobertura Base</span>
+                        </div>
+                        <div class="p-2.5 bg-slate-900/80 rounded-lg flex justify-between items-center">
+                            <span>Salud (12.5% IBC):</span>
+                            <span class="font-mono text-slate-200">Aporte Cotizante Activo</span>
+                        </div>
+                        <div class="p-2.5 bg-slate-900/80 rounded-lg flex justify-between items-center">
+                            <span>Fondo Solidaridad Pensional (FSP - 1.0%):</span>
+                            <span class="font-mono text-amber-400">Aplica solo en E3 (IBC &ge; 4 SMLMV)</span>
+                        </div>
+                    </div>
+                    <div class="mt-4 p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl text-[11px] text-amber-300">
+                        <i class="fa-solid fa-circle-info mr-1"></i> En E3, la proyección del decenio incluye <strong>$10.541.931 COP</strong> destinados exclusivamente al Fondo de Solidaridad Pensional.
+                    </div>
+                </div>
+
+                <!-- Simulación de Flujo de Caja Neto Acumulado -->
+                <div class="glass-card p-6 rounded-2xl">
+                    <h3 class="text-sm font-bold text-white mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-money-bill-trend-up text-emerald-400"></i>
+                        Simulación Flujo Acumulado Retorno
+                    </h3>
+                    <div class="space-y-3 text-xs">
+                        <div class="p-3 bg-slate-900/80 rounded-xl border border-slate-800">
+                            <div class="flex justify-between font-semibold text-slate-200 mb-1">
+                                <span>A 2 Años de Jubilado (24 Meses):</span>
+                            </div>
+                            <div class="grid grid-cols-3 gap-2 text-[11px] font-mono text-center">
+                                <div class="p-1.5 rounded bg-emerald-500/10 text-emerald-400">E1: +$12.381.510 (100% Rec.)</div>
+                                <div class="p-1.5 rounded bg-slate-800 text-slate-300">E2: Recup. 67.2%</div>
+                                <div class="p-1.5 rounded bg-slate-800 text-slate-300">E3: Recup. 47.5%</div>
+                            </div>
+                        </div>
+
+                        <div class="p-3 bg-slate-900/80 rounded-xl border border-slate-800">
+                            <div class="flex justify-between font-semibold text-slate-200 mb-1">
+                                <span>A 5 Años de Jubilado (60 Meses):</span>
+                            </div>
+                            <div class="grid grid-cols-3 gap-2 text-[11px] font-mono text-center">
+                                <div class="p-1.5 rounded bg-slate-800 text-emerald-400">E1: +$143.620.662 Netos</div>
+                                <div class="p-1.5 rounded bg-gold-500/10 text-gold-400">E2: +$101.948.605 Netos</div>
+                                <div class="p-1.5 rounded bg-indigo-500/10 text-indigo-300">E3: +$58.503.900 Netos</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 5: CRONOGRAMA & COTIZACIONES -->
+        <section id="tab-historial" class="tab-content hidden flex-col gap-6">
+            <!-- Header Badge Obligatorio -->
+            <div class="flex justify-between items-center bg-slate-900/60 px-4 py-2 rounded-lg border border-slate-800">
+                <span class="text-xs text-slate-400"><i class="fa-solid fa-calendar-check text-gold-500 mr-1"></i> Cronograma Decenal de Cotizaciones Proyectadas (2027 - 2037)</span>
+                <span class="text-xs font-semibold text-slate-300 bg-slate-800 px-3 py-1 rounded-full border border-slate-700">Elaborado por: CONSULTORES JURÍDICOS</span>
+            </div>
+
+            <!-- Top Controls & Search Bar -->
+            <div class="glass-card p-4 rounded-xl flex flex-col sm:flex-row justify-between items-center gap-4">
+                <div class="relative w-full sm:w-80">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 text-xs"></i>
+                    <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="Buscar por año, SMLMV o IBC..." class="w-full bg-slate-950 text-slate-200 text-xs rounded-lg pl-9 pr-4 py-2 border border-slate-800 focus:outline-none focus:border-gold-500 transition">
+                </div>
+                <div class="flex items-center gap-4 text-xs text-slate-400 w-full sm:w-auto justify-end">
+                    <span id="recordCount" class="bg-slate-900 px-3 py-1.5 rounded-lg border border-slate-800 font-mono text-gold-400 font-bold">Total Registros: 11 Años Proyectados</span>
+                </div>
+            </div>
+
+            <!-- Tabla de Cronograma Proyectado -->
+            <div class="glass-card rounded-2xl overflow-hidden">
+                <div class="max-h-[520px] overflow-y-auto">
+                    <table class="w-full text-xs text-left text-slate-300" id="cotizacionesTable">
+                        <thead class="text-[11px] text-slate-400 uppercase bg-slate-950 sticky top-0 border-b border-slate-800 z-10">
+                            <tr>
+                                <th class="py-3 px-4">Año</th>
+                                <th class="py-3 px-4">Inc. IPC Proyectado</th>
+                                <th class="py-3 px-4">Inc. Min. Proyectado</th>
+                                <th class="py-3 px-4">SMLMV Proyectado</th>
+                                <th class="py-3 px-4 text-emerald-400">E1: IBC (1 SMLMV)</th>
+                                <th class="py-3 px-4 text-gold-400">E2: IBC (2 SMLMV)</th>
+                                <th class="py-3 px-4 text-indigo-300">E3: IBC (4 SMLMV)</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-800/80 font-mono">
+                            <tr class="hover:bg-slate-900/50 bg-slate-900/20">
+                                <td class="py-3 px-4 font-bold text-white font-sans">2026 (Base)</td>
+                                <td class="py-3 px-4 text-slate-400">-</td>
+                                <td class="py-3 px-4 text-slate-400">-</td>
+                                <td class="py-3 px-4 text-slate-200">$1.750.905</td>
+                                <td class="py-3 px-4 text-slate-300">$1.750.905</td>
+                                <td class="py-3 px-4 text-slate-300">$3.501.810</td>
+                                <td class="py-3 px-4 text-slate-300">$7.003.620</td>
+                            </tr>
+                            <tr class="hover:bg-slate-900/50">
+                                <td class="py-3 px-4 font-bold text-white font-sans">2027</td>
+                                <td class="py-3 px-4 text-amber-400">4,00%</td>
+                                <td class="py-3 px-4 text-emerald-400">6,00%</td>
+                                <td class="py-3 px-4 text-slate-200">$1.855.959</td>
+                                <td class="py-3 px-4 text-slate-300">$1.855.959</td>
+                                <td class="py-3 px-4 text-slate-300">$3.711.919</td>
+                                <td class="py-3 px-4 text-slate-300">$7.423.837</td>
+                            </tr>
+                            <tr class="hover:bg-slate-900/50">
+                                <td class="py-3 px-4 font-bold text-white font-sans">2028</td>
+                                <td class="py-3 px-4 text-amber-400">3,00%</td>
+                                <td class="py-3 px-4 text-emerald-400">5,00%</td>
+                                <td class="py-3 px-4 text-slate-200">$1.948.757</td>
+                                <td class="py-3 px-4 text-slate-300">$1.948.757</td>
+                                <td class="py-3 px-4 text-slate-300">$3.897.515</td>
+                                <td class="py-3 px-4 text-slate-300">$7.795.029</td>
+                            </tr>
+                            <tr class="hover:bg-slate-900/50">
+                                <td class="py-3 px-4 font-bold text-white font-sans">2029</td>
+                                <td class="py-3 px-4 text-amber-400">2,00%</td>
+                                <td class="py-3 px-4 text-emerald-400">4,00%</td>
+                                <td class="py-3 px-4 text-slate-200">$2.026.708</td>
+                                <td class="py-3 px-4 text-slate-300">$2.026.708</td>
+                                <td class="py-3 px-4 text-slate-300">$4.053.415</td>
+                                <td class="py-3 px-4 text-slate-300">$8.106.830</td>
+                            </tr>
+                            <tr class="hover:bg-slate-900/50">
+                                <td class="py-3 px-4 font-bold text-white font-sans">2030</td>
+                                <td class="py-3 px-4 text-amber-400">1,00%</td>
+                                <td class="py-3 px-4 text-emerald-400">3,00%</td>
+                                <td class="py-3 px-4 text-slate-200">$2.087.509</td>
+                                <td class="py-3 px-4 text-slate-300">$2.087.509</td>
+                                <td class="py-3 px-4 text-slate-300">$4.175.018</td>
+                                <td class="py-3 px-4 text-slate-300">$8.350.035</td>
+                            </tr>
+                            <tr class="hover:bg-slate-900/50">
+                                <td class="py-3 px-4 font-bold text-white font-sans">2031</td>
+                                <td class="py-3 px-4 text-amber-400">1,00%</td>
+                                <td class="py-3 px-4 text-emerald-400">3,00%</td>
+                                <td class="py-3 px-4 text-slate-200">$2.150.134</td>
+                                <td class="py-3 px-4 text-slate-300">$2.150.134</td>
+                                <td class="py-3 px-4 text-slate-300">$4.300.268</td>
+                                <td class="py-3 px-4 text-slate-300">$8.600.536</td>
+                            </tr>
+                            <tr class="hover:bg-slate-900/50">
+                                <td class="py-3 px-4 font-bold text-white font-sans">2032</td>
+                                <td class="py-3 px-4 text-amber-400">1,00%</td>
+                                <td class="py-3 px-4 text-emerald-400">3,00%</td>
+                                <td class="py-3 px-4 text-slate-200">$2.214.638</td>
+                                <td class="py-3 px-4 text-slate-300">$2.214.638</td>
+                                <td class="py-3 px-4 text-slate-300">$4.429.276</td>
+                                <td class="py-3 px-4 text-slate-300">$8.858.552</td>
+                            </tr>
+                            <tr class="hover:bg-slate-900/50">
+                                <td class="py-3 px-4 font-bold text-white font-sans">2033</td>
+                                <td class="py-3 px-4 text-amber-400">1,00%</td>
+                                <td class="py-3 px-4 text-emerald-400">3,00%</td>
+                                <td class="py-3 px-4 text-slate-200">$2.281.077</td>
+                                <td class="py-3 px-4 text-slate-300">$2.281.077</td>
+                                <td class="py-3 px-4 text-slate-300">$4.562.154</td>
+                                <td class="py-3 px-4 text-slate-300">$9.124.309</td>
+                            </tr>
+                            <tr class="hover:bg-slate-900/50">
+                                <td class="py-3 px-4 font-bold text-white font-sans">2034</td>
+                                <td class="py-3 px-4 text-amber-400">1,00%</td>
+                                <td class="py-3 px-4 text-emerald-400">3,00%</td>
+                                <td class="py-3 px-4 text-slate-200">$2.349.510</td>
+                                <td class="py-3 px-4 text-slate-300">$2.349.510</td>
+                                <td class="py-3 px-4 text-slate-300">$4.699.019</td>
+                                <td class="py-3 px-4 text-slate-300">$9.398.038</td>
+                            </tr>
+                            <tr class="hover:bg-slate-900/50">
+                                <td class="py-3 px-4 font-bold text-white font-sans">2035</td>
+                                <td class="py-3 px-4 text-amber-400">1,00%</td>
+                                <td class="py-3 px-4 text-emerald-400">3,00%</td>
+                                <td class="py-3 px-4 text-slate-200">$2.419.995</td>
+                                <td class="py-3 px-4 text-slate-300">$2.419.995</td>
+                                <td class="py-3 px-4 text-slate-300">$4.839.990</td>
+                                <td class="py-3 px-4 text-slate-300">$9.679.979</td>
+                            </tr>
+                            <tr class="hover:bg-slate-900/50">
+                                <td class="py-3 px-4 font-bold text-white font-sans">2036</td>
+                                <td class="py-3 px-4 text-amber-400">1,00%</td>
+                                <td class="py-3 px-4 text-emerald-400">3,00%</td>
+                                <td class="py-3 px-4 text-slate-200">$2.492.595</td>
+                                <td class="py-3 px-4 text-slate-300">$2.492.595</td>
+                                <td class="py-3 px-4 text-slate-300">$4.985.189</td>
+                                <td class="py-3 px-4 text-slate-300">$9.970.379</td>
+                            </tr>
+                            <tr class="hover:bg-slate-900/50 bg-amber-500/10">
+                                <td class="py-3 px-4 font-bold text-gold-400 font-sans">2037 (Enero - Pensión)</td>
+                                <td class="py-3 px-4 text-amber-400">1,00%</td>
+                                <td class="py-3 px-4 text-emerald-400">3,00%</td>
+                                <td class="py-3 px-4 text-gold-300 font-bold">$2.567.372</td>
+                                <td class="py-3 px-4 text-gold-300 font-bold">$2.567.372</td>
+                                <td class="py-3 px-4 text-gold-300 font-bold">$5.134.745</td>
+                                <td class="py-3 px-4 text-gold-300 font-bold">$10.269.490</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 6: DICTAMEN ESTRATÉGICO & CERTIFICACIÓN -->
+        <section id="tab-dictamen" class="tab-content hidden flex-col gap-6">
+            <!-- Header Badge Obligatorio -->
+            <div class="flex justify-between items-center bg-slate-900/60 px-4 py-2 rounded-lg border border-slate-800">
+                <span class="text-xs text-slate-400"><i class="fa-solid fa-certificate text-gold-500 mr-1"></i> Dictamen Estratégico Final y Certificación de Auditoría</span>
+                <span class="text-xs font-semibold text-slate-300 bg-slate-800 px-3 py-1 rounded-full border border-slate-700">Elaborado por: CONSULTORES JURÍDICOS</span>
+            </div>
+
+            <!-- Tarjeta Dorada de Dictamen Técnico Ejecutivo -->
+            <div class="glass-card p-6 rounded-2xl gold-border-glow bg-gradient-to-r from-slate-900 via-amber-950/20 to-slate-900">
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="w-10 h-10 rounded-xl bg-gold-500/20 flex items-center justify-center text-gold-400 text-xl border border-gold-500/30">
+                        <i class="fa-solid fa-user-tie"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-white">Dictamen Técnico Estratégico</h3>
+                        <p class="text-xs text-slate-400">Evaluación del perfil financiero e inversión pensional proyectada para Sra. Gloria Catalina Galeano</p>
+                    </div>
+                </div>
+                <div class="text-xs text-slate-300 leading-relaxed space-y-3 pt-2">
+                    <p>
+                        Basados en la auditoría cuantitativa y actuarial realizada bajo el régimen de Colpensiones (Ley 797 de 2003 y Sentencia C-197/2023), felicitamos cordialmente a la cliente por emprender esta planificación preventiva. Con una proyección constante de <strong>1.419,30 semanas</strong> al cumplir los 57 años en enero de 2037, la cliente cuenta con un perfil altamente privilegiado que captura una <strong>bonificación directa del 12.00% en su Tasa de Reemplazo</strong> por excedente de semanas.
+                    </p>
+                    <p>
+                        <strong>Recomendación Final:</strong> Si la cliente dispone de capacidad holgada de flujo de caja durante el próximo decenio (2027-2037), el <strong>Escenario 2 (2 SMLMV)</strong> ofrece el equilibrio más aconsejable para preservar rentabilidad (recuperación en apenas 3 años / 35.7 meses) aumentando la mesada neta a <strong>$4.202.852 COP</strong>. Por otra parte, si el objetivo primario es garantizar el máximo nivel de ingresos mensuales absolutos para la etapa de retiro, el <strong>Escenario 3 (4 SMLMV)</strong> captura la mesada más alta posible (<strong>$6.997.933 COP Bruta</strong> / <strong>$6.158.181 COP Neta</strong>), amortizando el capital invertido adicional en un periodo racional de 6.8 años.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Centro: 3 Tarjetas de Veredicto -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                <div class="glass-card p-5 rounded-xl border border-slate-800">
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">Alternativa Inmediata / Eficiente</span>
+                    <h4 class="text-base font-bold text-white mt-2">Escenario 1 (1 SMLMV)</h4>
+                    <p class="text-xs text-slate-400 mt-1">Inversión mínima requerida ($75.1M). Insuperable tasa de retorno del capital en apenas 20.6 meses de disfrute.</p>
+                    <div class="mt-4 pt-3 border-t border-slate-800 flex justify-between items-center text-xs">
+                        <span class="text-slate-400">Mesada Neta:</span>
+                        <span class="font-mono font-bold text-emerald-400">$3.645.532</span>
+                    </div>
+                </div>
+
+                <div class="glass-card p-5 rounded-xl border border-gold-500/50 bg-gold-500/5">
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-gold-300 bg-gold-500/20 px-2 py-0.5 rounded border border-gold-500/30">Alternativa Recomendada</span>
+                    <h4 class="text-base font-bold text-white mt-2">Escenario 2 (2 SMLMV)</h4>
+                    <p class="text-xs text-slate-400 mt-1">Punto de equilibrio perfecto entre liquidez mensual presente y un incremento relevante sostenido de por vida.</p>
+                    <div class="mt-4 pt-3 border-t border-slate-800 flex justify-between items-center text-xs">
+                        <span class="text-slate-400">Mesada Neta:</span>
+                        <span class="font-mono font-bold text-gold-400">$4.202.852</span>
+                    </div>
+                </div>
+
+                <div class="glass-card p-5 rounded-xl border border-slate-800">
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-indigo-300 bg-indigo-500/10 px-2 py-0.5 rounded border border-indigo-500/20">Alternativa Máxima Pensión</span>
+                    <h4 class="text-base font-bold text-white mt-2">Escenario 3 (4 SMLMV)</h4>
+                    <p class="text-xs text-slate-400 mt-1">Maximización absoluta del flujo de caja mensual. Dispara el promedio del IBL sobre los últimos 10 años.</p>
+                    <div class="mt-4 pt-3 border-t border-slate-800 flex justify-between items-center text-xs">
+                        <span class="text-slate-400">Mesada Neta:</span>
+                        <span class="font-mono font-bold text-indigo-300">$6.158.181</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pie de Página: Certificación Invariable -->
+            <div class="glass-card p-6 rounded-2xl bg-slate-950 border border-slate-800 flex flex-col md:flex-row items-center justify-between gap-6">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 flex items-center justify-center text-gold-400 text-2xl shadow-inner">
+                        <i class="fa-solid fa-file-contract"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-bold text-white">Certificación y Validación del Estudio Pensional</h4>
+                        <p class="text-xs text-slate-400 mt-0.5">Informe auditado y validado actuarialmente bajo normativa colombiana vigente.</p>
+                        <div class="flex items-center gap-4 text-[11px] text-slate-400 mt-2">
+                            <span><i class="fa-regular fa-calendar-check mr-1 text-gold-500"></i> Validez: 20/08/2026</span>
+                            <span><i class="fa-solid fa-gavel mr-1 text-gold-500"></i> Ley 797/2003 & C-197/2023</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 text-right min-w-[260px] w-full md:w-auto">
+                    <p class="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Empresa Liquidadora</p>
+                    <p class="text-base font-extrabold text-gold-400 mt-0.5">CONSULTORES JURÍDICOS</p>
+                    <p class="text-xs text-slate-300 font-medium mt-1">DRA. SANDRA MILENA GALEANO</p>
+                    <span class="text-[10px] text-emerald-400 font-mono mt-1 block"><i class="fa-solid fa-check-double mr-1"></i> Dictamen Firma Digital Autorizada</span>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="border-t border-slate-800/80 bg-slate-950 py-6 mt-12">
+        <div class="max-w-7xl mx-auto px-4 text-center text-xs text-slate-400">
+            <p>© 2026 <strong>Su Pensión Plus</strong> — Plataforma Ejecutiva de Liquidación & Auditoría Pensional. Todos los derechos reservados.</p>
+            <p class="mt-1 text-[11px] text-slate-400">Estudio emitido por CONSULTORES JURÍDICOS para Gloria Catalina Galeano Gallón (C.C. 43.203.461)</p>
+        </div>
+    </footer>
+
+    <!-- INTERACTIVE JAVASCRIPT LOGIC -->
+    <script>
+        // Tab Switching Logic
+        function switchTab(tabId) {
+            // Hide all tab content
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(content => {
+                content.classList.add('hidden');
+                content.classList.remove('flex');
+            });
+
+            // Deactivate all tab buttons
+            const tabs = document.querySelectorAll('.nav-tab');
+            tabs.forEach(tab => {
+                tab.classList.remove('active', 'text-gold-400');
+                tab.classList.add('text-slate-400');
+            });
+
+            // Show target content
+            const targetContent = document.getElementById(tabId);
+            if (targetContent) {
+                targetContent.classList.remove('hidden');
+                targetContent.classList.add('flex');
+            }
+
+            // Activate target button
+            const targetBtn = document.getElementById('btn-' + tabId);
+            if (targetBtn) {
+                targetBtn.classList.add('active');
+                targetBtn.classList.remove('text-slate-400');
+            }
+        }
+
+        // Table Filtering Function
+        function filterTable() {
+            const input = document.getElementById("searchInput");
+            const filter = input.value.toUpperCase();
+            const table = document.getElementById("cotizacionesTable");
+            const tr = table.getElementsByTagName("tr");
+            let visibleCount = 0;
+
+            for (let i = 1; i < tr.length; i++) {
+                let show = false;
+                const tds = tr[i].getElementsByTagName("td");
+                for (let j = 0; j < tds.length; j++) {
+                    if (tds[j]) {
+                        const txtValue = tds[j].textContent || tds[j].innerText;
+                        if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                            show = true;
+                            break;
+                        }
+                    }
+                }
+                if (show) {
+                    tr[i].style.display = "";
+                    visibleCount++;
+                } else {
+                    tr[i].style.display = "none";
+                }
+            }
+
+            document.getElementById("recordCount").innerText = `Total Registros: ${visibleCount} Visibles`;
+        }
+
+        // Chart.js Initialization
+        document.addEventListener('DOMContentLoaded', function() {
+            const ctx = document.getElementById('chartResumen').getContext('2d');
+            
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Escenario 1 (1 SMLMV)', 'Escenario 2 (2 SMLMV)', 'Escenario 3 (4 SMLMV)'],
+                    datasets: [
+                        {
+                            label: 'Mesada Bruta Mensual ($)',
+                            data: [4142650, 4775968, 6997933],
+                            backgroundColor: 'rgba(212, 175, 55, 0.85)',
+                            borderColor: '#D4AF37',
+                            borderWidth: 1.5,
+                            borderRadius: 8,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: 'Inversión Seg. Social Decenio ($)',
+                            data: [75111258, 150222515, 310986960],
+                            backgroundColor: 'rgba(99, 102, 241, 0.4)',
+                            borderColor: '#818CF8',
+                            borderWidth: 1.5,
+                            borderRadius: 8,
+                            type: 'line',
+                            tension: 0.3,
+                            pointRadius: 6,
+                            pointBackgroundColor: '#818CF8',
+                            yAxisID: 'y1'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#94A3B8',
+                                font: {
+                                    family: 'Plus Jakarta Sans',
+                                    size: 11
+                                }
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: '#0F172A',
+                            titleColor: '#F8FAFC',
+                            bodyColor: '#CBD5E1',
+                            borderColor: '#334155',
+                            borderWidth: 1,
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.y !== null) {
+                                        label += new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(context.parsed.y);
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: { color: '#94A3B8', font: { size: 11 } },
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' }
+                        },
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            ticks: { 
+                                color: '#D4AF37',
+                                callback: function(value) {
+                                    return '$' + (value / 1000000).toFixed(1) + 'M';
+                                }
+                            },
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            ticks: { 
+                                color: '#818CF8',
+                                callback: function(value) {
+                                    return '$' + (value / 1000000).toFixed(0) + 'M';
+                                }
+                            },
+                            grid: { drawOnChartArea: false }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
