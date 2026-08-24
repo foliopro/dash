@@ -1,0 +1,1128 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Su Pensión Plus - Portal Ejecutivo de Liquidaciones Pensionales</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome 6 CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Google Fonts: Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        darkBg: '#070B14',
+                        cardBg: '#0F172A',
+                        goldAccent: '#D4AF37',
+                        goldLight: '#FDE047',
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #070B14;
+            color: #E2E8F0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(212, 175, 55, 0.15);
+        }
+        .glass-panel-login {
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(212, 175, 55, 0.25);
+        }
+        .gold-gradient-text {
+            background: linear-gradient(135deg, #FFF5C0 0%, #D4AF37 50%, #996515 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .gold-border-glow {
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.2);
+            border: 1px solid #D4AF37;
+        }
+        .tab-btn.active {
+            border-bottom: 3px solid #D4AF37;
+            color: #FDE047;
+            background: rgba(212, 175, 55, 0.1);
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #070B14;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1E293B;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #D4AF37;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between">
+
+    <!-- ========================================== -->
+    <!-- 0. PANTALLA DE ACCESO Y SEGURIDAD (LOGIN)  -->
+    <!-- ========================================== -->
+    <div id="login-screen" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#070B14] bg-opacity-95">
+        <div class="glass-panel-login w-full max-w-md p-8 rounded-2xl shadow-2xl relative overflow-hidden">
+            <!-- Glow Effect -->
+            <div class="absolute -top-10 -left-10 w-32 h-32 bg-yellow-500/10 rounded-full blur-3xl pointer-events-none"></div>
+            
+            <div class="text-center mb-8">
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-yellow-500/10 border border-yellow-500/30 mb-4">
+                    <i class="fa-solid font-bold text-2xl text-yellow-400 fa-shield-halved"></i>
+                </div>
+                <h1 class="text-2xl font-extrabold tracking-wider uppercase gold-gradient-text">SU PENSIÓN PLUS</h1>
+                <p class="text-xs text-slate-400 mt-1 uppercase tracking-widest font-semibold">Portal Privado de Liquidaciones Pensionales</p>
+                
+                <div class="mt-3 inline-block px-3 py-1 rounded-full bg-slate-800/80 border border-slate-700 text-[11px] text-slate-300">
+                    <i class="fa-solid fa-building border-r border-slate-700 pr-2 mr-1 text-yellow-400"></i> Elaborado por: <span class="font-bold text-white">GÓMEZ ASESORÍAS</span>
+                </div>
+            </div>
+
+            <form id="login-form" onsubmit="validateLogin(event)" class="space-y-5">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
+                        <i class="fa-solid fa-id-card mr-1 text-yellow-500/70"></i> N° de Cédula (Usuario)
+                    </label>
+                    <div class="relative">
+                        <input type="password" id="login-user" required autocomplete="off" placeholder="••••••••••"
+                            class="w-full px-4 py-3 bg-slate-900/90 border border-slate-700 rounded-xl text-white placeholder-slate-600 focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 tracking-widest text-lg font-mono transition-all">
+                        <span class="absolute right-3 top-3.5 text-xs text-slate-500 font-mono">CC</span>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
+                        <i class="fa-solid fa-key mr-1 text-yellow-500/70"></i> Contraseña (Últimos 4 dígitos)
+                    </label>
+                    <input type="password" id="login-pass" maxlength="4" required autocomplete="off" placeholder="••••"
+                        class="w-full px-4 py-3 bg-slate-900/90 border border-slate-700 rounded-xl text-white placeholder-slate-600 focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 tracking-widest text-lg font-mono transition-all">
+                </div>
+
+                <div id="login-error" class="hidden text-xs text-red-400 bg-red-950/50 border border-red-800 p-3 rounded-lg text-center font-medium">
+                    <i class="fa-solid fa-circle-exclamation mr-1"></i> Credenciales no válidas. Ingrese su N° de Cédula y los últimos 4 dígitos.
+                </div>
+
+                <button type="submit" 
+                    class="w-full py-3.5 px-6 rounded-xl font-bold text-slate-950 bg-gradient-to-r from-yellow-400 via-amber-400 to-yellow-500 hover:from-yellow-300 hover:to-amber-400 shadow-lg shadow-yellow-500/20 transition-all transform hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2 text-sm uppercase tracking-wider">
+                    <span>Ingresar al Portal Ejecutivo</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </form>
+
+            <div class="mt-8 pt-4 border-t border-slate-800/80 text-center text-[11px] text-slate-500">
+                <i class="fa-solid fa-lock mr-1"></i> Encriptación Local Sensible • Autenticación de Cliente Actuarial
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ========================================== -->
+    <!-- MAIN DASHBOARD CONTENT (OCULTO INICIALMENTE) -->
+    <!-- ========================================== -->
+    <div id="main-dashboard" class="hidden min-h-screen flex-col">
+
+        <!-- HEADER PRINCIPAL PLATAFORMA -->
+        <header class="border-b border-slate-800 bg-slate-950/80 sticky top-0 z-40 backdrop-blur-md">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex items-center justify-between h-20">
+                    
+                    <!-- BRAND -->
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-400 to-amber-600 flex items-center justify-center text-slate-950 font-black text-xl shadow-lg shadow-yellow-500/20">
+                            <i class="fa-solid fa-chart-line"></i>
+                        </div>
+                        <div>
+                            <div class="text-lg font-black tracking-wider text-white flex items-center gap-2">
+                                SU PENSIÓN PLUS
+                                <span class="text-[10px] bg-yellow-500/10 border border-yellow-500/30 text-yellow-400 px-2 py-0.5 rounded font-mono">PRO V2.4</span>
+                            </div>
+                            <div class="text-xs text-slate-400 font-medium">Expertos en Liquidación de Pensiones</div>
+                        </div>
+                    </div>
+
+                    <!-- USER / ENTERPRISE BADGE -->
+                    <div class="flex items-center gap-4">
+                        <div class="hidden md:flex flex-col items-end text-xs">
+                            <span class="text-slate-400">Asegurado Auditado:</span>
+                            <span class="font-bold text-white text-sm" id="user-display-name">ROBERTO GOMEZ ESCOBAR</span>
+                            <span class="text-slate-500 font-mono" id="user-display-id">C.C. 10.264.899</span>
+                        </div>
+                        <button onclick="logout()" class="px-3 py-2 text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg transition-colors border border-slate-700">
+                            <i class="fa-solid fa-right-from-bracket"></i> Salir
+                        </button>
+                    </div>
+
+                </div>
+
+                <!-- NAVEGACIÓN PESTAÑAS -->
+                <nav class="flex overflow-x-auto gap-2 border-t border-slate-800/60 pt-1 -mb-px font-medium text-xs sm:text-sm">
+                    <button onclick="switchTab('tab-resumen')" id="btn-tab-resumen" class="tab-btn active px-4 py-3 flex items-center gap-2 rounded-t-lg transition-all whitespace-nowrap">
+                        <i class="fa-solid fa-chart-pie text-yellow-500"></i> Resumen Ejecutivo
+                    </button>
+                    <button onclick="switchTab('tab-escenarios')" id="btn-tab-escenarios" class="tab-btn px-4 py-3 flex items-center gap-2 rounded-t-lg transition-all text-slate-400 hover:text-slate-200 whitespace-nowrap">
+                        <i class="fa-solid fa-layer-group text-yellow-500"></i> Escenarios Comparativos (4)
+                    </button>
+                    <button onclick="switchTab('tab-liquidacion')" id="btn-tab-liquidacion" class="tab-btn px-4 py-3 flex items-center gap-2 rounded-t-lg transition-all text-slate-400 hover:text-slate-200 whitespace-nowrap">
+                        <i class="fa-solid fa-calculator text-yellow-500"></i> Liquidación IBL & Fórmulas
+                    </button>
+                    <button onclick="switchTab('tab-retorno')" id="btn-tab-retorno" class="tab-btn px-4 py-3 flex items-center gap-2 rounded-t-lg transition-all text-slate-400 hover:text-slate-200 whitespace-nowrap">
+                        <i class="fa-solid fa-hand-holding-dollar text-yellow-500"></i> Retorno de Inversión (RIM)
+                    </button>
+                    <button onclick="switchTab('tab-historial')" id="btn-tab-historial" class="tab-btn px-4 py-3 flex items-center gap-2 rounded-t-lg transition-all text-slate-400 hover:text-slate-200 whitespace-nowrap">
+                        <i class="fa-solid fa-clock-rotate-left text-yellow-500"></i> Cronograma & Cotizaciones
+                    </button>
+                    <button onclick="switchTab('tab-dictamen')" id="btn-tab-dictamen" class="tab-btn px-4 py-3 flex items-center gap-2 rounded-t-lg transition-all text-slate-400 hover:text-slate-200 whitespace-nowrap">
+                        <i class="fa-solid fa-certificate text-yellow-500"></i> Dictamen & Certificación
+                    </button>
+                </nav>
+            </div>
+        </header>
+
+
+        <!-- CONTENIDO PRINCIPAL -->
+        <main class="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1">
+
+            <!-- ========================================== -->
+            <!-- PESTAÑA 1: RESUMEN EJECUTIVO (tab-resumen) -->
+            <!-- ========================================== -->
+            <div id="tab-resumen" class="tab-content space-y-6">
+                
+                <!-- SUBCABECERA OBLIGATORIA -->
+                <div class="flex justify-between items-center bg-slate-900/40 p-3 rounded-xl border border-slate-800">
+                    <div class="text-xs text-slate-400 font-mono uppercase tracking-wider">
+                        <i class="fa-solid fa-file-invoice text-yellow-500 mr-2"></i>ESTUDIO ACTUARIAL DE PROYECCIÓN PENSIONAL • TIPO A (4 ESCENARIOS)
+                    </div>
+                    <div class="bg-yellow-500/10 border border-yellow-500/30 text-yellow-400 px-3 py-1 rounded-full text-xs font-bold">
+                        Elaborado por: GÓMEZ ASESORÍAS
+                    </div>
+                </div>
+
+                <!-- BANNER BIENVENIDA -->
+                <div class="glass-panel p-6 rounded-2xl relative overflow-hidden border-l-4 border-l-yellow-500">
+                    <div class="flex flex-col lg:flex-row justify-between lg:items-center gap-4">
+                        <div>
+                            <span class="text-xs font-bold uppercase tracking-widest text-yellow-400">Informe Técnico Consolidado</span>
+                            <h2 class="text-2xl font-extrabold text-white mt-1">Titular: ROBERTO GOMEZ ESCOBAR</h2>
+                            <p class="text-slate-300 text-sm mt-2 max-w-3xl">
+                                Conclusión Clave: Se ha evaluado su historial actuarial al <strong class="text-white">31/08/2026</strong>. La opción legalmente más favorable en todos los escenarios es tomar el promedio IBL de los <span class="text-yellow-400 font-semibold">Últimos 10 Años</span> ($4.467.893 base vs $3.263.712 toda la vida). Efectuar optimizaciones salariales (Escenario 4) incrementa su mesada bruta hasta en <strong class="text-yellow-400">$3.883.466 COP/mes</strong>.
+                            </p>
+                        </div>
+                        <div class="flex flex-wrap lg:flex-col gap-2 text-xs text-slate-400 border-t lg:border-t-0 lg:border-l border-slate-800 pt-3 lg:pt-0 lg:pl-6 min-w-[200px]">
+                            <div><strong class="text-slate-200">Cédula:</strong> 10.264.899</div>
+                            <div><strong class="text-slate-200">Edad Actual:</strong> 62 años (13/06/1964)</div>
+                            <div><strong class="text-slate-200">Fecha Liquidación:</strong> 31/08/2026</div>
+                            <div><strong class="text-slate-200">SMLMV 2026:</strong> $1.750.905</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FILA 1: GRID 4 KPIS FIJOS -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    
+                    <!-- KPI 1 -->
+                    <div class="glass-panel p-5 rounded-xl flex flex-col justify-between relative">
+                        <div class="text-xs text-slate-400 font-bold uppercase tracking-wider">Mesada Máxima Proyectada</div>
+                        <div class="text-2xl font-black gold-gradient-text my-2">$3.883.466 <span class="text-xs font-normal text-slate-400">COP</span></div>
+                        <div class="text-[11px] text-emerald-400 font-semibold flex items-center gap-1">
+                            <i class="fa-solid fa-arrow-up-right"></i> Escenario 4 (+$813.130 vs Base)
+                        </div>
+                    </div>
+
+                    <!-- KPI 2 -->
+                    <div class="glass-panel p-5 rounded-xl flex flex-col justify-between border-l-2 border-l-yellow-400">
+                        <div class="text-xs text-slate-400 font-bold uppercase tracking-wider">Opción Recomendada / Eficiente</div>
+                        <div class="text-2xl font-black text-white my-2">$3.748.699 <span class="text-xs font-normal text-slate-400">COP</span></div>
+                        <div class="text-[11px] text-yellow-400 font-semibold flex items-center gap-1">
+                            <i class="fa-solid fa-bolt"></i> Escenario 3 (RIM Rápido: 15.2 Meses)
+                        </div>
+                    </div>
+
+                    <!-- KPI 3 -->
+                    <div class="glass-panel p-5 rounded-xl flex flex-col justify-between">
+                        <div class="text-xs text-slate-400 font-bold uppercase tracking-wider">Mesada Base Inmediata</div>
+                        <div class="text-2xl font-black text-slate-200 my-2">$3.070.336 <span class="text-xs font-normal text-slate-400">COP</span></div>
+                        <div class="text-[11px] text-slate-400 flex items-center gap-1">
+                            <i class="fa-solid fa-clock"></i> Escenario 1 (1.482,74 W. - Sin Inversión)
+                        </div>
+                    </div>
+
+                    <!-- KPI 4 -->
+                    <div class="glass-panel p-5 rounded-xl flex flex-col justify-between">
+                        <div class="text-xs text-slate-400 font-bold uppercase tracking-wider">Bonificación Semanas / TR</div>
+                        <div class="text-2xl font-black text-white my-2">76,22% <span class="text-xs font-normal text-slate-400">TR Máx</span></div>
+                        <div class="text-[11px] text-yellow-500 font-semibold flex items-center gap-1">
+                            <i class="fa-solid fa-award"></i> Escenario 2 (+248,57 W. adicionales)
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- FILA 2: LAYOUT DIVIDIDO 7:5 -->
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    
+                    <!-- COLUMNA IZQUIERDA (7 COLS): GRÁFICO CHART.JS -->
+                    <div class="lg:col-span-7 glass-panel p-6 rounded-2xl flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="font-bold text-white text-base flex items-center gap-2">
+                                    <i class="fa-solid fa-chart-column text-yellow-500"></i> Comparativa de Mesada Bruta vs. Inversión Requerida
+                                </h3>
+                                <span class="text-xs text-slate-400 font-mono">COP ($)</span>
+                            </div>
+                            <div class="h-64 relative">
+                                <canvas id="chartResumen"></canvas>
+                            </div>
+                        </div>
+                        <div class="mt-4 pt-3 border-t border-slate-800/80 text-xs text-slate-400 flex justify-between">
+                            <span>* El Escenario 3 otorga la mayor mesada por peso invertido.</span>
+                            <span class="text-yellow-400 font-mono">IPC Base 2018</span>
+                        </div>
+                    </div>
+
+                    <!-- COLUMNA DERECHA (5 COLS): HALLAZGOS Y ALERTAS -->
+                    <div class="lg:col-span-5 glass-panel p-6 rounded-2xl flex flex-col justify-between">
+                        <div>
+                            <h3 class="font-bold text-white text-base mb-4 flex items-center gap-2">
+                                <i class="fa-solid fa-triangle-exclamation text-yellow-500"></i> Hallazgos y Alertas Técnicas
+                            </h3>
+                            <div class="space-y-3">
+                                
+                                <div class="bg-slate-900/80 p-3.5 rounded-xl border border-slate-800 text-xs">
+                                    <div class="font-bold text-yellow-400 mb-1 flex items-center gap-1.5">
+                                        <i class="fa-solid fa-shield-cat"></i> Penalización Severa por Mora (E2)
+                                    </div>
+                                    <p class="text-slate-300">
+                                        En el Escenario 2, el 84.1% del pago ($139.772.700) corresponde a mora retrospectiva de 2005-2009. Sin omisión patronal declarada, destruye la rentabilidad del capital.
+                                    </p>
+                                </div>
+
+                                <div class="bg-slate-900/80 p-3.5 rounded-xl border border-slate-800 text-xs">
+                                    <div class="font-bold text-emerald-400 mb-1 flex items-center gap-1.5">
+                                        <i class="fa-solid fa-chart-line"></i> Alta Eficiencia Financiera en E3 y E4
+                                    </div>
+                                    <p class="text-slate-300">
+                                        Subir el IBC en 2023-2025 genera incrementos de mesada neta de +$596.959/mes (E3) y +$715.554/mes (E4), recuperando el capital en apenas 15.2 y 17.6 meses.
+                                    </p>
+                                </div>
+
+                                <div class="bg-slate-900/80 p-3.5 rounded-xl border border-slate-800 text-xs">
+                                    <div class="font-bold text-slate-200 mb-1 flex items-center gap-1.5">
+                                        <i class="fa-solid fa-circle-check"></i> Requisito de Semanas Cumplido
+                                    </div>
+                                    <p class="text-slate-300">
+                                        Con 1.482,74 semanas acumuladas al 31/08/2026, el cliente supera el mínimo legal de 1.300 semanas (Ley 797/03), habilitando el goce pensional inmediato en E1.
+                                    </p>
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="mt-4 pt-3 border-t border-slate-800/80 text-[11px] text-slate-500 text-center">
+                            Verificación bajo Ley 797/03 y Sentencia SL135/2022
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- ========================================== -->
+            <!-- PESTAÑA 2: ESCENARIOS COMPARATIVOS (tab-escenarios) -->
+            <!-- ========================================== -->
+            <div id="tab-escenarios" class="tab-content hidden space-y-6">
+                
+                <div class="flex justify-between items-center bg-slate-900/40 p-3 rounded-xl border border-slate-800">
+                    <div class="text-xs text-slate-400 font-mono uppercase tracking-wider">
+                        <i class="fa-solid fa-code-compare text-yellow-500 mr-2"></i>EVALUACIÓN MATRICIAL DE ESCENARIOS PENSIONALES (4 OPCIONES)
+                    </div>
+                    <div class="bg-yellow-500/10 border border-yellow-500/30 text-yellow-400 px-3 py-1 rounded-full text-xs font-bold">
+                        Elaborado por: GÓMEZ ASESORÍAS
+                    </div>
+                </div>
+
+                <!-- GRID ADAPTATIVO: 4 CARDS -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+                    
+                    <!-- ESCENARIO 1 -->
+                    <div class="glass-panel p-5 rounded-2xl flex flex-col justify-between relative border border-slate-800">
+                        <div>
+                            <div class="flex justify-between items-center mb-3">
+                                <span class="bg-slate-800 text-slate-300 text-[10px] font-bold px-2.5 py-1 rounded-md uppercase">E1 • Base Actual</span>
+                                <span class="text-slate-500 text-xs font-mono">Sin Inversión</span>
+                            </div>
+                            <h4 class="text-lg font-bold text-white mb-1">Pensión Inmediata</h4>
+                            <p class="text-xs text-slate-400 mb-4 h-10">Liquidación con 1.482,74 semanas acumuladas al 31/08/2026. Sin desembolsos adicionales.</p>
+                            
+                            <div class="space-y-2 border-t border-b border-slate-800/80 py-3 mb-4 text-xs">
+                                <div class="flex justify-between"><span class="text-slate-400">IBL (10 Años):</span> <span class="font-mono text-white">$4.467.893</span></div>
+                                <div class="flex justify-between"><span class="text-slate-400">Tasa Reemplazo:</span> <span class="font-mono text-white">68,72%</span></div>
+                                <div class="flex justify-between"><span class="text-slate-400">Semanas Cotizadas:</span> <span class="font-mono text-white">1.482,74</span></div>
+                                <div class="flex justify-between"><span class="text-slate-400">Inversión Total:</span> <span class="font-mono text-slate-400">$0</span></div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="text-xs text-slate-400">Mesada Bruta Mensual</div>
+                            <div class="text-2xl font-black text-white">$3.070.336</div>
+                            <div class="text-[11px] text-slate-400 mt-1">Mesada Neta (88%): $2.701.896</div>
+                        </div>
+                    </div>
+
+                    <!-- ESCENARIO 2 -->
+                    <div class="glass-panel p-5 rounded-2xl flex flex-col justify-between relative border border-slate-800">
+                        <div>
+                            <div class="flex justify-between items-center mb-3">
+                                <span class="bg-blue-950 text-blue-300 text-[10px] font-bold px-2.5 py-1 rounded-md uppercase">E2 • Período 2005-09</span>
+                                <span class="text-blue-400 text-xs font-mono">+248,57 Semanas</span>
+                            </div>
+                            <h4 class="text-lg font-bold text-white mb-1">Pago Omisos + Mora</h4>
+                            <p class="text-xs text-slate-400 mb-4 h-10">Inclusión de cotizaciones omitidas (2005-2009). Sube TR a 76,22% por semanas acum (1.731,31).</p>
+                            
+                            <div class="space-y-2 border-t border-b border-slate-800/80 py-3 mb-4 text-xs">
+                                <div class="flex justify-between"><span class="text-slate-400">IBL (10 Años):</span> <span class="font-mono text-white">$4.467.893</span></div>
+                                <div class="flex justify-between"><span class="text-slate-400">Tasa Reemplazo:</span> <span class="font-mono text-emerald-400 font-bold">76,22%</span></div>
+                                <div class="flex justify-between"><span class="text-slate-400">Semanas Cotizadas:</span> <span class="font-mono text-white">1.731,31</span></div>
+                                <div class="flex justify-between"><span class="text-slate-400">Inversión Total:</span> <span class="font-mono text-red-400 font-bold">$166.220.700</span></div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="text-xs text-slate-400">Mesada Bruta Mensual</div>
+                            <div class="text-2xl font-black text-slate-200">$3.405.428</div>
+                            <div class="text-[11px] text-slate-400 mt-1">Mesada Neta (88%): $2.996.777</div>
+                        </div>
+                    </div>
+
+                    <!-- ESCENARIO 3 (DESTACADO / RECOMENDADO) -->
+                    <div class="glass-panel p-5 rounded-2xl flex flex-col justify-between relative gold-border-glow bg-yellow-950/20">
+                        <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-yellow-500 to-amber-500 text-slate-950 text-[10px] font-extrabold px-3 py-0.5 rounded-full shadow-md uppercase">
+                            Mejor Costo-Beneficio
+                        </div>
+                        <div>
+                            <div class="flex justify-between items-center mb-3 mt-1">
+                                <span class="bg-yellow-500/20 text-yellow-300 border border-yellow-500/40 text-[10px] font-bold px-2.5 py-1 rounded-md uppercase">E3 • IBC +$3.0M</span>
+                                <span class="text-yellow-400 text-xs font-mono">Retorno 15.2 Meses</span>
+                            </div>
+                            <h4 class="text-lg font-bold text-white mb-1">Optimización IBL 3M</h4>
+                            <p class="text-xs text-slate-300 mb-4 h-10">Incremento de $3M en IBC durante 2023-2025. Eleva el IBL a $5.477.351 de forma muy eficiente.</p>
+                            
+                            <div class="space-y-2 border-t border-b border-yellow-500/20 py-3 mb-4 text-xs">
+                                <div class="flex justify-between"><span class="text-slate-300">IBL (10 Años):</span> <span class="font-mono text-yellow-300 font-bold">$5.477.351</span></div>
+                                <div class="flex justify-between"><span class="text-slate-300">Tasa Reemplazo:</span> <span class="font-mono text-white">68,44%</span></div>
+                                <div class="flex justify-between"><span class="text-slate-300">Semanas Cotizadas:</span> <span class="font-mono text-white">1.482,74</span></div>
+                                <div class="flex justify-between"><span class="text-slate-300">Inversión Total:</span> <span class="font-mono text-yellow-400 font-bold">$50.382.504</span></div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="text-xs text-yellow-400/80">Mesada Bruta Mensual</div>
+                            <div class="text-2xl font-black text-yellow-300">$3.748.699</div>
+                            <div class="text-[11px] text-yellow-200/80 mt-1">Mesada Neta (88%): $3.298.855</div>
+                        </div>
+                    </div>
+
+                    <!-- ESCENARIO 4 -->
+                    <div class="glass-panel p-5 rounded-2xl flex flex-col justify-between relative border border-slate-800">
+                        <div>
+                            <div class="flex justify-between items-center mb-3">
+                                <span class="bg-amber-950 text-amber-300 text-[10px] font-bold px-2.5 py-1 rounded-md uppercase">E4 • IBC +$3.6M</span>
+                                <span class="text-amber-400 text-xs font-mono">Mesada Máxima</span>
+                            </div>
+                            <h4 class="text-lg font-bold text-white mb-1">Optimización IBL 3.6M</h4>
+                            <p class="text-xs text-slate-400 mb-4 h-10">Aumento de $3.6M en IBC en 2023-2025. Maximiza el IBL a $5.679.243 logrando el mayor tope.</p>
+                            
+                            <div class="space-y-2 border-t border-b border-slate-800/80 py-3 mb-4 text-xs">
+                                <div class="flex justify-between"><span class="text-slate-400">IBL (10 Años):</span> <span class="font-mono text-amber-300 font-bold">$5.679.243</span></div>
+                                <div class="flex justify-between"><span class="text-slate-400">Tasa Reemplazo:</span> <span class="font-mono text-white">68,38%</span></div>
+                                <div class="flex justify-between"><span class="text-slate-400">Semanas Cotizadas:</span> <span class="font-mono text-white">1.482,74</span></div>
+                                <div class="flex justify-between"><span class="text-slate-400">Inversión Total:</span> <span class="font-mono text-amber-400 font-bold">$60.459.005</span></div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="text-xs text-slate-400">Mesada Bruta Mensual</div>
+                            <div class="text-2xl font-black gold-gradient-text">$3.883.466</div>
+                            <div class="text-[11px] text-slate-400 mt-1">Mesada Neta (88%): $3.417.450</div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- TABLA INFERIOR: MATRIZ DE INCREMENTOS MARGINALES -->
+                <div class="glass-panel p-6 rounded-2xl">
+                    <h3 class="font-bold text-white text-base mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-table-cells text-yellow-500"></i> Matriz de Eficiencia Marginal e Incrementos Pensionales
+                    </h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs text-slate-300">
+                            <thead class="bg-slate-900 text-slate-400 uppercase font-mono border-b border-slate-800">
+                                <tr>
+                                    <th class="p-3">Escenario</th>
+                                    <th class="p-3">Inversión Extra vs E1</th>
+                                    <th class="p-3">Incremento Mesada Bruta</th>
+                                    <th class="p-3">Incremento Mesada Neta</th>
+                                    <th class="p-3">Amortización (RIM)</th>
+                                    <th class="p-3 text-right">Rentabilidad Actuarial</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-800/60 font-mono">
+                                <tr class="hover:bg-slate-800/30">
+                                    <td class="p-3 font-bold text-white">E1 (Base Actual)</td>
+                                    <td class="p-3">$0</td>
+                                    <td class="p-3">$0 / mes</td>
+                                    <td class="p-3">$0 / mes</td>
+                                    <td class="p-3 text-emerald-400">0.0 meses (Inmediato)</td>
+                                    <td class="p-3 text-right text-slate-400">Línea de Base</td>
+                                </tr>
+                                <tr class="hover:bg-slate-800/30">
+                                    <td class="p-3 font-bold text-white">E2 (Omisos 2005-09)</td>
+                                    <td class="p-3 text-red-400">$166.220.700</td>
+                                    <td class="p-3 text-emerald-400">+$335.092 / mes</td>
+                                    <td class="p-3 text-emerald-400">+$294.881 / mes</td>
+                                    <td class="p-3 text-amber-400">55.47 meses (~4.6 años)</td>
+                                    <td class="p-3 text-right text-red-400 font-semibold">Baja (Castigo Mora 84%)</td>
+                                </tr>
+                                <tr class="bg-yellow-500/5 hover:bg-yellow-500/10">
+                                    <td class="p-3 font-bold text-yellow-300">E3 (+$3.0M IBC) ★</td>
+                                    <td class="p-3 text-yellow-400 font-bold">$50.382.504</td>
+                                    <td class="p-3 text-emerald-400 font-bold">+$678.363 / mes</td>
+                                    <td class="p-3 text-emerald-400 font-bold">+$596.959 / mes</td>
+                                    <td class="p-3 text-emerald-400 font-bold">15.27 meses (~1.27 años)</td>
+                                    <td class="p-3 text-right text-yellow-400 font-bold">Máxima Eficiencia</td>
+                                </tr>
+                                <tr class="hover:bg-slate-800/30">
+                                    <td class="p-3 font-bold text-amber-300">E4 (+$3.6M IBC)</td>
+                                    <td class="p-3 text-amber-400 font-bold">$60.459.005</td>
+                                    <td class="p-3 text-emerald-400 font-bold">+$813.130 / mes</td>
+                                    <td class="p-3 text-emerald-400 font-bold">+$715.554 / mes</td>
+                                    <td class="p-3 text-emerald-400">17.69 meses (~1.47 años)</td>
+                                    <td class="p-3 text-right text-amber-300 font-semibold">Alta Rentabilidad</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+
+
+            <!-- ========================================== -->
+            <!-- PESTAÑA 3: LIQUIDACIÓN IBL & FÓRMULAS (tab-liquidacion) -->
+            <!-- ========================================== -->
+            <div id="tab-liquidacion" class="tab-content hidden space-y-6">
+                
+                <div class="flex justify-between items-center bg-slate-900/40 p-3 rounded-xl border border-slate-800">
+                    <div class="text-xs text-slate-400 font-mono uppercase tracking-wider">
+                        <i class="fa-solid fa-square-root-variable text-yellow-500 mr-2"></i>DESGLOSE MATEMÁTICO DE TASA DE REEMPLAZO & COMPARATIVO IBL
+                    </div>
+                    <div class="bg-yellow-500/10 border border-yellow-500/30 text-yellow-400 px-3 py-1 rounded-full text-xs font-bold">
+                        Elaborado por: GÓMEZ ASESORÍAS
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    
+                    <!-- COLUMNA IZQUIERDA (CARD 1 - FÓRMULA LEY 797/03) -->
+                    <div class="lg:col-span-6 glass-panel p-6 rounded-2xl flex flex-col justify-between">
+                        <div>
+                            <h3 class="font-bold text-white text-base mb-3 flex items-center gap-2">
+                                <i class="fa-solid fa-calculator text-yellow-500"></i> Fórmulas de Tasa de Reemplazo (Ley 797/2003)
+                            </h3>
+                            <p class="text-xs text-slate-300 mb-4">
+                                En el Régimen de Prima Media (Colpensiones), la Tasa de Reemplazo (TR) se determina mediante la suma del Porcentaje Base ($R$) y la Bonificación de Semanas Adicionales ($PA$):
+                            </p>
+
+                            <!-- BLOQUE MATEMÁTICO FORMULA -->
+                            <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 font-serif text-amber-300 text-center space-y-2 mb-6">
+                                <div class="text-lg">$$\text{TR} = R + PA$$</div>
+                                <div class="text-xs text-slate-400 font-sans">
+                                    $$R = 65.5 - 0.5 \times S \quad \left(S = \frac{\text{IBL}}{\text{SMLMV 2026}}\right)$$
+                                </div>
+                                <div class="text-xs text-slate-400 font-sans">
+                                    $$PA = \left\lfloor \frac{\text{Semanas Acumuladas} - 1300}{50} \right\rfloor \times 1.5\%$$
+                                </div>
+                            </div>
+
+                            <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Sustitución Numérica del Escenario Base (E1):</h4>
+                            <div class="bg-slate-900/90 p-3.5 rounded-xl border border-slate-800 text-xs font-mono space-y-1.5 text-slate-300">
+                                <div>• IBL / SMLMV ($S$): $4.467.893 / $1.750.905 = <span class="text-yellow-400">2.551 SMLMV</span></div>
+                                <div>• Porcentaje Base ($R$): 65.5 - (0.5 × 2.551) = <span class="text-yellow-400">64.22%</span></div>
+                                <div>• Bloques de 50 W. Adicionales: (1.482,74 - 1300) / 50 = <span class="text-yellow-400">3 Bloques</span></div>
+                                <div>• Puntos Adicionales ($PA$): 3 × 1.5% = <span class="text-yellow-400">+4.50%</span></div>
+                                <div class="pt-2 border-t border-slate-800 font-bold text-emerald-400">
+                                    TR Final E1: 64.22% + 4.50% = 68.72%
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-4 text-[11px] text-slate-500">
+                            * Nota de Observación: En E3 y E4, la TR baja levemente a 68,44% y 68,38% porque al elevar el IBL relativo a SMLMV ($S$), disminuye el porcentaje base ($R$). Sin embargo, la mesada final en pesos aumenta.
+                        </div>
+                    </div>
+
+                    <!-- COLUMNA DERECHA (CARD 2 - COMPARACIÓN IBL & SENTENCIAS) -->
+                    <div class="lg:col-span-6 glass-panel p-6 rounded-2xl flex flex-col justify-between">
+                        <div>
+                            <h3 class="font-bold text-white text-base mb-4 flex items-center gap-2">
+                                <i class="fa-solid fa-[#000] fa-scale-balanced text-yellow-500"></i> Comparativo IBL: Últimos 10 Años vs. Toda la Vida
+                            </h3>
+                            
+                            <div class="overflow-x-auto mb-6">
+                                <table class="w-full text-left text-xs">
+                                    <thead class="bg-slate-900 text-slate-400 font-mono">
+                                        <tr>
+                                            <th class="p-2.5">Escenario</th>
+                                            <th class="p-2.5">IBL Toda la Vida</th>
+                                            <th class="p-2.5">IBL Últimos 10 Años</th>
+                                            <th class="p-2.5 text-right">Beneficio Aplicado</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-slate-800 font-mono text-slate-300">
+                                        <tr class="bg-yellow-500/5">
+                                            <td class="p-2.5 font-bold text-white">E1 (Base)</td>
+                                            <td class="p-2.5 text-slate-400">$3.263.712</td>
+                                            <td class="p-2.5 text-yellow-400 font-bold">$4.467.893</td>
+                                            <td class="p-2.5 text-right text-emerald-400">+$1.204.181 (+36%)</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="p-2.5 font-bold text-white">E2 (2005-09)</td>
+                                            <td class="p-2.5 text-slate-400">$3.412.080</td>
+                                            <td class="p-2.5 text-yellow-400 font-bold">$4.467.893</td>
+                                            <td class="p-2.5 text-right text-emerald-400">+$1.055.813 (+31%)</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="p-2.5 font-bold text-white">E3 (+$3.0M)</td>
+                                            <td class="p-2.5 text-slate-400">$3.680.120</td>
+                                            <td class="p-2.5 text-yellow-400 font-bold">$5.477.351</td>
+                                            <td class="p-2.5 text-right text-emerald-400">+$1.797.231 (+48%)</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="p-2.5 font-bold text-white">E4 (+$3.6M)</td>
+                                            <td class="p-2.5 text-slate-400">$3.765.900</td>
+                                            <td class="p-2.5 text-yellow-400 font-bold">$5.679.243</td>
+                                            <td class="p-2.5 text-right text-emerald-400">+$1.913.343 (+50%)</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">Marco Jurídico & Sentencias Aplicadas:</h4>
+                            <div class="grid grid-cols-2 gap-2 text-xs">
+                                <div class="bg-slate-900 p-2.5 rounded-lg border border-slate-800">
+                                    <span class="bg-blue-900/50 text-blue-300 text-[10px] font-bold px-1.5 py-0.5 rounded">Sentencia SL135/2022</span>
+                                    <p class="text-[11px] text-slate-400 mt-1">Computo exacto de semanas sobre total laborado continuo.</p>
+                                </div>
+                                <div class="bg-slate-900 p-2.5 rounded-lg border border-slate-800">
+                                    <span class="bg-purple-900/50 text-purple-300 text-[10px] font-bold px-1.5 py-0.5 rounded">Ley 797 de 2003</span>
+                                    <p class="text-[11px] text-slate-400 mt-1">Cálculo de IBL sobre promedios actualizados con IPC.</p>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class="mt-4 pt-3 border-t border-slate-800 text-xs text-slate-400">
+                            <i class="fa-solid fa-circle-info text-yellow-500 mr-1"></i> Se selecciona automáticamente la opción de los <strong class="text-white">Últimos 10 Años</strong> por otorgar el mayor IBL en todas las opciones.
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- ========================================== -->
+            <!-- PESTAÑA 4: RETORNO DE INVERSIÓN (tab-retorno) -->
+            <!-- ========================================== -->
+            <div id="tab-retorno" class="tab-content hidden space-y-6">
+                
+                <div class="flex justify-between items-center bg-slate-900/40 p-3 rounded-xl border border-slate-800">
+                    <div class="text-xs text-slate-400 font-mono uppercase tracking-wider">
+                        <i class="fa-solid fa-calculator text-yellow-500 mr-2"></i>ANÁLISIS FINANCIERO RIM (RETORNO DE INVERSIÓN EN MESES)
+                    </div>
+                    <div class="bg-yellow-500/10 border border-yellow-500/30 text-yellow-400 px-3 py-1 rounded-full text-xs font-bold">
+                        Elaborado por: GÓMEZ ASESORÍAS
+                    </div>
+                </div>
+
+                <!-- TABLA RIM COMPLETA -->
+                <div class="glass-panel p-6 rounded-2xl">
+                    <h3 class="font-bold text-white text-base mb-2 flex items-center gap-2">
+                        <i class="fa-solid fa-rotate-left text-yellow-500"></i> Tabla de Indicadores RIM por Escenario
+                    </h3>
+                    <p class="text-xs text-slate-400 mb-4">
+                        $$\text{Vr Descuento Salud} = \text{Mesada} \times 12\% \quad \mid \quad \text{Mesada Neta} = \text{Mesada} - \text{Salud} \quad \mid \quad \text{RIM (Meses)} = \frac{\text{Inversión Total Security Social}}{\text{Mesada Neta}}$$
+                    </p>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs font-mono">
+                            <thead class="bg-slate-900 text-slate-400 uppercase border-b border-slate-800">
+                                <tr>
+                                    <th class="p-3">Escenario</th>
+                                    <th class="p-3">Mesada Bruta</th>
+                                    <th class="p-3">Descuento Salud (12%)</th>
+                                    <th class="p-3">Mesada Neta Efectiva</th>
+                                    <th class="p-3">Inversión Requerida</th>
+                                    <th class="p-3 text-right">Retorno en Meses (RIM)</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-800 text-slate-300">
+                                <tr class="hover:bg-slate-800/30">
+                                    <td class="p-3 font-bold text-white font-sans">E1 (Base Actual)</td>
+                                    <td class="p-3">$3.070.336</td>
+                                    <td class="p-3 text-red-400">-$368.440</td>
+                                    <td class="p-3 font-bold text-white">$2.701.896</td>
+                                    <td class="p-3 text-slate-400">$0</td>
+                                    <td class="p-3 text-right text-emerald-400 font-bold">0,0 meses (Inmediato)</td>
+                                </tr>
+                                <tr class="hover:bg-slate-800/30">
+                                    <td class="p-3 font-bold text-white font-sans">E2 (Período 2005-09)</td>
+                                    <td class="p-3">$3.405.428</td>
+                                    <td class="p-3 text-red-400">-$408.651</td>
+                                    <td class="p-3 font-bold text-white">$2.996.777</td>
+                                    <td class="p-3 text-red-400">$166.220.700</td>
+                                    <td class="p-3 text-right text-amber-400 font-bold">55,47 meses (~4,6 años)</td>
+                                </tr>
+                                <tr class="bg-yellow-500/5 hover:bg-yellow-500/10">
+                                    <td class="p-3 font-bold text-yellow-300 font-sans">E3 (+$3.0M IBC) ★</td>
+                                    <td class="p-3 text-yellow-300 font-bold">$3.748.699</td>
+                                    <td class="p-3 text-red-400">-$449.844</td>
+                                    <td class="p-3 font-bold text-yellow-300">$3.298.855</td>
+                                    <td class="p-3 text-yellow-400 font-bold">$50.382.504</td>
+                                    <td class="p-3 text-right text-emerald-400 font-bold">15,27 meses (~1,27 años)</td>
+                                </tr>
+                                <tr class="hover:bg-slate-800/30">
+                                    <td class="p-3 font-bold text-amber-300 font-sans">E4 (+$3.6M IBC)</td>
+                                    <td class="p-3 text-amber-300 font-bold">$3.883.466</td>
+                                    <td class="p-3 text-red-400">-$466.016</td>
+                                    <td class="p-3 font-bold text-amber-300">$3.417.450</td>
+                                    <td class="p-3 text-amber-400 font-bold">$60.459.005</td>
+                                    <td class="p-3 text-right text-emerald-400 font-bold">17,69 meses (~1,47 años)</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- DESGLOSE DE APORTES E INVERSIONES -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    
+                    <div class="glass-panel p-5 rounded-2xl">
+                        <div class="text-xs font-bold uppercase text-slate-400 mb-3">Composición Inversión E2</div>
+                        <div class="space-y-2 text-xs font-mono">
+                            <div class="flex justify-between"><span>Aportes Salud:</span> <span class="text-white">$11.600.000</span></div>
+                            <div class="flex justify-between"><span>Aportes Pensión:</span> <span class="text-white">$14.848.000</span></div>
+                            <div class="flex justify-between text-red-400 font-bold"><span>Intereses Mora:</span> <span>$139.772.700</span></div>
+                            <div class="pt-2 border-t border-slate-800 flex justify-between font-bold text-slate-200">
+                                <span>Total Requerido:</span> <span>$166.220.700</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel p-5 rounded-2xl border-l-2 border-l-yellow-400">
+                        <div class="text-xs font-bold uppercase text-yellow-400 mb-3">Composición Inversión E3</div>
+                        <div class="space-y-2 text-xs font-mono">
+                            <div class="flex justify-between"><span>Aportes Salud:</span> <span class="text-white">$13.500.000</span></div>
+                            <div class="flex justify-between"><span>Aportes Pensión:</span> <span class="text-white">$17.280.000</span></div>
+                            <div class="flex justify-between text-yellow-500"><span>Intereses Mora (Aprox):</span> <span>$19.602.504</span></div>
+                            <div class="pt-2 border-t border-slate-800 flex justify-between font-bold text-yellow-400">
+                                <span>Total Requerido:</span> <span>$50.382.504</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel p-5 rounded-2xl">
+                        <div class="text-xs font-bold uppercase text-amber-400 mb-3">Composición Inversión E4</div>
+                        <div class="space-y-2 text-xs font-mono">
+                            <div class="flex justify-between"><span>Aportes Salud:</span> <span class="text-white">$16.200.000</span></div>
+                            <div class="flex justify-between"><span>Aportes Pensión:</span> <span class="text-white">$20.736.000</span></div>
+                            <div class="flex justify-between text-amber-500"><span>Intereses Mora (Aprox):</span> <span>$23.523.005</span></div>
+                            <div class="pt-2 border-t border-slate-800 flex justify-between font-bold text-amber-400">
+                                <span>Total Requerido:</span> <span>$60.459.005</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- ========================================== -->
+            <!-- PESTAÑA 5: CRONOGRAMA & COTIZACIONES (tab-historial) -->
+            <!-- ========================================== -->
+            <div id="tab-historial" class="tab-content hidden space-y-6">
+                
+                <div class="flex justify-between items-center bg-slate-900/40 p-3 rounded-xl border border-slate-800">
+                    <div class="text-xs text-slate-400 font-mono uppercase tracking-wider">
+                        <i class="fa-solid fa-list-check text-yellow-500 mr-2"></i>HISTORIAL DE PERÍODOS DE COTIZACIÓN Y REGISTROS AUDITADOS
+                    </div>
+                    <div class="bg-yellow-500/10 border border-yellow-500/30 text-yellow-400 px-3 py-1 rounded-full text-xs font-bold">
+                        Elaborado por: GÓMEZ ASESORÍAS
+                    </div>
+                </div>
+
+                <div class="glass-panel p-6 rounded-2xl space-y-4">
+                    
+                    <!-- BUSCADOR & CONTADOR DINÁMICO -->
+                    <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                        <div class="relative w-full sm:w-80">
+                            <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-slate-500 text-xs"></i>
+                            <input type="text" id="table-search" onkeyup="filterTable()" placeholder="Buscar período o monto..." 
+                                class="w-full pl-9 pr-4 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-yellow-500">
+                        </div>
+                        <div class="text-xs text-slate-400 font-mono">
+                            Mostrando <span id="record-count" class="font-bold text-yellow-400">9</span> registros auditados
+                        </div>
+                    </div>
+
+                    <!-- TABLA SCROLLABLE CON HEADER STICKY -->
+                    <div class="max-h-[520px] overflow-y-auto border border-slate-800 rounded-xl">
+                        <table class="w-full text-left text-xs font-mono" id="history-table">
+                            <thead class="bg-slate-900 text-slate-400 uppercase sticky top-0 z-10 border-b border-slate-800">
+                                <tr>
+                                    <th class="p-3">Período (Desde - Hasta)</th>
+                                    <th class="p-3">IBC E3 (+ $3.0M)</th>
+                                    <th class="p-3">IBC E4 (+ $3.6M)</th>
+                                    <th class="p-3">Estado / Concepto</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-800/80 text-slate-300">
+                                <tr class="hover:bg-slate-800/30">
+                                    <td class="p-3 font-bold text-white">01/01/2023 - 31/12/2023</td>
+                                    <td class="p-3 font-bold text-yellow-400">$8.044.000</td>
+                                    <td class="p-3 font-bold text-amber-400">$8.644.000</td>
+                                    <td class="p-3"><span class="bg-slate-800 text-slate-300 px-2 py-0.5 rounded text-[10px]">Optimizado</span></td>
+                                </tr>
+                                <tr class="hover:bg-slate-800/30">
+                                    <td class="p-3 font-bold text-white">01/01/2024 - 29/02/2024</td>
+                                    <td class="p-3 font-bold text-yellow-400">$8.044.000</td>
+                                    <td class="p-3 font-bold text-amber-400">$8.644.000</td>
+                                    <td class="p-3"><span class="bg-slate-800 text-slate-300 px-2 py-0.5 rounded text-[10px]">Optimizado</span></td>
+                                </tr>
+                                <tr class="hover:bg-slate-800/30">
+                                    <td class="p-3 font-bold text-white">01/03/2024 - 31/05/2024</td>
+                                    <td class="p-3 font-bold text-yellow-400">$8.512.000</td>
+                                    <td class="p-3 font-bold text-amber-400">$9.112.000</td>
+                                    <td class="p-3"><span class="bg-slate-800 text-slate-300 px-2 py-0.5 rounded text-[10px]">Optimizado</span></td>
+                                </tr>
+                                <tr class="hover:bg-slate-800/30">
+                                    <td class="p-3 font-bold text-white">01/06/2024 - 30/11/2024</td>
+                                    <td class="p-3 font-bold text-yellow-400">$8.044.000</td>
+                                    <td class="p-3 font-bold text-amber-400">$8.644.000</td>
+                                    <td class="p-3"><span class="bg-slate-800 text-slate-300 px-2 py-0.5 rounded text-[10px]">Optimizado</span></td>
+                                </tr>
+                                <tr class="hover:bg-slate-800/30">
+                                    <td class="p-3 font-bold text-white">01/12/2024 - 31/12/2024</td>
+                                    <td class="p-3 font-bold text-yellow-400">$7.576.000</td>
+                                    <td class="p-3 font-bold text-amber-400">$8.176.000</td>
+                                    <td class="p-3"><span class="bg-slate-800 text-slate-300 px-2 py-0.5 rounded text-[10px]">Optimizado</span></td>
+                                </tr>
+                                <tr class="hover:bg-slate-800/30">
+                                    <td class="p-3 font-bold text-white">01/01/2025 - 31/08/2025</td>
+                                    <td class="p-3 font-bold text-yellow-400">$8.044.000</td>
+                                    <td class="p-3 font-bold text-amber-400">$8.644.000</td>
+                                    <td class="p-3"><span class="bg-slate-800 text-slate-300 px-2 py-0.5 rounded text-[10px]">Optimizado</span></td>
+                                </tr>
+                                <tr class="hover:bg-slate-800/30">
+                                    <td class="p-3 font-bold text-white">01/09/2025 - 31/12/2025</td>
+                                    <td class="p-3 font-bold text-yellow-400">$8.306.000</td>
+                                    <td class="p-3 font-bold text-amber-400">$8.906.000</td>
+                                    <td class="p-3"><span class="bg-slate-800 text-slate-300 px-2 py-0.5 rounded text-[10px]">Optimizado</span></td>
+                                </tr>
+                                <tr class="hover:bg-slate-800/30">
+                                    <td class="p-3 font-bold text-white">01/01/2026 - 31/01/2026</td>
+                                    <td class="p-3 font-bold text-slate-300">$5.306.000</td>
+                                    <td class="p-3 font-bold text-slate-300">$5.306.000</td>
+                                    <td class="p-3"><span class="bg-slate-900 text-slate-400 px-2 py-0.5 rounded text-[10px]">Base Proyectada</span></td>
+                                </tr>
+                                <tr class="hover:bg-slate-800/30">
+                                    <td class="p-3 font-bold text-white">01/02/2026 - 31/05/2026</td>
+                                    <td class="p-3 font-bold text-slate-300">$5.576.000</td>
+                                    <td class="p-3 font-bold text-slate-300">$5.576.000</td>
+                                    <td class="p-3"><span class="bg-emerald-950 text-emerald-400 px-2 py-0.5 rounded text-[10px]">Último Aporte Reportado</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- ========================================== -->
+            <!-- PESTAÑA 6: DICTAMEN ESTRATÉGICO & CERTIFICACIÓN (tab-dictamen) -->
+            <!-- ========================================== -->
+            <div id="tab-dictamen" class="tab-content hidden space-y-6">
+                
+                <div class="flex justify-between items-center bg-slate-900/40 p-3 rounded-xl border border-slate-800">
+                    <div class="text-xs text-slate-400 font-mono uppercase tracking-wider">
+                        <i class="fa-solid fa-gavel text-yellow-500 mr-2"></i>DICTAMEN TÉCNICO-JURÍDICO & RECOMENDACIÓN ESTRATÉGICA
+                    </div>
+                    <div class="bg-yellow-500/10 border border-yellow-500/30 text-yellow-400 px-3 py-1 rounded-full text-xs font-bold">
+                        Elaborado por: GÓMEZ ASESORÍAS
+                    </div>
+                </div>
+
+                <!-- TOP CARD DORADA DE DICTAMEN -->
+                <div class="glass-panel p-6 rounded-2xl gold-border-glow bg-yellow-950/10 space-y-3">
+                    <div class="flex items-center gap-2 text-yellow-400 font-bold uppercase tracking-wider text-xs">
+                        <i class="fa-solid fa-award"></i> Veredicto Consultivo Profesional
+                    </div>
+                    <h3 class="text-xl font-extrabold text-white">Dictamen Final de Conveniencia Actuarial</h3>
+                    <p class="text-slate-300 text-xs leading-relaxed">
+                        Evaluada la trayectoria laboral del señor <strong class="text-white">ROBERTO GOMEZ ESCOBAR</strong>, se dictamina que el cliente cumple plenamente con los requisitos legales para acceder a la pensión de vejez. Para maximizar el valor patrimonial se sugiere desestimar el Escenario 2 por la penalización del 84.1% en mora. Se recomienda optar por el <strong class="text-yellow-400">Escenario 3</strong> (Mejor Costo-Beneficio: $3.748.699 mesada con retorno en 15.2 meses) o el <strong class="text-amber-400">Escenario 4</strong> (Máxima pensión: $3.883.466 mesada con retorno en 17.6 meses). Si la prioridad es la ausencia de desembolsos, el <strong class="text-slate-200">Escenario 1</strong> otorga $3.070.336 de manera inmediata.
+                    </p>
+                </div>
+
+                <!-- 3 TARJETAS DE VEREDICTO -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                    
+                    <div class="glass-panel p-5 rounded-2xl border-l-4 border-l-slate-400">
+                        <div class="text-xs font-bold text-slate-400 uppercase">Opción Inmediata</div>
+                        <h4 class="text-lg font-bold text-white mt-1">Escenario 1</h4>
+                        <p class="text-xs text-slate-300 mt-2">
+                            Ideal si no se cuenta con liquidez para reliquidar. Permite radicar de inmediato ante Colpensiones percibiendo $3.070.336 COP/mes.
+                        </p>
+                    </div>
+
+                    <div class="glass-panel p-5 rounded-2xl border-l-4 border-l-yellow-400">
+                        <div class="text-xs font-bold text-yellow-400 uppercase">Recomendación Central</div>
+                        <h4 class="text-lg font-bold text-white mt-1">Escenario 3 (+$3M)</h4>
+                        <p class="text-xs text-slate-300 mt-2">
+                            Mejor relación de eficiencia. Requiere $50.38M de inversión y se recupera completamente en 15.27 meses (+ $678.363 de mesada mensual).
+                        </p>
+                    </div>
+
+                    <div class="glass-panel p-5 rounded-2xl border-l-4 border-l-amber-400">
+                        <div class="text-xs font-bold text-amber-400 uppercase">Máxima Mesada</div>
+                        <h4 class="text-lg font-bold text-white mt-1">Escenario 4 (+$3.6M)</h4>
+                        <p class="text-xs text-slate-300 mt-2">
+                            Maximiza el beneficio vitalicio alcanzando $3.883.466 COP/mes. Inversión de $60.45M amortizable en 17.69 meses.
+                        </p>
+                    </div>
+
+                </div>
+
+                <!-- PIE DE PÁGINA: CERTIFICACIÓN INVARIABLE DE LA EMPRESA LIQUIDADORA REAL -->
+                <div class="glass-panel p-6 rounded-2xl border border-yellow-500/30 flex flex-col md:flex-row justify-between items-center gap-6">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-full bg-yellow-500/10 border border-yellow-500/40 flex items-center justify-center text-yellow-400 text-xl font-bold">
+                            <i class="fa-solid fa-file-signature"></i>
+                        </div>
+                        <div>
+                            <div class="text-xs font-bold text-yellow-400 uppercase tracking-wider">Certificación del Estudio Actuarial</div>
+                            <div class="text-base font-extrabold text-white">GÓMEZ ASESORÍAS</div>
+                            <div class="text-xs text-slate-400">Estudios Pensionales & Consultoría Jurídico-Financiera</div>
+                        </div>
+                    </div>
+
+                    <div class="text-center md:text-right text-xs text-slate-300 space-y-1">
+                        <div><strong class="text-white">Responsable Técnico:</strong> ABOGADO JORGE MARIO GOMEZ</div>
+                        <div class="text-slate-400">Gerente / Especialista en Derecho Pensional y Seguridad Social</div>
+                        <div class="text-yellow-400 font-mono pt-1">Fecha de Emisión: 24 de Agosto de 2026</div>
+                    </div>
+                </div>
+
+            </div>
+
+        </main>
+
+
+        <!-- FOOTER GLOBAL -->
+        <footer class="border-t border-slate-800 bg-slate-950 py-4 text-center text-xs text-slate-500">
+            <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-2">
+                <div>SU PENSIÓN PLUS © 2026 • Plataforma de Inteligencia y Liquidación Pensional</div>
+                <div class="font-mono text-[11px]">Estudio Auditado para: Roberto Gómez Escobar (C.C. 10.264.899)</div>
+            </div>
+        </footer>
+
+    </div>
+
+
+    <!-- ========================================== -->
+    <!-- JAVASCRIPT: LÓGICA DE ACCESO & INTERFAZ    -->
+    <!-- ========================================== -->
+    <script>
+        // Credenciales extraídas del estudio
+        const VALID_USER = "10264899"; // Cédula limpia sin puntos
+        const VALID_PASS = "4899";     // Últimos 4 dígitos
+
+        let chartInitialized = false;
+
+        // Validar Formulario de Login
+        function validateLogin(e) {
+            e.preventDefault();
+            const userInput = document.getElementById('login-user').value.replace(/\D/g, '');
+            const passInput = document.getElementById('login-pass').value.trim();
+            const errorDiv = document.getElementById('login-error');
+
+            if (userInput === VALID_USER && passInput === VALID_PASS) {
+                // Ocultar Login, Mostrar Dashboard
+                document.getElementById('login-screen').classList.add('hidden');
+                document.getElementById('main-dashboard').classList.remove('hidden');
+                document.getElementById('main-dashboard').classList.add('flex');
+                
+                // Inicializar Gráficos Chart.js
+                if (!chartInitialized) {
+                    initChart();
+                    chartInitialized = true;
+                }
+            } else {
+                errorDiv.classList.remove('hidden');
+            }
+        }
+
+        // Logout
+        function logout() {
+            document.getElementById('main-dashboard').classList.add('hidden');
+            document.getElementById('main-dashboard').classList.remove('flex');
+            document.getElementById('login-screen').classList.remove('hidden');
+            document.getElementById('login-form').reset();
+            document.getElementById('login-error').classList.add('hidden');
+        }
+
+        // Cambio de Pestañas
+        function switchTab(tabId) {
+            // Ocultar todos los contenidos
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(content => content.classList.add('hidden'));
+
+            // Desactivar todos los botones
+            const buttons = document.querySelectorAll('.tab-btn');
+            buttons.forEach(btn => {
+                btn.classList.remove('active');
+                btn.classList.add('text-slate-400');
+            });
+
+            // Mostrar contenido seleccionado
+            document.getElementById(tabId).classList.remove('hidden');
+
+            // Activar botón seleccionado
+            const activeBtn = document.getElementById('btn-' + tabId);
+            activeBtn.classList.add('active');
+            activeBtn.classList.remove('text-slate-400');
+        }
+
+        // Inicializar Gráfico Resumen en Chart.js
+        function initChart() {
+            const ctx = document.getElementById('chartResumen').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['E1 (Base)', 'E2 (2005-09)', 'E3 (+3.0M)', 'E4 (+3.6M)'],
+                    datasets: [
+                        {
+                            label: 'Mesada Bruta ($)',
+                            data: [3070336, 3405428, 3748699, 3883466],
+                            backgroundColor: '#D4AF37',
+                            borderRadius: 6,
+                        },
+                        {
+                            label: 'Inversión Requerida ($)',
+                            data: [0, 166220700, 50382504, 60459005],
+                            backgroundColor: '#334155',
+                            borderRadius: 6,
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#94A3B8',
+                                font: { family: 'Plus Jakarta Sans', size: 11 }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) label += ': ';
+                                    if (context.parsed.y !== null) {
+                                        label += new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(context.parsed.y);
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: { color: '#94A3B8', font: { family: 'Plus Jakarta Sans', size: 10 } },
+                            grid: { color: 'rgba(51, 65, 85, 0.3)' }
+                        },
+                        y: {
+                            ticks: {
+                                color: '#94A3B8',
+                                font: { family: 'Plus Jakarta Sans', size: 10 },
+                                callback: function(value) {
+                                    return '$' + (value / 1000000).toFixed(1) + 'M';
+                                }
+                            },
+                            grid: { color: 'rgba(51, 65, 85, 0.3)' }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Filtro de Tabla de Historial
+        function filterTable() {
+            const input = document.getElementById('table-search');
+            const filter = input.value.toLowerCase();
+            const table = document.getElementById('history-table');
+            const tr = table.getElementsByTagName('tr');
+            let count = 0;
+
+            for (let i = 1; i < tr.length; i++) {
+                let showRow = false;
+                const td = tr[i].getElementsByTagName('td');
+                for (let j = 0; j < td.length; j++) {
+                    if (td[j]) {
+                        if (td[j].innerText.toLowerCase().indexOf(filter) > -1) {
+                            showRow = true;
+                            break;
+                        }
+                    }
+                }
+                if (showRow) {
+                    tr[i].style.display = "";
+                    count++;
+                } else {
+                    tr[i].style.display = "none";
+                }
+            }
+            document.getElementById('record-count').innerText = count;
+        }
+    </script>
+</body>
+</html>
