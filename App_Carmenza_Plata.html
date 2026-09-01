@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Su Pensión Plus - Portal Privado de Liquidaciones Pensionales</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        darkbg: '#070B14',
+                        cardbg: '#0F172A',
+                        gold: '#D4AF37',
+                        goldlight: '#FDE047',
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            background-color: #070B14;
+            color: #F8FAFC;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .glass-card {
+            background: rgba(30, 41, 59, 0.5);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .gold-border-glow {
+            border: 1px solid #D4AF37;
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.15);
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.6);
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #D4AF37;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between custom-scrollbar selection:bg-gold selection:text-black">
+
+    <!-- ========================================== -->
+    <!-- 0. PANTALLA DE ACCESO Y SEGURIDAD (LOGIN)  -->
+    <!-- ========================================== -->
+    <div id="login-screen" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#070B14]">
+        <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-900/20 via-transparent to-transparent"></div>
+        <div class="w-full max-w-md p-8 rounded-2xl glass-panel gold-border-glow relative z-10 shadow-2xl">
+            <div class="text-center mb-8">
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gold/10 border border-gold/30 mb-4 text-gold">
+                    <i class="fa-solid fa-shield-halved text-2xl"></i>
+                </div>
+                <h1 class="text-2xl font-extrabold tracking-tight text-white uppercase">
+                    SU PENSIÓN <span class="text-gold">PLUS</span>
+                </h1>
+                <p class="text-xs font-medium text-slate-400 mt-1 uppercase tracking-wider">
+                    Portal Privado de Liquidaciones Pensionales
+                </p>
+            </div>
+
+            <form id="loginForm" onsubmit="validateLogin(event)" class="space-y-5">
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-2">
+                        <i class="fa-solid fa-id-card text-gold mr-1"></i> Cédula del Asegurado
+                    </label>
+                    <input type="password" id="loginUser" required placeholder="Ingrese N° de Cédula"
+                           class="w-full px-4 py-3 rounded-lg bg-slate-900/80 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:border-gold transition-colors text-sm">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-2">
+                        <i class="fa-solid fa-key text-gold mr-1"></i> Contraseña
+                    </label>
+                    <input type="password" id="loginPassword" required placeholder="Últimos 4 dígitos de la Cédula"
+                           class="w-full px-4 py-3 rounded-lg bg-slate-900/80 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:border-gold transition-colors text-sm">
+                </div>
+
+                <div id="loginError" class="hidden p-3 rounded-lg bg-red-950/60 border border-red-500/50 text-red-300 text-xs text-center font-medium">
+                    <i class="fa-solid fa-triangle-exclamation mr-1"></i> Credenciales no válidas. Ingrese su N° de Cédula y los últimos 4 dígitos.
+                </div>
+
+                <button type="submit" 
+                        class="w-full py-3.5 px-4 rounded-lg bg-gradient-to-r from-gold to-yellow-600 hover:from-yellow-500 hover:to-gold text-slate-950 font-bold text-sm tracking-wider uppercase transition-all shadow-lg shadow-gold/10 flex items-center justify-center gap-2">
+                    <span>Ingresar al Portal Ejecutivo</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </form>
+
+            <div class="mt-8 pt-6 border-t border-slate-800 text-center">
+                <span class="inline-block px-3 py-1 rounded-full bg-slate-800/80 border border-slate-700 text-[10px] text-slate-400 uppercase tracking-widest">
+                    Empresa Liquidadora: <strong class="text-gold">PENSION SIN COMPLICACION</strong>
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- MAIN DASHBOARD CONTENT (HIDDEN BY DEFAULT) -->
+    <!-- ========================================== -->
+    <div id="main-dashboard" class="hidden min-h-screen flex flex-col">
+        
+        <!-- HEADER PRINCIPAL -->
+        <header class="border-b border-slate-800 bg-slate-950/80 backdrop-blur-md sticky top-0 z-40">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-wrap items-center justify-between gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-lg bg-gold/10 border border-gold/40 flex items-center justify-center text-gold">
+                        <i class="fa-solid fa-chart-line text-lg"></i>
+                    </div>
+                    <div>
+                        <div class="text-lg font-black tracking-tight uppercase text-white leading-none">
+                            SU PENSIÓN <span class="text-gold">PLUS</span>
+                        </div>
+                        <div class="text-[10px] text-slate-400 uppercase tracking-widest mt-1">
+                            Expertos en Liquidación de Pensiones
+                        </div>
+                    </div>
+                </div>
+
+                <!-- BADGE OBLIGATORIO DE EMPRESA LIQUIDADORA EN CADA SECCIÓN -->
+                <div class="flex items-center gap-3">
+                    <div class="hidden md:flex flex-col text-right">
+                        <span class="text-[10px] text-slate-400 uppercase tracking-wider">Estudio Técnico Certificado</span>
+                        <span class="text-xs font-bold text-slate-200">Ref: SUB 409468 / 2024</span>
+                    </div>
+                    <div class="px-3.5 py-1.5 rounded-lg bg-slate-900 border border-gold/30 flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                        <span class="text-xs font-semibold text-slate-300">
+                            Elaborado por: <strong class="text-gold">PENSION SIN COMPLICACION</strong>
+                        </span>
+                    </div>
+                    <button onclick="logout()" class="p-2 text-slate-400 hover:text-red-400 transition-colors ml-2" title="Cerrar Sesión">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- NAVEGACIÓN POR PESTAÑAS -->
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex overflow-x-auto custom-scrollbar border-t border-slate-800/80">
+                <button onclick="switchTab('tab-resumen')" id="btn-tab-resumen" class="tab-btn py-3 px-4 text-xs font-bold uppercase tracking-wider text-gold border-b-2 border-gold whitespace-nowrap flex items-center gap-2">
+                    <i class="fa-solid fa-gauge-high"></i> Resumen Ejecutivo
+                </button>
+                <button onclick="switchTab('tab-escenarios')" id="btn-tab-escenarios" class="tab-btn py-3 px-4 text-xs font-bold uppercase tracking-wider text-slate-400 hover:text-slate-200 border-b-2 border-transparent whitespace-nowrap flex items-center gap-2">
+                    <i class="fa-solid fa-scale-balanced"></i> Reliquidación / Escenarios
+                </button>
+                <button onclick="switchTab('tab-liquidacion')" id="btn-tab-liquidacion" class="tab-btn py-3 px-4 text-xs font-bold uppercase tracking-wider text-slate-400 hover:text-slate-200 border-b-2 border-transparent whitespace-nowrap flex items-center gap-2">
+                    <i class="fa-solid fa-calculator"></i> Liquidación Técnica IBL
+                </button>
+                <button onclick="switchTab('tab-retorno')" id="btn-tab-retorno" class="tab-btn py-3 px-4 text-xs font-bold uppercase tracking-wider text-slate-400 hover:text-slate-200 border-b-2 border-transparent whitespace-nowrap flex items-center gap-2">
+                    <i class="fa-solid fa-coins"></i> Retroactivo e Indexación
+                </button>
+                <button onclick="switchTab('tab-historial')" id="btn-tab-historial" class="tab-btn py-3 px-4 text-xs font-bold uppercase tracking-wider text-slate-400 hover:text-slate-200 border-b-2 border-transparent whitespace-nowrap flex items-center gap-2">
+                    <i class="fa-solid fa-clock-rotate-left"></i> Cronograma y Cotizaciones
+                </button>
+                <button onclick="switchTab('tab-dictamen')" id="btn-tab-dictamen" class="tab-btn py-3 px-4 text-xs font-bold uppercase tracking-wider text-slate-400 hover:text-slate-200 border-b-2 border-transparent whitespace-nowrap flex items-center gap-2">
+                    <i class="fa-solid fa-file-contract"></i> Dictamen y Certificación
+                </button>
+            </div>
+        </header>
+
+        <!-- CONTENIDO PRINCIPAL / PESTAÑAS -->
+        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full">
+
+            <!-- ========================================== -->
+            <!-- PESTAÑA 1: RESUMEN EJECUTIVO              -->
+            <!-- ========================================== -->
+            <div id="tab-resumen" class="tab-content space-y-6">
+                
+                <!-- Banner de Bienvenida -->
+                <div class="p-6 rounded-2xl glass-panel gold-border-glow relative overflow-hidden">
+                    <div class="absolute right-0 top-0 bottom-0 w-1/3 bg-gradient-to-l from-gold/10 to-transparent pointer-events-none"></div>
+                    <div class="flex flex-wrap items-center justify-between gap-4 relative z-10">
+                        <div>
+                            <span class="px-2.5 py-1 rounded bg-gold/10 border border-gold/30 text-[10px] font-bold text-gold uppercase tracking-wider">
+                                Dictamen Actuarial Tipo B: Reliquidación
+                            </span>
+                            <h2 class="text-2xl font-black text-white mt-2">CARMENZA PLAATA FORERO</h2>
+                            <p class="text-xs text-slate-400 mt-1">
+                                C.C. <strong class="text-slate-200">36.554.211</strong> | Fecha de Liquidación: <strong class="text-slate-200">01/10/2024</strong> | Responsable: <strong class="text-gold">SANDRA GALEANO</strong>
+                            </p>
+                        </div>
+                        <div class="text-right bg-slate-900/90 p-4 rounded-xl border border-slate-800">
+                            <div class="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Conclusión Principal</div>
+                            <div class="text-sm font-bold text-emerald-400 mt-0.5">Promedio Últimos 10 Años Favorable</div>
+                            <div class="text-xs text-slate-300">Tasa de Reemplazo Máxima del 80,00%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Grid 4 KPIs Fijos -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="p-5 rounded-xl glass-card border border-slate-800">
+                        <div class="flex items-center justify-between text-slate-400 mb-2">
+                            <span class="text-xs font-bold uppercase tracking-wider">Mesada Reliquidada</span>
+                            <i class="fa-solid fa-sack-dollar text-gold"></i>
+                        </div>
+                        <div class="text-2xl font-black text-gold">$5.146.054</div>
+                        <div class="text-[11px] text-emerald-400 mt-1 flex items-center gap-1">
+                            <i class="fa-solid fa-circle-arrow-up"></i> +$127.004 vs Colpensiones
+                        </div>
+                    </div>
+
+                    <div class="p-5 rounded-xl glass-card border border-slate-800">
+                        <div class="flex items-center justify-between text-slate-400 mb-2">
+                            <span class="text-xs font-bold uppercase tracking-wider">Opción Recomendada</span>
+                            <i class="fa-solid fa-award text-gold"></i>
+                        </div>
+                        <div class="text-xl font-bold text-white">Últimos 10 Años</div>
+                        <div class="text-[11px] text-slate-400 mt-1">IBL: $6.432.568 COP</div>
+                    </div>
+
+                    <div class="p-5 rounded-xl glass-card border border-slate-800">
+                        <div class="flex items-center justify-between text-slate-400 mb-2">
+                            <span class="text-xs font-bold uppercase tracking-wider">Mesada Colpensiones</span>
+                            <i class="fa-solid fa-building-columns text-slate-400"></i>
+                        </div>
+                        <div class="text-2xl font-bold text-slate-300">$5.019.050</div>
+                        <div class="text-[11px] text-red-400 mt-1">TR Incompleta (78,03%)</div>
+                    </div>
+
+                    <div class="p-5 rounded-xl glass-card border border-slate-800">
+                        <div class="flex items-center justify-between text-slate-400 mb-2">
+                            <span class="text-xs font-bold uppercase tracking-wider">Semanas & Puntos TR</span>
+                            <i class="fa-solid fa-layer-group text-gold"></i>
+                        </div>
+                        <div class="text-2xl font-bold text-white">2.211,66 <span class="text-xs font-normal text-slate-400">sems</span></div>
+                        <div class="text-[11px] text-gold mt-1">+27,00% Adicional (PA 80% Max)</div>
+                    </div>
+                </div>
+
+                <!-- Layout Dividido 7:5 -->
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    <!-- Columna Izquierda (7 cols): Canvas Chart.js -->
+                    <div class="lg:col-span-7 p-5 rounded-xl glass-panel border border-slate-800 flex flex-col justify-between">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                                <i class="fa-solid fa-chart-column text-gold"></i> Comparativo de Mesada Pensional ($ COP)
+                            </h3>
+                            <span class="text-[10px] text-slate-400">Resolución SUB 409468 vs Reliquidación</span>
+                        </div>
+                        <div class="h-64 relative">
+                            <canvas id="resumenChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Columna Derecha (5 cols): 3 Hallazgos Relevantes -->
+                    <div class="lg:col-span-5 p-5 rounded-xl glass-panel border border-slate-800 flex flex-col justify-between">
+                        <h3 class="text-sm font-bold text-white uppercase tracking-wider mb-4 flex items-center gap-2">
+                            <i class="fa-solid fa-triangle-exclamation text-gold"></i> Hallazgos Relevantes y Alertas Técnicas
+                        </h3>
+                        <div class="space-y-3">
+                            <div class="p-3 rounded-lg bg-slate-900/80 border-l-4 border-red-500 text-xs">
+                                <div class="font-bold text-slate-200">1. Subpérdida del Porcentaje Tasa de Reemplazo</div>
+                                <div class="text-slate-400 mt-1">
+                                    Colpensiones otorgó una TR del <strong>78,03%</strong>. La reliquidación actuarial demuestra el derecho al <strong>80,00% máximo</strong> legal por densidad de cotización (2.211,66 semanas).
+                                </div>
+                            </div>
+
+                            <div class="p-3 rounded-lg bg-slate-900/80 border-l-4 border-gold text-xs">
+                                <div class="font-bold text-slate-200">2. Aplicación Sentencia SL3501/2022</div>
+                                <div class="text-slate-400 mt-1">
+                                    Se incluyeron todas las semanas adicionales laboradas por encima de 1.300 (911,66 semanas sobrantes), sumando el tope máximo de incrementos.
+                                </div>
+                            </div>
+
+                            <div class="p-3 rounded-lg bg-slate-900/80 border-l-4 border-emerald-500 text-xs">
+                                <div class="font-bold text-slate-200">3. Retroactivo Recuperable</div>
+                                <div class="text-slate-400 mt-1">
+                                    Existe un acumulado adeudado e indexado por inflación de <strong>$3.366.109 COP</strong> correspondiente a 24 mesadas retroactivas (2024-2026).
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- ========================================== -->
+            <!-- PESTAÑA 2: ESCENARIOS COMPARATIVOS         -->
+            <!-- ========================================== -->
+            <div id="tab-escenarios" class="tab-content hidden space-y-6">
+                
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-xl font-bold text-white">Reliquidación y Cuadro Comparativo</h2>
+                        <p class="text-xs text-slate-400 mt-0.5">Análisis de la resolución emitida por Colpensiones frente al cálculo del dictamen actuarial</p>
+                    </div>
+                </div>
+
+                <!-- Grid Adaptativo de Escenarios (2 Columnas) -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    
+                    <!-- Tarjeta 1: Colpensiones -->
+                    <div class="p-6 rounded-2xl glass-card border border-slate-800 flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between mb-4">
+                                <span class="px-3 py-1 rounded-full bg-slate-800 text-slate-300 text-xs font-bold">
+                                    Resolución SUB 409468
+                                </span>
+                                <span class="text-xs text-slate-500">Liquidación Oficial</span>
+                            </div>
+                            <h3 class="text-lg font-bold text-slate-200">Colpensiones Administrativo</h3>
+                            <p class="text-xs text-slate-400 mt-1">Cálculo expedido el 22 de noviembre de 2024.</p>
+
+                            <div class="my-6 space-y-3">
+                                <div class="flex justify-between items-center py-2 border-b border-slate-800 text-xs">
+                                    <span class="text-slate-400">Ingreso Base Liquidación (IBL):</span>
+                                    <span class="font-bold text-slate-200">$6.432.205</span>
+                                </div>
+                                <div class="flex justify-between items-center py-2 border-b border-slate-800 text-xs">
+                                    <span class="text-slate-400">Tasa de Reemplazo (TR):</span>
+                                    <span class="font-bold text-red-400">78,03%</span>
+                                </div>
+                                <div class="flex justify-between items-center py-2 border-b border-slate-800 text-xs">
+                                    <span class="text-slate-400">Semanas Evaluadas:</span>
+                                    <span class="font-bold text-slate-200">2.211,66 sems</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="p-4 rounded-xl bg-slate-900 border border-slate-800 text-center">
+                            <span class="text-[10px] text-slate-400 uppercase tracking-widest block">Mesada Bruta Reconocida</span>
+                            <span class="text-2xl font-bold text-slate-300">$5.019.050</span>
+                        </div>
+                    </div>
+
+                    <!-- Tarjeta 2: Reliquidación (Destacada) -->
+                    <div class="p-6 rounded-2xl glass-panel gold-border-glow flex flex-col justify-between relative overflow-hidden">
+                        <div class="absolute top-0 right-0 bg-gold text-slate-950 text-[10px] font-black uppercase tracking-widest px-4 py-1 rounded-bl-lg">
+                            RECOMENDADA / OPTIMA
+                        </div>
+                        <div>
+                            <div class="flex items-center justify-between mb-4">
+                                <span class="px-3 py-1 rounded-full bg-gold/20 text-gold border border-gold/40 text-xs font-bold">
+                                    Dictamen Su Pensión Plus / Actuarial
+                                </span>
+                            </div>
+                            <h3 class="text-lg font-bold text-white">Reliquidación Pensional</h3>
+                            <p class="text-xs text-slate-400 mt-1">Conforme a Ley 797/03 y Sentencia SL3501/22.</p>
+
+                            <div class="my-6 space-y-3">
+                                <div class="flex justify-between items-center py-2 border-b border-slate-800 text-xs">
+                                    <span class="text-slate-400">Ingreso Base Liquidación (IBL):</span>
+                                    <span class="font-bold text-white">$6.432.568</span>
+                                </div>
+                                <div class="flex justify-between items-center py-2 border-b border-slate-800 text-xs">
+                                    <span class="text-slate-400">Tasa de Reemplazo (TR):</span>
+                                    <span class="font-bold text-gold">80,00% (Tope Máximo)</span>
+                                </div>
+                                <div class="flex justify-between items-center py-2 border-b border-slate-800 text-xs">
+                                    <span class="text-slate-400">Semanas Evaluadas:</span>
+                                    <span class="font-bold text-white">2.211,66 sems</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="p-4 rounded-xl bg-gradient-to-r from-gold/20 to-yellow-600/20 border border-gold/50 text-center">
+                            <span class="text-[10px] text-gold uppercase tracking-widest block font-bold">Mesada Real Otorgable</span>
+                            <span class="text-3xl font-black text-gold">$5.146.054</span>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Tabla Inferior de Matriz Marginal -->
+                <div class="p-6 rounded-2xl glass-panel border border-slate-800">
+                    <h3 class="text-sm font-bold text-white uppercase tracking-wider mb-4">
+                        Matriz de Incremento Marginal y Perjuicio Pensional
+                    </h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs">
+                            <thead class="bg-slate-900 text-slate-400 uppercase tracking-wider border-b border-slate-800">
+                                <tr>
+                                    <th class="p-3">Concepto</th>
+                                    <th class="p-3 text-right">Colpensiones</th>
+                                    <th class="p-3 text-right">Reliquidado</th>
+                                    <th class="p-3 text-right">Diferencia Marginal</th>
+                                    <th class="p-3 text-right">Impacto %</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-800/60 text-slate-300">
+                                <tr>
+                                    <td class="p-3 font-semibold">Ingreso Base Liquidación (IBL)</td>
+                                    <td class="p-3 text-right">$6.432.205</td>
+                                    <td class="p-3 text-right">$6.432.568</td>
+                                    <td class="p-3 text-right text-emerald-400 font-bold">+$363</td>
+                                    <td class="p-3 text-right">+0,01%</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 font-semibold">Tasa de Reemplazo (TR)</td>
+                                    <td class="p-3 text-right">78,03%</td>
+                                    <td class="p-3 text-right">80,00%</td>
+                                    <td class="p-3 text-right text-emerald-400 font-bold">+1,97%</td>
+                                    <td class="p-3 text-right">+2,52%</td>
+                                </tr>
+                                <tr class="bg-gold/5 font-bold">
+                                    <td class="p-3 text-white">Mesada Pensional Mensual</td>
+                                    <td class="p-3 text-right">$5.019.050</td>
+                                    <td class="p-3 text-right text-gold">$5.146.054</td>
+                                    <td class="p-3 text-right text-emerald-400">+$127.004 / mes</td>
+                                    <td class="p-3 text-right text-emerald-400">+2,53%</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- ========================================== -->
+            <!-- PESTAÑA 3: LIQUIDACIÓN TÉCNICA IBL         -->
+            <!-- ========================================== -->
+            <div id="tab-liquidacion" class="tab-content hidden space-y-6">
+                
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    
+                    <!-- Columna Izquierda: Desglose Matemático Fórmulas -->
+                    <div class="lg:col-span-6 p-6 rounded-2xl glass-panel border border-slate-800 space-y-4">
+                        <h3 class="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                            <i class="fa-solid fa-square-root-variable text-gold"></i> Cálculo de Tasa de Reemplazo (Ley 797/2003)
+                        </h3>
+
+                        <div class="p-4 rounded-xl bg-slate-900 border border-slate-800 font-mono text-xs text-center space-y-2">
+                            <div class="text-gold font-bold">TR = R + PA</div>
+                            <div class="text-slate-300">R = 65.5 - (0.5 × S) &nbsp;|&nbsp; S = IBL / SMMLV</div>
+                            <div class="text-slate-300">PA = ⌊(Semanas - 1300) / 50⌋ × 1.5%</div>
+                        </div>
+
+                        <div class="space-y-3 text-xs text-slate-300">
+                            <div class="p-3 rounded-lg bg-slate-900/60 border border-slate-800">
+                                <strong class="text-gold">1. Relación Salarial (S):</strong><br>
+                                $6.432.568 / $1.300.000 = <strong>4,95 SMMLV</strong>
+                            </div>
+                            <div class="p-3 rounded-lg bg-slate-900/60 border border-slate-800">
+                                <strong class="text-gold">2. Tasa Básica (R):</strong><br>
+                                R = 65,5 - (0,5 × 4,95) = <strong>63,03%</strong>
+                            </div>
+                            <div class="p-3 rounded-lg bg-slate-900/60 border border-slate-800">
+                                <strong class="text-gold">3. Porcentaje Adicional (PA):</strong><br>
+                                Excedente de 911,66 semanas sobre 1.300 = 18 bloques de 50.<br>
+                                PA = 18 × 1,5% = <strong>27,00%</strong>
+                            </div>
+                            <div class="p-3 rounded-lg bg-emerald-950/40 border border-emerald-500/30 text-emerald-300">
+                                <strong>4. Ajuste a Tope Legal:</strong><br>
+                                TR Teórica: 63,03% + 27,00% = 90,03% → Ajustado al <strong>80,00% Máximo Legal</strong>.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Columna Derecha: Tabla Comparativa IBL Toda la Vida vs 10 Años -->
+                    <div class="lg:col-span-6 p-6 rounded-2xl glass-panel border border-slate-800 flex flex-col justify-between">
+                        <div>
+                            <h3 class="text-sm font-bold text-white uppercase tracking-wider mb-4 flex items-center gap-2">
+                                <i class="fa-solid fa-code-compare text-gold"></i> Evaluación de Alternativas de IBL
+                            </h3>
+
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left text-xs">
+                                    <thead class="bg-slate-900 text-slate-400 uppercase tracking-wider border-b border-slate-800">
+                                        <tr>
+                                            <th class="p-3">Alternativa</th>
+                                            <th class="p-3 text-right">IBL ($)</th>
+                                            <th class="p-3 text-center">TR (%)</th>
+                                            <th class="p-3 text-right">Mesada ($)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-slate-800 text-slate-300">
+                                        <tr>
+                                            <td class="p-3 font-medium">Toda la Vida</td>
+                                            <td class="p-3 text-right">$3.677.203</td>
+                                            <td class="p-3 text-center">80,00%</td>
+                                            <td class="p-3 text-right">$2.941.762</td>
+                                        </tr>
+                                        <tr class="bg-gold/10 font-bold text-white">
+                                            <td class="p-3 text-gold">Últimos 10 Años (Favorable)</td>
+                                            <td class="p-3 text-right">$6.432.568</td>
+                                            <td class="p-3 text-center">80,00%</td>
+                                            <td class="p-3 text-right text-gold">$5.146.054</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Badges de Sentencias Aplicadas -->
+                        <div class="mt-6 pt-4 border-t border-slate-800">
+                            <span class="text-[10px] text-slate-400 uppercase tracking-wider block mb-2 font-bold">
+                                Sentencias Eje Aplicadas en el Cálculo:
+                            </span>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="px-2.5 py-1 rounded bg-slate-800 border border-slate-700 text-[11px] text-slate-300">
+                                    <i class="fa-solid fa-gavel text-gold mr-1"></i> Sentencia SL3501/22 (Semanas)
+                                </span>
+                                <span class="px-2.5 py-1 rounded bg-slate-800 border border-slate-700 text-[11px] text-slate-300">
+                                    <i class="fa-solid fa-gavel text-gold mr-1"></i> Ley 797 de 2003 (Art. 10)
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- ========================================== -->
+            <!-- PESTAÑA 4: RETROACTIVO E INDEXACIÓN        -->
+            <!-- ========================================== -->
+            <div id="tab-retorno" class="tab-content hidden space-y-6">
+                
+                <div class="p-6 rounded-2xl glass-panel border border-slate-800 space-y-6">
+                    <div class="flex flex-wrap items-center justify-between gap-4">
+                        <div>
+                            <h2 class="text-lg font-bold text-white">Liquidación de Retroactivo Pensional e Indexación IPC</h2>
+                            <p class="text-xs text-slate-400 mt-1">
+                                Período evaluado: 01/10/2024 al 31/07/2026 (24 mesadas acumuladas pendientes)
+                            </p>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-[10px] text-slate-400 uppercase tracking-widest block">Total Acumulado Reclamable</span>
+                            <span class="text-2xl font-black text-gold">$3.366.109 COP</span>
+                        </div>
+                    </div>
+
+                    <!-- Tabla de Retroactivos Anuales -->
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs">
+                            <thead class="bg-slate-900 text-slate-400 uppercase tracking-wider border-b border-slate-800">
+                                <tr>
+                                    <th class="p-3">Periodo</th>
+                                    <th class="p-3 text-center">Mesadas</th>
+                                    <th class="p-3 text-right">Diferencia Mensual</th>
+                                    <th class="p-3 text-right">Mesadas Pendientes</th>
+                                    <th class="p-3 text-right">Indexación IPC</th>
+                                    <th class="p-3 text-right">Total Acumulado</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-800/70 text-slate-300">
+                                <tr>
+                                    <td class="p-3 font-semibold">2024 (Meses 10 a 12)</td>
+                                    <td class="p-3 text-center">4,00</td>
+                                    <td class="p-3 text-right">$127.005</td>
+                                    <td class="p-3 text-right">$508.019</td>
+                                    <td class="p-3 text-right text-emerald-400">$52.317</td>
+                                    <td class="p-3 text-right font-bold text-white">$560.336</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 font-semibold">2025 (Meses 01 a 12)</td>
+                                    <td class="p-3 text-center">13,00</td>
+                                    <td class="p-3 text-right">$133.609</td>
+                                    <td class="p-3 text-right">$1.736.918</td>
+                                    <td class="p-3 text-right text-emerald-400">$85.893</td>
+                                    <td class="p-3 text-right font-bold text-white">$1.822.811</td>
+                                </tr>
+                                <tr class="bg-gold/10 font-bold">
+                                    <td class="p-3 text-gold">TOTALES ACUMULADOS</td>
+                                    <td class="p-3 text-center text-gold">24,00</td>
+                                    <td class="p-3 text-right">—</td>
+                                    <td class="p-3 text-right text-white">$3.227.899</td>
+                                    <td class="p-3 text-right text-emerald-400">$138.210</td>
+                                    <td class="p-3 text-right text-gold text-sm">$3.366.109</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- ========================================== -->
+            <!-- PESTAÑA 5: CRONOGRAMA Y COTIZACIONES       -->
+            <!-- ========================================== -->
+            <div id="tab-historial" class="tab-content hidden space-y-6">
+                
+                <div class="p-6 rounded-2xl glass-panel border border-slate-800 space-y-4">
+                    <div class="flex flex-wrap items-center justify-between gap-4">
+                        <div>
+                            <h2 class="text-lg font-bold text-white">Historial de Cotizaciones y Parámetros</h2>
+                            <p class="text-xs text-slate-400 mt-1">Filtre y verifique los registros cargados en el estudio actuarial</p>
+                        </div>
+                        
+                        <!-- Barra de Búsqueda y Contador -->
+                        <div class="flex items-center gap-3 w-full sm:w-auto">
+                            <div class="relative w-full sm:w-64">
+                                <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
+                                <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="Buscar periodo o concepto..."
+                                       class="w-full pl-9 pr-4 py-2 rounded-lg bg-slate-900 border border-slate-700 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-gold">
+                            </div>
+                            <span class="px-3 py-2 rounded-lg bg-slate-900 border border-slate-800 text-xs font-bold text-gold whitespace-nowrap">
+                                <span id="recordCount">7</span> Registros
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Tabla Scrollable Sticky -->
+                    <div class="max-h-[520px] overflow-y-auto custom-scrollbar rounded-xl border border-slate-800">
+                        <table class="w-full text-left text-xs" id="historyTable">
+                            <thead class="bg-slate-900 text-slate-400 uppercase tracking-wider sticky top-0 z-10 border-b border-slate-800">
+                                <tr>
+                                    <th class="p-3">Variable / Registro</th>
+                                    <th class="p-3">Detalle / Valor</th>
+                                    <th class="p-3">Sustento Legal / Fuente</th>
+                                    <th class="p-3 text-center">Estado Auditoría</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-800 text-slate-300">
+                                <tr>
+                                    <td class="p-3 font-semibold text-white">Nombre Asegurado</td>
+                                    <td class="p-3">CARMENZA PLAATA FORERO</td>
+                                    <td class="p-3">C.C. 36.554.211</td>
+                                    <td class="p-3 text-center"><span class="px-2 py-0.5 rounded bg-emerald-950 text-emerald-400 text-[10px] font-bold">Validado</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 font-semibold text-white">Fecha de Nacimiento</td>
+                                    <td class="p-3">12/04/1963</td>
+                                    <td class="p-3">Historia Laboral Colpensiones</td>
+                                    <td class="p-3 text-center"><span class="px-2 py-0.5 rounded bg-emerald-950 text-emerald-400 text-[10px] font-bold">Validado</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 font-semibold text-white">Fecha Corte Liquidación</td>
+                                    <td class="p-3">01/10/2024</td>
+                                    <td class="p-3">Resolución SUB 409468 de 2024</td>
+                                    <td class="p-3 text-center"><span class="px-2 py-0.5 rounded bg-emerald-950 text-emerald-400 text-[10px] font-bold">Validado</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 font-semibold text-white">Semanas Cotizadas Totales</td>
+                                    <td class="p-3 font-bold text-gold">2.211,66 Semanas</td>
+                                    <td class="p-3">Sentencia SL3501/2022</td>
+                                    <td class="p-3 text-center"><span class="px-2 py-0.5 rounded bg-emerald-950 text-emerald-400 text-[10px] font-bold">Auditado</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 font-semibold text-white">IBL Promedio Favorable</td>
+                                    <td class="p-3 font-bold text-gold">$6.432.568 COP</td>
+                                    <td class="p-3">Últimos 10 Años de Cotizaciones</td>
+                                    <td class="p-3 text-center"><span class="px-2 py-0.5 rounded bg-emerald-950 text-emerald-400 text-[10px] font-bold">Aprobado</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 font-semibold text-white">Tasa de Reemplazo Legal</td>
+                                    <td class="p-3 text-emerald-400 font-bold">80,00% (Tope)</td>
+                                    <td class="p-3">Ley 797 de 2003 Art. 10</td>
+                                    <td class="p-3 text-center"><span class="px-2 py-0.5 rounded bg-emerald-950 text-emerald-400 text-[10px] font-bold">Corregido</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 font-semibold text-white">Perjuicio Mensual Detectado</td>
+                                    <td class="p-3 text-red-400 font-bold">$127.004 COP / mes</td>
+                                    <td class="p-3">Error de Liquidación Colpensiones (78,03%)</td>
+                                    <td class="p-3 text-center"><span class="px-2 py-0.5 rounded bg-red-950 text-red-400 text-[10px] font-bold">Reclamable</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- ========================================== -->
+            <!-- PESTAÑA 6: DICTAMEN Y CERTIFICACIÓN        -->
+            <!-- ========================================== -->
+            <div id="tab-dictamen" class="tab-content hidden space-y-6">
+                
+                <!-- Tarjeta Dorada de Dictamen Técnico -->
+                <div class="p-6 rounded-2xl glass-panel gold-border-glow space-y-4">
+                    <div class="flex items-center gap-3">
+                        <i class="fa-solid fa-file-signature text-2xl text-gold"></i>
+                        <h2 class="text-xl font-bold text-white">Dictamen Técnico Estratégico</h2>
+                    </div>
+                    <p class="text-xs text-slate-300 leading-relaxed text-justify">
+                        Se concluye de forma contundente que la liquidación administrativa realizada por Colpensiones mediante la <strong>Resolución SUB 409468 del 22 de noviembre de 2024</strong> cercenó el derecho de la cotizante <strong>CARMENZA PLAATA FORERO</strong> al otorgarle una Tasa de Reemplazo del <strong>78,03%</strong> en lugar del <strong>80,00%</strong> al que tiene derecho legal por sus 2.211,66 semanas cotizadas (amparado en la Sentencia SL3501/2022). Esto genera una diferencia mensual a su favor de <strong>$127.004 COP</strong> y un retroactivo acumulado e indexado de <strong>$3.366.109 COP</strong>.
+                    </p>
+                </div>
+
+                <!-- 3 Tarjetas de Veredicto por Alternativa -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="p-4 rounded-xl glass-card border border-slate-800">
+                        <span class="text-[10px] text-slate-500 uppercase font-bold block">Veredicto IBL</span>
+                        <div class="text-sm font-bold text-white mt-1">Últimos 10 Años Favorable</div>
+                        <p class="text-[11px] text-slate-400 mt-1">Mayor rendimiento financiero frente al promedio de toda la vida.</p>
+                    </div>
+
+                    <div class="p-4 rounded-xl glass-card border border-slate-800">
+                        <span class="text-[10px] text-slate-500 uppercase font-bold block">Veredicto Tasa Reemplazo</span>
+                        <div class="text-sm font-bold text-gold mt-1">80,00% Reclamable</div>
+                        <p class="text-[11px] text-slate-400 mt-1">Procedente por vía administrativa o demanda ordinaria laboral.</p>
+                    </div>
+
+                    <div class="p-4 rounded-xl glass-card border border-slate-800">
+                        <span class="text-[10px] text-slate-500 uppercase font-bold block">Veredicto Retroactivo</span>
+                        <div class="text-sm font-bold text-emerald-400 mt-1">$3.366.109 Indexado</div>
+                        <p class="text-[11px] text-slate-400 mt-1">24 mesadas acumuladas al corte de julio de 2026.</p>
+                    </div>
+                </div>
+
+                <!-- Pie con Tarjeta de Certificación Oficial de Empresa Liquidadora Real -->
+                <div class="p-6 rounded-2xl bg-slate-900 border border-slate-800 flex flex-wrap items-center justify-between gap-6">
+                    <div class="space-y-1">
+                        <div class="text-xs font-bold text-slate-400 uppercase tracking-widest">Certificación Técnica de Estudio</div>
+                        <div class="text-lg font-bold text-white">SANDRA GALEANO</div>
+                        <div class="text-xs text-gold font-medium">Directora de Consultoría Actuarial</div>
+                        <div class="text-xs text-slate-400">PENSION SIN COMPLICACION</div>
+                    </div>
+
+                    <div class="px-6 py-4 rounded-xl bg-slate-950 border border-gold/30 text-center">
+                        <i class="fa-solid fa-certificate text-gold text-2xl mb-1"></i>
+                        <div class="text-xs font-bold text-white uppercase">Dictamen Aprobado</div>
+                        <div class="text-[10px] text-slate-400">Validez Jurídica y Actuarial | Fecha: 01/09/2026</div>
+                    </div>
+                </div>
+
+            </div>
+
+        </main>
+
+        <!-- FOOTER GENERAL -->
+        <footer class="border-t border-slate-800 bg-slate-950 py-4 text-center text-xs text-slate-500">
+            <div class="max-w-7xl mx-auto px-4 flex flex-wrap justify-between items-center gap-2">
+                <span>SU PENSIÓN PLUS &copy; 2026 - Todos los derechos reservados.</span>
+                <span>Estudio generado para: <strong class="text-slate-300">CARMENZA PLAATA FORERO</strong></span>
+            </div>
+        </footer>
+
+    </div>
+
+    <!-- ========================================== -->
+    <!-- LOGICA JAVASCRIPT                          -->
+    <!-- ========================================== -->
+    <script>
+        // Credenciales extraídas del documento real
+        const REAL_CC = "36554211";
+        const REAL_PASS = "4211";
+
+        let myChart = null;
+
+        // Función de Validación de Login
+        function validateLogin(e) {
+            e.preventDefault();
+            const userVal = document.getElementById("loginUser").value.trim().replace(/\./g, "");
+            const passVal = document.getElementById("loginPassword").value.trim();
+            const errorDiv = document.getElementById("loginError");
+
+            if (userVal === REAL_CC && passVal === REAL_PASS) {
+                document.getElementById("login-screen").classList.add("hidden");
+                document.getElementById("main-dashboard").classList.remove("hidden");
+                initChart();
+            } else {
+                errorDiv.classList.remove("hidden");
+            }
+        }
+
+        function logout() {
+            document.getElementById("main-dashboard").classList.add("hidden");
+            document.getElementById("login-screen").classList.remove("hidden");
+            document.getElementById("loginForm").reset();
+            document.getElementById("loginError").classList.add("hidden");
+        }
+
+        // Navegación entre Pestañas
+        function switchTab(tabId) {
+            // Ocultar todos los contenidos
+            document.querySelectorAll(".tab-content").forEach(el => el.classList.add("hidden"));
+            // Desactivar estilo de todos los botones
+            document.querySelectorAll(".tab-btn").forEach(btn => {
+                btn.classList.remove("text-gold", "border-gold");
+                btn.classList.add("text-slate-400", "border-transparent");
+            });
+
+            // Mostrar contenido seleccionado
+            document.getElementById(tabId).classList.remove("hidden");
+
+            // Activar botón seleccionado
+            const activeBtn = document.getElementById("btn-" + tabId);
+            activeBtn.classList.remove("text-slate-400", "border-transparent");
+            activeBtn.classList.add("text-gold", "border-gold");
+        }
+
+        // Inicializar Gráfico Chart.js
+        function initChart() {
+            if (myChart) return;
+
+            const ctx = document.getElementById('resumenChart').getContext('2d');
+            myChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Colpensiones (Oficial)', 'Reliquidación (Nuestra)'],
+                    datasets: [{
+                        label: 'Mesada Pensional ($ COP)',
+                        data: [5019050, 5146054],
+                        backgroundColor: [
+                            'rgba(148, 163, 184, 0.5)',
+                            'rgba(212, 175, 55, 0.85)'
+                        ],
+                        borderColor: [
+                            '#94a3b8',
+                            '#D4AF37'
+                        ],
+                        borderWidth: 1.5,
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return ' Mesada: $' + context.raw.toLocaleString('es-CO') + ' COP';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            min: 4800000,
+                            ticks: {
+                                color: '#94a3b8',
+                                callback: function(value) {
+                                    return '$' + (value/1000000).toFixed(2) + 'M';
+                                }
+                            },
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' }
+                        },
+                        x: {
+                            ticks: { color: '#f8fafc', font: { weight: 'bold' } },
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Filtro de Tabla en Tiempo Real
+        function filterTable() {
+            const input = document.getElementById("searchInput").value.toLowerCase();
+            const rows = document.querySelectorAll("#historyTable tbody tr");
+            let visibleCount = 0;
+
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                if (text.includes(input)) {
+                    row.style.display = "";
+                    visibleCount++;
+                } else {
+                    row.style.display = "none";
+                }
+            });
+
+            document.getElementById("recordCount").innerText = visibleCount;
+        }
+    </script>
+</body>
+</html>
