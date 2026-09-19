@@ -1,0 +1,1239 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Su Pensión Plus - Portal Ejecutivo de Liquidación Pensional</title>
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- FontAwesome CDN -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    /* RESET & BASE STYLES */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: #070B14;
+      color: #F8FAFC;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      line-height: 1.5;
+      overflow-x: hidden;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    button, input, select { font: inherit; }
+
+    /* PALETTE VARIABLES */
+    :root {
+      --bg-dark: #070B14;
+      --card-bg: #0F172A;
+      --card-border: rgba(255, 255, 255, 0.08);
+      --card-hover: #1E293B;
+      --gold-primary: #D4AF37;
+      --gold-light: #FDE047;
+      --gold-dark: #997A15;
+      --gold-glow: rgba(212, 175, 55, 0.25);
+      --accent-blue: #38BDF8;
+      --accent-green: #22C55E;
+      --text-muted: #94A3B8;
+      --text-light: #F1F5F9;
+    }
+
+    /* SCROLLBAR */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #070B14; }
+    ::-webkit-scrollbar-thumb { background: #1E293B; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #D4AF37; }
+
+    /* UTILITY CLASSES */
+    .hidden { display: none !important; }
+    .gold-text { color: var(--gold-primary); }
+    .gold-gradient-text {
+      background: linear-gradient(135deg, #FFF 0%, var(--gold-primary) 50%, var(--gold-light) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.25rem 0.65rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      background: rgba(212, 175, 55, 0.12);
+      color: var(--gold-primary);
+      border: 1px solid rgba(212, 175, 55, 0.3);
+    }
+
+    /* GLASS CONTAINER */
+    .glass-card {
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--card-border);
+      border-radius: 1rem;
+      padding: 1.25rem;
+      box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+    }
+
+    /* LOGIN SCREEN */
+    #login-screen {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: radial-gradient(circle at center, #1E293B 0%, #070B14 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.25rem;
+    }
+
+    .login-box {
+      width: 100%;
+      max-width: 420px;
+      padding: 2.25rem 1.75rem;
+      text-align: center;
+      border: 1px solid rgba(212, 175, 55, 0.2);
+      box-shadow: 0 0 50px rgba(0,0,0,0.8), 0 0 20px var(--gold-glow);
+    }
+
+    .login-logo {
+      font-size: 1.75rem;
+      font-weight: 800;
+      letter-spacing: 1px;
+      margin-bottom: 0.25rem;
+    }
+
+    .login-subtitle {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 2rem;
+    }
+
+    .form-group {
+      text-align: left;
+      margin-bottom: 1.25rem;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: var(--gold-primary);
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+    }
+
+    .input-wrapper {
+      position: relative;
+    }
+
+    .input-wrapper i {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 0.85rem 1rem 0.85rem 2.75rem;
+      background: rgba(7, 11, 20, 0.8);
+      border: 1px solid var(--card-border);
+      border-radius: 0.5rem;
+      color: #FFF;
+      font-size: 0.95rem;
+      transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: var(--gold-primary);
+      box-shadow: 0 0 10px var(--gold-glow);
+    }
+
+    .btn-primary {
+      width: 100%;
+      padding: 0.9rem;
+      background: linear-gradient(135deg, var(--gold-primary) 0%, var(--gold-dark) 100%);
+      border: none;
+      border-radius: 0.5rem;
+      color: #000;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: 0.5rem;
+      box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(212, 175, 55, 0.5);
+    }
+
+    .login-error {
+      color: #EF4444;
+      font-size: 0.8rem;
+      margin-top: 1rem;
+      display: none;
+      background: rgba(239, 68, 68, 0.1);
+      padding: 0.5rem;
+      border-radius: 0.375rem;
+      border: 1px solid rgba(239, 68, 68, 0.2);
+    }
+
+    /* MAIN APP STRUCTURE */
+    #main-dashboard {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* HEADER */
+    header {
+      background: rgba(15, 23, 42, 0.9);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--card-border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      padding: 0.85rem 1.25rem;
+    }
+
+    .header-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .brand-title {
+      font-size: 1.25rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .header-meta {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    /* NAVIGATION TABS */
+    nav.nav-tabs {
+      background: rgba(7, 11, 20, 0.95);
+      border-bottom: 1px solid var(--card-border);
+      padding: 0 1.25rem;
+      overflow-x: auto;
+      white-space: nowrap;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .tabs-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .tab-btn {
+      padding: 0.85rem 1.15rem;
+      background: transparent;
+      border: none;
+      border-bottom: 3px solid transparent;
+      color: var(--text-muted);
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.2s ease;
+    }
+
+    .tab-btn:hover {
+      color: #FFF;
+    }
+
+    .tab-btn.active {
+      color: var(--gold-primary);
+      border-bottom-color: var(--gold-primary);
+      background: rgba(212, 175, 55, 0.05);
+    }
+
+    /* LAYOUT CONTAINER */
+    main.content-body {
+      flex: 1;
+      max-width: 1400px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 1.25rem;
+    }
+
+    .tab-content {
+      display: none;
+      animation: fadeIn 0.3s ease-in-out;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* BANNER BIENVENIDA */
+    .welcome-banner {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.9) 0%, rgba(30, 41, 59, 0.7) 100%);
+      border-left: 4px solid var(--gold-primary);
+      margin-bottom: 1.25rem;
+    }
+
+    .user-info h2 { font-size: 1.35rem; font-weight: 700; margin-bottom: 0.25rem; }
+    .user-info p { font-size: 0.85rem; color: var(--text-muted); }
+
+    /* GRID & CARDS */
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(1, 1fr);
+      gap: 1rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .kpi-card {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .kpi-icon {
+      width: 50px;
+      height: 50px;
+      border-radius: 0.75rem;
+      background: rgba(212, 175, 55, 0.1);
+      color: var(--gold-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      flex-shrink: 0;
+    }
+
+    .kpi-data span {
+      display: block;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    .kpi-data h3 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #FFF;
+      margin-top: 0.1rem;
+    }
+
+    .layout-7-5 {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.25rem;
+      margin-bottom: 1.25rem;
+    }
+
+    /* SCENARIOS COMPARISON CARDS */
+    .grid-scenarios {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.25rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .scenario-card {
+      position: relative;
+      border: 1px solid var(--card-border);
+      transition: all 0.3s ease;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .scenario-card.recommended {
+      border-color: var(--gold-primary);
+      box-shadow: 0 0 25px rgba(212, 175, 55, 0.15);
+    }
+
+    .scenario-header {
+      padding-bottom: 1rem;
+      margin-bottom: 1rem;
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    .scenario-body {
+      flex: 1;
+    }
+
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.6rem 0;
+      border-bottom: 1px dashed rgba(255, 255, 255, 0.05);
+      font-size: 0.85rem;
+    }
+
+    .stat-row:last-child { border-bottom: none; }
+    .stat-row .label { color: var(--text-muted); }
+    .stat-row .val { font-weight: 700; color: #FFF; }
+
+    /* TABLES */
+    .table-responsive {
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      border-radius: 0.75rem;
+      border: 1px solid var(--card-border);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.85rem;
+    }
+
+    th {
+      background: rgba(15, 23, 42, 0.95);
+      color: var(--gold-primary);
+      font-weight: 700;
+      padding: 0.85rem 1rem;
+      border-bottom: 1px solid var(--card-border);
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 0.5px;
+    }
+
+    td {
+      padding: 0.85rem 1rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      color: var(--text-light);
+    }
+
+    tbody tr:hover {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .sticky-header th {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    /* SEARCH BAR */
+    .search-box {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(7, 11, 20, 0.8);
+      border: 1px solid var(--card-border);
+      border-radius: 0.5rem;
+      padding: 0.5rem 0.85rem;
+      margin-bottom: 1rem;
+      max-width: 400px;
+    }
+
+    .search-box input {
+      background: transparent;
+      border: none;
+      color: #FFF;
+      outline: none;
+      width: 100%;
+      font-size: 0.85rem;
+    }
+
+    /* DICTAMEN CARD */
+    .dictamen-gold-box {
+      background: linear-gradient(135deg, rgba(212, 175, 55, 0.1) 0%, rgba(15, 23, 42, 0.9) 100%);
+      border: 1px solid var(--gold-primary);
+      border-radius: 1rem;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    /* FOOTER */
+    footer {
+      background: rgba(15, 23, 42, 0.95);
+      border-top: 1px solid var(--card-border);
+      padding: 1.25rem;
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: auto;
+    }
+
+    /* MEDIA QUERIES FOR BREAKPOINTS */
+    @media (min-width: 640px) {
+      .grid-4 { grid-template-columns: repeat(2, 1fr); }
+      .grid-scenarios { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (min-width: 1024px) {
+      .grid-4 { grid-template-columns: repeat(4, 1fr); }
+      .layout-7-5 { grid-template-columns: 7fr 5fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- PANTALLA DE LOGIN -->
+  <div id="login-screen">
+    <div class="glass-card login-box">
+      <div class="login-logo gold-gradient-text">
+        <i class="fa-solid fa-shield-halved gold-text"></i> SU PENSIÓN PLUS
+      </div>
+      <p class="login-subtitle">Portal Privado de Liquidaciones Pensionales</p>
+
+      <form id="login-form" onsubmit="event.preventDefault(); validateLogin();">
+        <div class="form-group">
+          <label>USUARIO</label>
+          <div class="input-wrapper">
+            <i class="fa-solid fa-user"></i>
+            <input type="password" id="login-user" class="form-control" placeholder="*********" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>CONTRASEÑA</label>
+          <div class="input-wrapper">
+            <i class="fa-solid fa-key"></i>
+            <input type="password" id="login-pass" class="form-control" placeholder="****" required>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-primary">
+          <i class="fa-solid fa-right-to-bracket"></i> Ingresar al Portal Ejecutivo
+        </button>
+
+        <div id="login-error" class="login-error">
+          <i class="fa-solid fa-circle-exclamation"></i> Credenciales no válidas. Intente de nuevo por favor.
+        </div>
+      </form>
+
+      <div style="margin-top: 1.5rem; font-size: 0.75rem; color: var(--text-muted); border-top: 1px solid var(--card-border); padding-top: 1rem;">
+        Estudio Elaborado por: <strong style="color: #FFF;">SUPENSION PLUS</strong>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN DASHBOARD -->
+  <div id="main-dashboard" class="hidden">
+    <!-- HEADER -->
+    <header>
+      <div class="header-container">
+        <div class="brand-title gold-gradient-text">
+          <i class="fa-solid fa-chart-line gold-text"></i> SU PENSIÓN PLUS
+        </div>
+        <div class="header-meta">
+          <div class="badge">
+            <i class="fa-solid fa-building"></i> SUPENSION PLUS
+          </div>
+          <button onclick="logout()" style="background:none; border:none; color: var(--text-muted); cursor:pointer; font-size: 0.85rem;">
+            <i class="fa-solid fa-power-off"></i>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- TABS NAVIGATION -->
+    <nav class="nav-tabs">
+      <div class="tabs-container">
+        <button class="tab-btn active" onclick="switchTab('tab-resumen')">
+          <i class="fa-solid fa-house"></i> Resumen Ejecutivo
+        </button>
+        <button class="tab-btn" onclick="switchTab('tab-escenarios')">
+          <i class="fa-solid fa-sliders"></i> Escenarios Comparativos
+        </button>
+        <button class="tab-btn" onclick="switchTab('tab-liquidacion')">
+          <i class="fa-solid fa-calculator"></i> Liquidación Técnica & IBL
+        </button>
+        <button class="tab-btn" onclick="switchTab('tab-retorno')">
+          <i class="fa-solid fa-chart-pie"></i> Retorno Inversión (RIM)
+        </button>
+        <button class="tab-btn" onclick="switchTab('tab-historial')">
+          <i class="fa-solid fa-calendar-days"></i> Cronograma IBC
+        </button>
+        <button class="tab-btn" onclick="switchTab('tab-dictamen')">
+          <i class="fa-solid fa-file-contract"></i> Dictamen & Certificación
+        </button>
+      </div>
+    </nav>
+
+    <!-- BODY CONTENT -->
+    <main class="content-body">
+
+      <!-- BANNER BIENVENIDA OBLIGATORIO -->
+      <div class="glass-card welcome-banner">
+        <div class="user-info">
+          <h2>Francisco José Naranjo Barbosa</h2>
+          <p><i class="fa-solid fa-id-card"></i> C.C. 91.475.878 &nbsp;|&nbsp; <i class="fa-solid fa-calendar"></i> Fecha del Estudio: 19 de septiembre de 2026</p>
+        </div>
+        <div>
+          <span class="badge" style="font-size: 0.85rem; padding: 0.4rem 0.85rem;">
+            <i class="fa-solid fa-circle-check"></i> Opción Óptima: ÚLTIMOS 10 AÑOS
+          </span>
+        </div>
+      </div>
+
+      <!-- PESTAÑA 1: RESUMEN EJECUTIVO -->
+      <div id="tab-resumen" class="tab-content active">
+        <!-- 4 KPIS FIJOS -->
+        <div class="grid-4">
+          <div class="glass-card kpi-card">
+            <div class="kpi-icon"><i class="fa-solid fa-sack-dollar"></i></div>
+            <div class="kpi-data">
+              <span>Mesada Óptima (E2)</span>
+              <h3>$27.878.599</h3>
+            </div>
+          </div>
+          <div class="glass-card kpi-card">
+            <div class="kpi-icon"><i class="fa-solid fa-clock-rotate-left"></i></div>
+            <div class="kpi-data">
+              <span>Amortización RIM</span>
+              <h3>4,37 Años</h3>
+            </div>
+          </div>
+          <div class="glass-card kpi-card">
+            <div class="kpi-icon"><i class="fa-solid fa-wallet"></i></div>
+            <div class="kpi-data">
+              <span>Mesada Base (E1)</span>
+              <h3>$24.686.771</h3>
+            </div>
+          </div>
+          <div class="glass-card kpi-card">
+            <div class="kpi-icon"><i class="fa-solid fa-award"></i></div>
+            <div class="kpi-data">
+              <span>Bonificación PA</span>
+              <h3>+18,00% TR</h3>
+            </div>
+          </div>
+        </div>
+
+        <!-- LAYOUT 7:5 -->
+        <div class="layout-7-5">
+          <!-- GRAFICO -->
+          <div class="glass-card">
+            <h3 style="font-size: 1rem; font-weight: 700; margin-bottom: 1rem;" class="gold-gradient-text">
+              <i class="fa-solid fa-chart-column"></i> Comparativo de Mesadas y Costo de Oportunidad
+            </h3>
+            <div style="position: relative; height: 280px; width: 100%;">
+              <canvas id="chartResumen"></canvas>
+            </div>
+          </div>
+
+          <!-- HALLAZGOS Y ALERTAS -->
+          <div class="glass-card" style="display: flex; flex-direction: column; justify-content: space-between;">
+            <h3 style="font-size: 1rem; font-weight: 700; margin-bottom: 1rem;" class="gold-gradient-text">
+              <i class="fa-solid fa-triangle-exclamation"></i> Hallazgos Relevantes y Alertas Técnicas
+            </h3>
+            <div style="display: flex; flex-direction: column; gap: 0.85rem;">
+              <div style="background: rgba(255,255,255,0.03); padding: 0.75rem; border-radius: 0.5rem; border-left: 3px solid var(--gold-primary);">
+                <strong style="font-size: 0.85rem; color: #FFF; display: block; margin-bottom: 0.2rem;">Semanas Consolidadas</strong>
+                <p style="font-size: 0.8rem; color: var(--text-muted);">
+                  Se valida un total proyectado de <strong>1.937,80 semanas</strong> aplicando la Sentencia SL135/2022 o SL3501/22 que computa la totalidad de semanas laborales.
+                </p>
+              </div>
+
+              <div style="background: rgba(255,255,255,0.03); padding: 0.75rem; border-radius: 0.5rem; border-left: 3px solid var(--accent-blue);">
+                <strong style="font-size: 0.85rem; color: #FFF; display: block; margin-bottom: 0.2rem;">Ventana de Liquidación Óptima</strong>
+                <p style="font-size: 0.8rem; color: var(--text-muted);">
+                  El promedio de los últimos 10 años ($36.495.089 en E2) supera drásticamente al de toda la vida ($21.778.956). Se aplica régimen de los últimos 10 años.
+                </p>
+              </div>
+
+              <div style="background: rgba(255,255,255,0.03); padding: 0.75rem; border-radius: 0.5rem; border-left: 3px solid var(--accent-green);">
+                <strong style="font-size: 0.85rem; color: #FFF; display: block; margin-bottom: 0.2rem;">Eficiencia del Incremento</strong>
+                <p style="font-size: 0.8rem; color: var(--text-muted);">
+                  Adicionar $4.000.000 de IBC desde abril 2027 genera un incremento en la mesada de <strong>+$3.191.828/mes</strong> con una tasa de retorno del capital en 52,45 meses.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PESTAÑA 2: ESCENARIOS COMPARATIVOS -->
+      <div id="tab-escenarios" class="tab-content">
+        <div class="grid-scenarios">
+          <!-- ESCENARIO 1 -->
+          <div class="glass-card scenario-card">
+            <div class="scenario-header">
+              <span style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">ESCENARIO 1</span>
+              <h3 style="font-size: 1.2rem; font-weight: 800; color: #FFF; margin-top: 0.2rem;">Cotización Actual (Base + IPC)</h3>
+              <div style="font-size: 1.5rem; font-weight: 800; color: #FFF; margin-top: 0.5rem;">
+                $24.686.771 <span style="font-size: 0.8rem; font-weight: 400; color: var(--text-muted);">/ mes</span>
+              </div>
+            </div>
+            <div class="scenario-body">
+              <div class="stat-row"><span class="label">IBC Inicial (2026)</span><span class="val">$27.000.000</span></div>
+              <div class="stat-row"><span class="label">IBC Final Proyectado (2037)</span><span class="val">$31.945.191</span></div>
+              <div class="stat-row"><span class="label">IBL Proyectado (Últimos 10 Años)</span><span class="val">$31.944.579</span></div>
+              <div class="stat-row"><span class="label">Tasa de Reemplazo (TR)</span><span class="val">77,28%</span></div>
+              <div class="stat-row"><span class="label">Semanas Totales</span><span class="val">1.937,80</span></div>
+              <div class="stat-row"><span class="label">Inversión Adicional SS</span><span class="val" style="color: var(--accent-green);">$0 COP</span></div>
+            </div>
+          </div>
+
+          <!-- ESCENARIO 2 -->
+          <div class="glass-card scenario-card recommended">
+            <div style="position: absolute; top: -12px; right: 15px;">
+              <span class="badge" style="background: var(--gold-primary); color: #000; font-weight: 800;"><i class="fa-solid fa-star"></i> RECOMENDADO</span>
+            </div>
+            <div class="scenario-header">
+              <span style="font-size: 0.75rem; color: var(--gold-primary); text-transform: uppercase; font-weight: 700;">ESCENARIO 2</span>
+              <h3 style="font-size: 1.2rem; font-weight: 800; color: #FFF; margin-top: 0.2rem;">Incremento +$4M desde Abril 2027</h3>
+              <div style="font-size: 1.5rem; font-weight: 800; color: var(--gold-primary); margin-top: 0.5rem;">
+                $27.878.599 <span style="font-size: 0.8rem; font-weight: 400; color: var(--text-muted);">/ mes</span>
+              </div>
+            </div>
+            <div class="scenario-body">
+              <div class="stat-row"><span class="label">IBC Inicial 2027 con Adición</span><span class="val">$32.080.000</span></div>
+              <div class="stat-row"><span class="label">IBC Final Proyectado (2037)</span><span class="val">$36.495.788</span></div>
+              <div class="stat-row"><span class="label">IBL Proyectado (Últimos 10 Años)</span><span class="val">$36.495.089</span></div>
+              <div class="stat-row"><span class="label">Tasa de Reemplazo (TR)</span><span class="val">76,39%</span></div>
+              <div class="stat-row"><span class="label">Semanas Totales</span><span class="val">1.937,80</span></div>
+              <div class="stat-row"><span class="label">Inversión Total SS (Pensión+EPS)</span><span class="val" style="color: var(--gold-primary);">$147.324.541</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- MATRIZ DE INCREMENTOS MARGINALES -->
+        <div class="glass-card">
+          <h3 style="font-size: 1rem; font-weight: 700; margin-bottom: 1rem;" class="gold-gradient-text">
+            <i class="fa-solid fa-chart-line"></i> Matriz de Incremento Marginal e Impacto Neto
+          </h3>
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>Concepto Evaluado</th>
+                  <th>Escenario 1</th>
+                  <th>Escenario 2</th>
+                  <th>Diferencial Marginal (E2 - E1)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Mesada Pensional Bruta</strong></td>
+                  <td>$24.686.771</td>
+                  <td>$27.878.599</td>
+                  <td style="color: var(--accent-green); font-weight: 700;">+$3.191.828 / mes</td>
+                </tr>
+                <tr>
+                  <td><strong>Descuento Salud (12%)</strong></td>
+                  <td>$2.962.413</td>
+                  <td>$3.345.432</td>
+                  <td>+$383.019 / mes</td>
+                </tr>
+                <tr>
+                  <td><strong>Mesada Pensional Neta</strong></td>
+                  <td>$21.724.358</td>
+                  <td>$24.533.167</td>
+                  <td style="color: var(--gold-primary); font-weight: 700;">+$2.808.809 / mes</td>
+                </tr>
+                <tr>
+                  <td><strong>Inversión en Seguridad Social</strong></td>
+                  <td>$0</td>
+                  <td>$147.324.541</td>
+                  <td style="color: #F87171;">+$147.324.541</td>
+                </tr>
+                <tr>
+                  <td><strong>Velocidad de Amortización (RIM)</strong></td>
+                  <td>Inmediato (0 meses)</td>
+                  <td>6,01 meses (Global)</td>
+                  <td style="font-weight: 700;">52,45 meses (4,37 Años)</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- PESTAÑA 3: LIQUIDACIÓN TÉCNICA & IBL -->
+      <div id="tab-liquidacion" class="tab-content">
+        <div class="layout-7-5">
+          <!-- FORMULA EXPLICATIVA -->
+          <div class="glass-card">
+            <h3 style="font-size: 1rem; font-weight: 700; margin-bottom: 1rem;" class="gold-gradient-text">
+              <i class="fa-solid fa-square-root-variable"></i> Desglose Matemático Ley 797 de 2003
+            </h3>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">
+              La Tasa de Reemplazo (TR) se calcula como la suma de la Tasa Básica (R) más la Bonificación por Semanas Adicionales (PA):
+            </p>
+            
+            <div style="background: rgba(7, 11, 20, 0.8); padding: 1rem; border-radius: 0.5rem; border: 1px solid var(--card-border); font-family: monospace; font-size: 0.85rem; color: var(--gold-primary); margin-bottom: 1.25rem;">
+              TR = R + PA <br>
+              R = 65,5 - 0,5 x ( IBL / Smin ) <br>
+              PA = ( Semanas Totales - 1.300 ) / 50 x 1,5%
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 1rem; font-size: 0.85rem;">
+              <div style="border-bottom: 1px solid var(--card-border); padding-bottom: 0.75rem;">
+                <strong style="color: #FFF;">Desarrollo Escenario 1:</strong>
+                <p style="color: var(--text-muted); margin-top: 0.25rem;">
+                  S = $31.944.579 / $2.567.367 = 12,44 SMLMV <br>
+                  R = 65,5 - (0,5 x 12,44) = <strong>59,28%</strong> <br>
+                  PA = (1.937,80 - 1.300) / 50 x 1,5 = <strong>18,00%</strong> <br>
+                  <strong style="color: var(--gold-primary);">TR Final = 59,28% + 18,00% = 77,28%</strong>
+                </p>
+              </div>
+
+              <div>
+                <strong style="color: #FFF;">Desarrollo Escenario 2:</strong>
+                <p style="color: var(--text-muted); margin-top: 0.25rem;">
+                  S = $36.495.089 / $2.567.367 = 14,21 SMLMV <br>
+                  R = 65,5 - (0,5 x 14,21) = <strong>58,39%</strong> <br>
+                  PA = (1.937,80 - 1.300) / 50 x 1,5 = <strong>18,00%</strong> <br>
+                  <strong style="color: var(--gold-primary);">TR Final = 58,39% + 18,00% = 76,39%</strong>
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- PROMEDIOS Y SENTENCIAS -->
+          <div class="glass-card" style="display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+              <h3 style="font-size: 1rem; font-weight: 700; margin-bottom: 1rem;" class="gold-gradient-text">
+                <i class="fa-solid fa-scale-balanced"></i> Comparativo IBL & Marco Jurisprudencial
+              </h3>
+              
+              <div class="table-responsive" style="margin-bottom: 1.25rem;">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Ventana de Tiempo</th>
+                      <th>IBL Escenario 1</th>
+                      <th>IBL Escenario 2</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr style="background: rgba(212, 175, 55, 0.08);">
+                      <td><strong>Últimos 10 Años (Aplicado)</strong></td>
+                      <td style="font-weight: 700; color: #FFF;">$31.944.579</td>
+                      <td style="font-weight: 700; color: var(--gold-primary);">$36.495.089</td>
+                    </tr>
+                    <tr>
+                      <td>Toda la Vida Laboral</td>
+                      <td>$20.570.551</td>
+                      <td>$21.778.956</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div>
+              <h4 style="font-size: 0.85rem; font-weight: 700; color: #FFF; margin-bottom: 0.5rem;">Sentencias Fundamentales Aplicadas:</h4>
+              <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                <span class="badge"><i class="fa-solid fa-gavel"></i> Sentencia SL135/2022</span>
+                <span class="badge"><i class="fa-solid fa-gavel"></i> Sentencia SL3501/2022</span>
+                <span class="badge" style="background: rgba(56, 189, 248, 0.1); color: var(--accent-blue); border-color: rgba(56, 189, 248, 0.3);"><i class="fa-solid fa-book-bookmark"></i> Ley 797 de 2003</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PESTAÑA 4: RETORNO DE INVERSIÓN (RIM) -->
+      <div id="tab-retorno" class="tab-content">
+        <div class="glass-card" style="margin-bottom: 1.25rem;">
+          <h3 style="font-size: 1rem; font-weight: 700; margin-bottom: 0.5rem;" class="gold-gradient-text">
+            <i class="fa-solid fa-calculator"></i> Análisis de Amortización RIM (Retorno de Inversión en Meses)
+          </h3>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.25rem;">
+            El indicador RIM mide el número exacto de meses de cobro pensional de la mesada neta (descontando el 12% obligatorio de salud) requeridos para recuperar el 100% del capital invertido en Seguridad Social.
+          </p>
+
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>Análisis de Retorno</th>
+                  <th>Mesada Bruta</th>
+                  <th>Descuento Salud (12%)</th>
+                  <th>Mesada Neta</th>
+                  <th>Inversión Total SS</th>
+                  <th>Retorno (RIM)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Escenario 1 (Base)</strong></td>
+                  <td>$24.686.771</td>
+                  <td>$2.962.413</td>
+                  <td>$21.724.358</td>
+                  <td>$0</td>
+                  <td><span class="badge">0,00 meses</span></td>
+                </tr>
+                <tr>
+                  <td><strong>Escenario 2 (Global)</strong></td>
+                  <td>$27.878.599</td>
+                  <td>$3.345.432</td>
+                  <td>$24.533.167</td>
+                  <td>$147.324.541</td>
+                  <td><span class="badge">6,01 meses</span></td>
+                </tr>
+                <tr style="background: rgba(212, 175, 55, 0.1);">
+                  <td><strong style="color: var(--gold-primary);">Escenario 2 vs E1 (Marginal)</strong></td>
+                  <td style="color: var(--accent-green); font-weight: 700;">+$3.191.828</td>
+                  <td>+$383.019</td>
+                  <td style="color: var(--gold-primary); font-weight: 700;">+$2.808.809</td>
+                  <td>$147.324.541</td>
+                  <td><span class="badge" style="background: var(--gold-primary); color: #000; font-weight: 800;">52,45 meses (4,37 Años)</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="glass-card">
+          <h3 style="font-size: 1rem; font-weight: 700; margin-bottom: 1rem;" class="gold-gradient-text">
+            <i class="fa-solid fa-chart-line"></i> Proyección de Flujo de Caja Acumulado (Marginal)
+          </h3>
+          <div style="position: relative; height: 260px; width: 100%;">
+            <canvas id="chartRim"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- PESTAÑA 5: CRONOGRAMA & COTIZACIONES -->
+      <div id="tab-historial" class="tab-content">
+        <div class="glass-card">
+          <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+            <div>
+              <h3 style="font-size: 1rem; font-weight: 700;" class="gold-gradient-text">
+                <i class="fa-solid fa-timeline"></i> Proyección del Ingreso Base de Cotización (IBC) 2026 - 2037
+              </h3>
+              <p style="font-size: 0.8rem; color: var(--text-muted);">Evolución proyectada según la inflación ajustada por IPC</p>
+            </div>
+            <div class="search-box">
+              <i class="fa-solid fa-magnifying-glass" style="color: var(--text-muted);"></i>
+              <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="Buscar año o valor...">
+            </div>
+          </div>
+
+          <div class="table-responsive" style="max-height: 480px; overflow-y: auto;">
+            <table id="ibcTable" class="sticky-header">
+              <thead>
+                <tr>
+                  <th>Año Proyectado</th>
+                  <th>IPC Anual Est.</th>
+                  <th>IBC Escenario 1 (Actual)</th>
+                  <th>IBC Escenario 2 (+$4M desde 2027)</th>
+                  <th>Diferencial IBC</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>2026</td><td>Base</td><td>$27.000.000</td><td>$27.000.000</td><td>$0</td></tr>
+                <tr><td>2027</td><td>4,00%</td><td>$28.080.000</td><td>$32.080.000</td><td style="color: var(--gold-primary); font-weight: 700;">+$4.000.000</td></tr>
+                <tr><td>2028</td><td>3,00%</td><td>$28.922.400</td><td>$33.042.400</td><td>+$4.120.000</td></tr>
+                <tr><td>2029</td><td>2,00%</td><td>$29.500.848</td><td>$33.703.248</td><td>+$4.202.400</td></tr>
+                <tr><td>2030</td><td>1,00%</td><td>$29.795.856</td><td>$34.040.280</td><td>+$4.244.424</td></tr>
+                <tr><td>2031</td><td>1,00%</td><td>$30.093.815</td><td>$34.380.683</td><td>+$4.286.868</td></tr>
+                <tr><td>2032</td><td>1,00%</td><td>$30.394.753</td><td>$34.724.490</td><td>+$4.297.737</td></tr>
+                <tr><td>2033</td><td>1,00%</td><td>$30.698.701</td><td>$35.071.735</td><td>+$4.373.034</td></tr>
+                <tr><td>2034</td><td>1,00%</td><td>$31.005.688</td><td>$35.422.452</td><td>+$4.416.764</td></tr>
+                <tr><td>2035</td><td>1,00%</td><td>$31.315.745</td><td>$35.776.677</td><td>+$4.460.932</td></tr>
+                <tr><td>2036</td><td>1,00%</td><td>$31.628.902</td><td>$36.134.444</td><td>+$4.505.542</td></tr>
+                <tr><td>2037</td><td>1,00%</td><td>$31.945.191</td><td>$36.495.788</td><td style="color: var(--gold-primary); font-weight: 700;">+$4.550.597</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- PESTAÑA 6: DICTAMEN & CERTIFICACIÓN -->
+      <div id="tab-dictamen" class="tab-content">
+        <!-- DICTAMEN DORADO -->
+        <div class="dictamen-gold-box">
+          <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
+            <i class="fa-solid fa-file-signature" style="font-size: 1.5rem; color: var(--gold-primary);"></i>
+            <h3 style="font-size: 1.2rem; font-weight: 800; color: #FFF;">Dictamen Técnico y Estratégico</h3>
+          </div>
+          <p style="font-size: 0.9rem; color: #F1F5F9; line-height: 1.6; margin-bottom: 1rem;">
+            Analizados rigurosamente los dos escenarios de cotización pensional para el señor <strong>Francisco José Naranjo Barbosa</strong>, se dictamina que el <strong>Escenario 2</strong> representa la alternativa financiera y pensionalmente más favorable.
+          </p>
+          <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5;">
+            La inversión adicional requerida de $147.324.541 en Seguridad Social entre abril de 2027 y marzo de 2037 permite capturar un incremento vitalicio de <strong>+$3.191.828 mensuales</strong> en la mesada pensional. La amortización total del esfuerzo económico adicional se alcanza en <strong>4,37 años de pensión</strong>, convirtiendo las anualidades posteriores en beneficio neto pensional.
+          </p>
+        </div>
+
+        <!-- VERDICTOS -->
+        <div class="grid-scenarios" style="margin-bottom: 1.5rem;">
+          <div class="glass-card">
+            <h4 style="font-size: 0.9rem; font-weight: 700; color: var(--gold-primary); margin-bottom: 0.5rem;">
+              <i class="fa-solid fa-check"></i> Máxima Rentabilidad Vitalicia
+            </h4>
+            <p style="font-size: 0.8rem; color: var(--text-muted);">
+              El Escenario 2 otorga un flujo de caja permanente superior de más de $41 millones brutos adicionales al año (incluyendo mesada 13).
+            </p>
+          </div>
+          <div class="glass-card">
+            <h4 style="font-size: 0.9rem; font-weight: 700; color: var(--accent-blue); margin-bottom: 0.5rem;">
+              <i class="fa-solid fa-shield-cat"></i> Resguardo de Topes Legales
+            </h4>
+            <p style="font-size: 0.8rem; color: var(--text-muted);">
+              Todos los Ingresos Base de Cotización proyectados respetan estrictamente los límites constitucionales de 25 SMLMV.
+            </p>
+          </div>
+        </div>
+
+        <!-- TARJETA DE CERTIFICACIÓN OFICIAL -->
+        <div class="glass-card" style="border-top: 3px solid var(--gold-primary); text-align: center; padding: 2rem 1.5rem;">
+          <div style="max-width: 500px; margin: 0 auto;">
+            <i class="fa-solid fa-certificate" style="font-size: 2.5rem; color: var(--gold-primary); margin-bottom: 1rem;"></i>
+            <h3 style="font-size: 1.1rem; font-weight: 800; color: #FFF; margin-bottom: 0.25rem;">CERTIFICACIÓN DE AUTENTICIDAD</h3>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1.5rem;">
+              Estudio actuarial y financiero elaborado formalmente para el asegurado.
+            </p>
+
+            <div style="border-top: 1px dashed var(--card-border); padding-top: 1.25rem; margin-top: 1.25rem;">
+              <strong style="font-size: 1rem; color: #FFF; display: block;">César Augusto Cano Pareja</strong>
+              <span style="font-size: 0.8rem; color: var(--gold-primary); font-weight: 600;">Gerente, SUPENSION PLUS</span>
+              <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem;">
+                Fecha del Dictamen: 19 de septiembre de 2026
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer>
+      <p>© 2026 SU PENSIÓN PLUS - Expertos en Liquidación de Pensiones | Todos los derechos reservados.</p>
+    </footer>
+  </div>
+
+  <!-- JAVASCRIPT LOGIC -->
+  <script>
+    // DATO REAL DE AUDITORÍA
+    const CORRECT_USER = "91475878";
+    const CORRECT_PASS = "5878";
+
+    let chartResumenInst = null;
+    let chartRimInst = null;
+
+    // VALIDACIÓN DE LOGIN
+    function validateLogin() {
+      const userVal = document.getElementById('login-user').value.trim();
+      const passVal = document.getElementById('login-pass').value.trim();
+      const errorDiv = document.getElementById('login-error');
+
+      if (userVal === CORRECT_USER && passVal === CORRECT_PASS) {
+        document.getElementById('login-screen').classList.add('hidden');
+        document.getElementById('main-dashboard').classList.remove('hidden');
+        errorDiv.style.display = 'none';
+        
+        // Inicializar gráficos
+        setTimeout(() => {
+          initCharts();
+        }, 100);
+      } else {
+        errorDiv.style.display = 'block';
+      }
+    }
+
+    function logout() {
+      document.getElementById('main-dashboard').classList.add('hidden');
+      document.getElementById('login-screen').classList.remove('hidden');
+      document.getElementById('login-user').value = '';
+      document.getElementById('login-pass').value = '';
+    }
+
+    // NAVEGACIÓN ENTRE PESTAÑAS
+    function switchTab(tabId) {
+      // Desactivar todos los botones y contenidos
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+      // Activar la pestaña seleccionada
+      event.currentTarget.classList.add('active');
+      document.getElementById(tabId).classList.add('active');
+
+      // Re-renderizar gráficos si pasa a la pestaña 1 o 4
+      if (tabId === 'tab-resumen' && chartResumenInst) {
+        chartResumenInst.resize();
+      } else if (tabId === 'tab-retorno' && chartRimInst) {
+        chartRimInst.resize();
+      }
+    }
+
+    // FILTRO EN TIEMPO REAL PARA CRONOGRAMA
+    function filterTable() {
+      const input = document.getElementById('searchInput');
+      const filter = input.value.toUpperCase();
+      const table = document.getElementById('ibcTable');
+      const tr = table.getElementsByTagName('tr');
+
+      for (let i = 1; i < tr.length; i++) {
+        let visible = false;
+        const tds = tr[i].getElementsByTagName('td');
+        for (let j = 0; j < tds.length; j++) {
+          if (tds[j]) {
+            const txtValue = tds[j].textContent || tds[j].innerText;
+            if (txtValue.toUpperCase().indexOf(filter) > -1) {
+              visible = true;
+              break;
+            }
+          }
+        }
+        tr[i].style.display = visible ? "" : "none";
+      }
+    }
+
+    // INICIALIZACIÓN DE CHART.JS
+    function initCharts() {
+      // 1. Gráfico de Barras - Resumen Comparativo
+      const ctx1 = document.getElementById('chartResumen').getContext('2d');
+      if (chartResumenInst) chartResumenInst.destroy();
+      
+      chartResumenInst = new Chart(ctx1, {
+        type: 'bar',
+        data: {
+          labels: ['Escenario 1 (Actual)', 'Escenario 2 (+$4M desde 2027)'],
+          datasets: [
+            {
+              label: 'Mesada Bruta ($ COP)',
+              data: [24686771, 27878599],
+              backgroundColor: ['rgba(56, 189, 248, 0.7)', 'rgba(212, 175, 55, 0.85)'],
+              borderColor: ['#38BDF8', '#D4AF37'],
+              borderWidth: 1.5,
+              borderRadius: 6
+            },
+            {
+              label: 'Inversión Adicional SS ($ COP)',
+              data: [0, 147324541],
+              backgroundColor: ['rgba(148, 163, 184, 0.3)', 'rgba(239, 68, 68, 0.6)'],
+              borderColor: ['#94A3B8', '#EF4444'],
+              borderWidth: 1.5,
+              borderRadius: 6
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              labels: { color: '#94A3B8', font: { family: 'Plus Jakarta Sans', size: 11 } }
+            },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  let val = context.raw || 0;
+                  return context.dataset.label + ': $' + val.toLocaleString('es-CO');
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              ticks: { color: '#94A3B8', font: { family: 'Plus Jakarta Sans', size: 11 } },
+              grid: { color: 'rgba(255, 255, 255, 0.05)' }
+            },
+            y: {
+              ticks: { 
+                color: '#94A3B8', 
+                font: { family: 'Plus Jakarta Sans', size: 10 },
+                callback: function(value) { return '$' + (value / 1000000).toFixed(0) + 'M'; }
+              },
+              grid: { color: 'rgba(255, 255, 255, 0.05)' }
+            }
+          }
+        }
+      });
+
+      // 2. Gráfico de Líneas - Flujo de Caja RIM
+      const ctx2 = document.getElementById('chartRim').getContext('2d');
+      if (chartRimInst) chartRimInst.destroy();
+
+      chartRimInst = new Chart(ctx2, {
+        type: 'line',
+        data: {
+          labels: ['Mes 0', 'Mes 12 (1 Año)', 'Mes 24 (2 Años)', 'Mes 36 (3 Años)', 'Mes 48 (4 Años)', 'Mes 52.45 (Amortización)', 'Mes 60 (5 Años)'],
+          datasets: [{
+            label: 'Flujo Neto Acumulado Adicional ($ COP)',
+            data: [-147324541, -113618833, -79913125, -46207417, -12501709, 0, 21203999],
+            borderColor: '#D4AF37',
+            backgroundColor: 'rgba(212, 175, 55, 0.1)',
+            fill: true,
+            tension: 0.3,
+            pointBackgroundColor: '#FDE047',
+            pointRadius: 5
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              labels: { color: '#94A3B8', font: { family: 'Plus Jakarta Sans', size: 11 } }
+            },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  let val = context.raw || 0;
+                  return ' Balance: $' + val.toLocaleString('es-CO');
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              ticks: { color: '#94A3B8', font: { family: 'Plus Jakarta Sans', size: 10 } },
+              grid: { color: 'rgba(255, 255, 255, 0.05)' }
+            },
+            y: {
+              ticks: { 
+                color: '#94A3B8', 
+                font: { family: 'Plus Jakarta Sans', size: 10 },
+                callback: function(value) { return '$' + (value / 1000000).toFixed(0) + 'M'; }
+              },
+              grid: { color: 'rgba(255, 255, 255, 0.05)' }
+            }
+          }
+        }
+      });
+    }
+  </script>
+</body>
+</html>
