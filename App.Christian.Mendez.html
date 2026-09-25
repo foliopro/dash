@@ -1,916 +1,919 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Su Pensión Plus - Portal Ejecutivo</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <title>SU PENSIÓN PLUS | Portal Ejecutivo Pensional</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        darkbg: '#070B14',
+                        cardbg: '#0F172A',
+                        cardborder: '#1E293B',
+                        gold: '#D4AF37',
+                        goldlight: '#FDE047'
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        /* CSS NATIVO - ZERO DEPENDENCIAS EXTERNAS DE CSS */
-        :root {
-            --bg-color: #070B14;
-            --panel-bg: rgba(15, 23, 42, 0.7);
-            --panel-border: rgba(255, 255, 255, 0.1);
-            --gold: #D4AF37;
-            --gold-light: #FDE047;
-            --text-main: #F8FAFC;
-            --text-muted: #94A3B8;
-            --danger: #EF4444;
-            --success: #10B981;
-            --font-main: 'Plus Jakarta Sans', sans-serif;
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
         }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: var(--font-main);
+        ::-webkit-scrollbar-track {
+            background: #070B14;
         }
-
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
-
-        /* Utilidades de texto */
-        .text-gold { color: var(--gold); }
-        .text-gold-light { color: var(--gold-light); }
-        .text-muted { color: var(--text-muted); }
-        .text-center { text-align: center; }
-        .text-right { text-align: right; }
-        .font-bold { font-weight: 700; }
-        .font-extrabold { font-weight: 800; }
-        .text-sm { font-size: 0.875rem; }
-        .text-xs { font-size: 0.75rem; }
-        .text-lg { font-size: 1.125rem; }
-        .text-xl { font-size: 1.25rem; }
-        .text-2xl { font-size: 1.5rem; }
-        .text-3xl { font-size: 1.875rem; }
-        .mb-1 { margin-bottom: 0.25rem; }
-        .mb-2 { margin-bottom: 0.5rem; }
-        .mb-4 { margin-bottom: 1rem; }
-        .mt-2 { margin-top: 0.5rem; }
-        .mt-4 { margin-top: 1rem; }
-        .p-4 { padding: 1rem; }
-        .p-6 { padding: 1.5rem; }
-
-        /* Contenedores y Grid (Mobile First) */
-        .container {
-            width: 100%;
-            max-width: 1280px;
-            margin: 0 auto;
-            padding: 1rem;
-        }
-        
-        .flex { display: flex; }
-        .flex-col { flex-direction: column; }
-        .items-center { align-items: center; }
-        .justify-center { justify-content: center; }
-        .justify-between { justify-content: space-between; }
-        .gap-2 { gap: 0.5rem; }
-        .gap-4 { gap: 1rem; }
-        
-        .grid { display: grid; gap: 1rem; }
-        .grid-cols-1 { grid-template-columns: 1fr; }
-
-        @media (min-width: 768px) {
-            .md-grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
-            .md-grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
-            .md-grid-cols-4 { grid-template-columns: repeat(4, 1fr); }
-            .md-grid-layout-7-5 { grid-template-columns: 7fr 5fr; }
-            .md-flex-row { flex-direction: row; }
-        }
-
-        /* Glassmorphism Panels */
-        .glass-panel {
-            background: var(--panel-bg);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid var(--panel-border);
-            border-radius: 12px;
-            padding: 1.5rem;
-        }
-
-        .gold-border {
-            border: 1px solid var(--gold);
-            box-shadow: 0 0 15px rgba(212, 175, 55, 0.2);
-        }
-
-        /* Login Screen - Campos Listos para el Usuario */
-        #login-screen {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--bg-color);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            padding: 1rem;
-        }
-
-        .login-box {
-            width: 100%;
-            max-width: 400px;
-            text-align: center;
-        }
-
-        .input-group {
-            margin-bottom: 1.5rem;
-            text-align: left;
-        }
-
-        .input-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-size: 0.875rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .input-control {
-            width: 100%;
-            padding: 0.75rem 1rem;
-            background: rgba(0,0,0,0.5);
-            border: 1px solid var(--panel-border);
-            border-radius: 8px;
-            color: var(--text-main);
-            font-size: 1rem;
-            outline: none;
-            transition: border-color 0.3s;
-        }
-        .input-control:focus {
-            border-color: var(--gold);
-        }
-
-        .btn-gold {
-            width: 100%;
-            background: linear-gradient(90deg, #D4AF37, #FDE047);
-            color: #000;
-            border: none;
-            padding: 1rem;
-            border-radius: 8px;
-            font-weight: 800;
-            font-size: 1rem;
-            cursor: pointer;
-            text-transform: uppercase;
-            transition: transform 0.2s, opacity 0.2s;
-        }
-        .btn-gold:hover {
-            opacity: 0.9;
-            transform: translateY(-2px);
-        }
-
-        .alert-error {
-            color: var(--danger);
-            font-size: 0.875rem;
-            margin-top: 1rem;
-            display: none;
-        }
-
-        /* Dashboard Global */
-        #main-dashboard { display: none; }
-        
-        .header-top {
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            align-items: flex-start;
-            border-bottom: 1px solid var(--panel-border);
-            padding-bottom: 1rem;
-            margin-bottom: 1.5rem;
-        }
-        @media (min-width: 768px) {
-            .header-top { flex-direction: row; align-items: center; }
-        }
-
-        .agency-badge {
-            background: rgba(255,255,255,0.05);
-            border: 1px solid var(--panel-border);
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            color: var(--gold-light);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-top: 1rem;
-        }
-        @media (min-width: 768px) { .agency-badge { margin-top: 0; } }
-
-        /* Navegación por pestañas */
-        .tab-nav {
-            display: flex;
-            overflow-x: auto;
-            gap: 0.5rem;
-            margin-bottom: 2rem;
-            padding-bottom: 0.5rem;
-            scrollbar-width: thin;
-            scrollbar-color: var(--gold) var(--panel-bg);
-        }
-        .tab-nav::-webkit-scrollbar { height: 4px; }
-        .tab-nav::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 4px; }
-
-        .tab-btn {
-            background: var(--panel-bg);
-            color: var(--text-muted);
-            border: 1px solid var(--panel-border);
-            padding: 0.75rem 1.25rem;
-            border-radius: 8px;
-            cursor: pointer;
-            white-space: nowrap;
-            font-weight: 600;
-            transition: all 0.3s;
-        }
-        .tab-btn.active {
-            background: rgba(212, 175, 55, 0.1);
-            color: var(--gold);
-            border-color: var(--gold);
-        }
-
-        /* Contenido de Pestañas */
-        .tab-content { display: none; animation: fadeIn 0.4s ease-in-out; }
-        .tab-content.active { display: block; }
-
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* Elementos UI Internos */
-        .kpi-value { font-size: 1.875rem; font-weight: 800; color: var(--gold-light); margin-top: 0.5rem; }
-        
-        .alert-item {
-            display: flex;
-            align-items: flex-start;
-            gap: 1rem;
-            padding: 1rem;
-            background: rgba(255,255,255,0.02);
-            border-left: 3px solid var(--gold);
-            margin-bottom: 0.75rem;
-            border-radius: 0 8px 8px 0;
-        }
-        .alert-icon {
-            background: rgba(212, 175, 55, 0.2);
-            color: var(--gold);
-            width: 32px; height: 32px;
-            border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-weight: bold;
-            flex-shrink: 0;
-        }
-
-        .table-container {
-            width: 100%;
-            overflow-x: auto;
-            margin-top: 1rem;
-            border-radius: 8px;
-            border: 1px solid var(--panel-border);
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            text-align: left;
-            min-width: 600px;
-        }
-        th, td {
-            padding: 1rem;
-            border-bottom: 1px solid var(--panel-border);
-        }
-        th { background: rgba(0,0,0,0.3); color: var(--gold-light); font-size: 0.875rem; text-transform: uppercase; }
-        tr:last-child td { border-bottom: none; }
-        tr:hover { background: rgba(255,255,255,0.02); }
-
-        .tag {
-            display: inline-block;
-            padding: 0.25rem 0.5rem;
+        ::-webkit-scrollbar-thumb {
+            background: #1E293B;
             border-radius: 4px;
-            font-size: 0.75rem;
-            font-weight: bold;
-            background: rgba(255,255,255,0.1);
         }
-        .tag.gold { background: rgba(212, 175, 55, 0.2); color: var(--gold-light); border: 1px solid var(--gold); }
-
-        .search-bar {
-            width: 100%;
-            padding: 0.75rem 1rem;
-            background: rgba(0,0,0,0.3);
-            border: 1px solid var(--panel-border);
-            border-radius: 8px;
-            color: white;
-            margin-bottom: 1rem;
+        ::-webkit-scrollbar-thumb:hover {
+            background: #D4AF37;
         }
-
-        .formula-box {
-            background: rgba(0,0,0,0.4);
-            padding: 1.5rem;
-            border-radius: 8px;
-            font-family: monospace;
-            font-size: 1.1rem;
-            color: var(--gold-light);
-            text-align: center;
-            border: 1px dashed var(--gold);
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(212, 175, 55, 0.15);
+        }
+        .gold-gradient-text {
+            background: linear-gradient(135deg, #FDE047 0%, #D4AF37 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .gold-border-glow {
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.15);
         }
     </style>
 </head>
-<body>
+<body class="bg-darkbg text-slate-100 font-sans min-h-screen antialiased selection:bg-gold selection:text-darkbg">
 
-    <!-- 0. PANTALLA DE ACCESO Y SEGURIDAD (CAMPOS VACÍOS Y LISTOS PARA DIGITAR) -->
-    <div id="login-screen">
-        <div class="glass-panel login-box">
-            <h1 class="text-3xl font-extrabold text-gold mb-1">SU PENSIÓN PLUS</h1>
-            <p class="text-muted text-sm mb-6">Portal Privado de Liquidaciones Pensionales</p>
-            
-            <form onsubmit="event.preventDefault(); validateLogin();" autocomplete="off">
-                <div class="input-group">
-                    <label for="username">USUARIO</label>
-                    <input type="text" id="username" class="input-control" value="" placeholder="Ingrese su usuario" autocomplete="off">
+    <div id="login-screen" class="fixed inset-0 z-50 flex items-center justify-center bg-[#070B14] p-4">
+        <div class="absolute inset-0 overflow-hidden pointer-events-none opacity-20">
+            <div class="absolute -top-40 -left-40 w-96 h-96 rounded-full bg-gold blur-[120px]"></div>
+            <div class="absolute -bottom-40 -right-40 w-96 h-96 rounded-full bg-blue-600 blur-[120px]"></div>
+        </div>
+
+        <div class="glass-panel w-full max-w-md rounded-2xl p-8 shadow-2xl gold-border-glow relative z-10">
+            <div class="text-center mb-8">
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gold/10 border border-gold/30 mb-4 text-gold text-2xl">
+                    <i class="fa-solid fa-shield-halved"></i>
                 </div>
-                
-                <div class="input-group">
-                    <label for="password">CONTRASEÑA</label>
-                    <input type="password" id="password" class="input-control" value="" placeholder="Ingrese su contraseña" autocomplete="new-password">
+                <h1 class="text-2xl font-bold tracking-tight gold-gradient-text">SU PENSIÓN PLUS</h1>
+                <p class="text-xs text-slate-400 mt-1 uppercase tracking-widest font-semibold">Portal Privado de Liquidaciones Pensionales</p>
+            </div>
+
+            <form id="login-form" onsubmit="validateLogin(event)" class="space-y-5">
+                <div>
+                    <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">Usuario (Cédula)</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400">
+                            <i class="fa-solid fa-user"></i>
+                        </span>
+                        <input type="password" id="login-user" required placeholder="*********" 
+                            class="w-full pl-10 pr-4 py-3 bg-slate-900/80 border border-slate-700 rounded-xl text-slate-100 focus:outline-none focus:border-gold transition text-sm tracking-widest">
+                    </div>
+                    <p class="text-[11px] text-slate-500 mt-1">Ingrese su Cédula enmascarada (Ej: 51906024)</p>
                 </div>
-                
-                <button type="submit" class="btn-gold">Ingresar al Portal Ejecutivo</button>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">Contraseña</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400">
+                            <i class="fa-solid fa-lock"></i>
+                        </span>
+                        <input type="password" id="login-pass" required placeholder="****" 
+                            class="w-full pl-10 pr-4 py-3 bg-slate-900/80 border border-slate-700 rounded-xl text-slate-100 focus:outline-none focus:border-gold transition text-sm tracking-widest">
+                    </div>
+                    <p class="text-[11px] text-slate-500 mt-1">Últimos 4 dígitos de su Cédula (Ej: 9024)</p>
+                </div>
+
+                <div id="login-error" class="hidden bg-red-500/10 border border-red-500/30 text-red-400 text-xs p-3 rounded-lg text-center font-medium">
+                    Credenciales no válidas. Intente de nuevo por favor.
+                </div>
+
+                <button type="submit" class="w-full py-3.5 px-4 bg-gradient-to-r from-gold to-yellow-600 hover:from-yellow-500 hover:to-gold text-darkbg font-bold rounded-xl transition shadow-lg shadow-gold/20 flex items-center justify-center space-x-2">
+                    <span>Ingresar al Portal Ejecutivo</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
             </form>
-            
-            <p id="login-error" class="alert-error">Credenciales no válidas. Intente de nuevo por favor.</p>
-            
-            <div class="mt-6 pt-4 text-xs text-muted" style="border-top: 1px solid var(--panel-border);">
-                ESTUDIO ELABORADO POR:<br>
-                <span class="text-gold font-bold">ACOSTA DIAZ & ABOGADOS</span>
+
+            <div class="mt-8 pt-6 border-t border-slate-800 text-center">
+                <p class="text-[11px] text-slate-400">Empresa Liquidadora Responsable:</p>
+                <p class="text-xs font-bold text-gold mt-0.5">ACOSTA DIAZ & ABOGADOS</p>
             </div>
         </div>
     </div>
 
-    <!-- MAIN DASHBOARD -->
-    <div id="main-dashboard" class="container">
+    <div id="main-dashboard" class="hidden min-h-screen flex flex-col">
         
-        <header class="header-top mt-4">
-            <div>
-                <h2 class="text-2xl font-bold text-white">SU PENSIÓN PLUS</h2>
-                <p class="text-muted text-sm">Expertos en Liquidación de Pensiones</p>
+        <!-- Header Principal -->
+        <header class="glass-panel border-b border-cardborder sticky top-0 z-40 px-4 lg:px-8 py-3.5 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-gold/10 border border-gold/30 flex items-center justify-center text-gold text-lg">
+                    <i class="fa-solid fa-scale-balanced"></i>
+                </div>
+                <div>
+                    <span class="text-xs font-extrabold tracking-wider text-gold block">SU PENSIÓN PLUS</span>
+                    <h1 class="text-sm lg:text-base font-bold text-slate-100">Expertos en Liquidación de Pensiones</h1>
+                </div>
             </div>
-            <div class="agency-badge">
-                Elaborado por: <strong>ACOSTA DIAZ & ABOGADOS</strong>
+
+            <div class="flex items-center space-x-3">
+                <div class="hidden md:block text-right">
+                    <span class="text-[11px] text-slate-400 block">Elaborado por:</span>
+                    <span class="text-xs font-bold text-gold">ACOSTA DIAZ & ABOGADOS</span>
+                </div>
+                <button onclick="logout()" class="p-2 rounded-xl bg-slate-800/80 hover:bg-red-500/20 hover:text-red-400 text-slate-300 transition text-sm" title="Cerrar Sesión">
+                    <i class="fa-solid fa-power-off"></i>
+                </button>
             </div>
         </header>
 
-        <!-- Navegación de Pestañas -->
-        <div class="tab-nav">
-            <button class="tab-btn active" onclick="switchTab('tab-resumen', this)">1. Resumen Ejecutivo</button>
-            <button class="tab-btn" onclick="switchTab('tab-escenarios', this)">2. Escenarios</button>
-            <button class="tab-btn" onclick="switchTab('tab-liquidacion', this)">3. Liquidación Técnica</button>
-            <button class="tab-btn" onclick="switchTab('tab-retorno', this)">4. Retorno (RIM)</button>
-            <button class="tab-btn" onclick="switchTab('tab-historial', this)">5. Historial</button>
-            <button class="tab-btn" onclick="switchTab('tab-dictamen', this)">6. Dictamen</button>
-        </div>
-
-        <!-- PESTAÑA 1: RESUMEN EJECUTIVO (DEFINIDA Y OPTIMIZADA) -->
-        <div id="tab-resumen" class="tab-content active">
-            <div class="glass-panel mb-4 text-center">
-                <h3 class="text-xl font-bold mb-2">Christian Méndez Navarro</h3>
-                <p class="text-muted">C.C. 51.906.024 | Fecha del Estudio: 31 de Julio de 2026</p>
-                <div class="mt-2 text-gold-light font-bold">Conclusión Principal: Mejor promedio sobre los Últimos 10 Años</div>
+        <!-- Navegación por Pestañas -->
+        <nav class="bg-cardbg/80 border-b border-cardborder px-4 lg:px-8 overflow-x-auto scrollbar-none">
+            <div class="flex space-x-2 py-2 min-w-max">
+                <button onclick="switchTab('resumen')" id="btn-tab-resumen" class="tab-btn px-4 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-2 bg-gold text-darkbg shadow-md">
+                    <i class="fa-solid fa-chart-pie"></i>
+                    <span>Resumen Ejecutivo</span>
+                </button>
+                <button onclick="switchTab('escenarios')" id="btn-tab-escenarios" class="tab-btn px-4 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-2 text-slate-300 hover:bg-slate-800">
+                    <i class="fa-solid fa-code-compare"></i>
+                    <span>Escenarios (E1 vs E2)</span>
+                </button>
+                <button onclick="switchTab('liquidacion')" id="btn-tab-liquidacion" class="tab-btn px-4 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-2 text-slate-300 hover:bg-slate-800">
+                    <i class="fa-solid fa-calculator"></i>
+                    <span>Liquidación IBL & Fórmulas</span>
+                </button>
+                <button onclick="switchTab('retorno')" id="btn-tab-retorno" class="tab-btn px-4 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-2 text-slate-300 hover:bg-slate-800">
+                    <i class="fa-solid fa-coins"></i>
+                    <span>Retorno Inversión (RIM)</span>
+                </button>
+                <button onclick="switchTab('historial')" id="btn-tab-historial" class="tab-btn px-4 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-2 text-slate-300 hover:bg-slate-800">
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+                    <span>Cronograma & Cotizaciones</span>
+                </button>
+                <button onclick="switchTab('dictamen')" id="btn-tab-dictamen" class="tab-btn px-4 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-2 text-slate-300 hover:bg-slate-800">
+                    <i class="fa-solid fa-award"></i>
+                    <span>Dictamen & Certificación</span>
+                </button>
             </div>
+        </nav>
 
-            <!-- Fila 1 (Grid 4 KPIs) -->
-            <div class="grid grid-cols-1 md-grid-cols-4 mb-4">
-                <div class="glass-panel text-center">
-                    <p class="text-xs text-muted uppercase">Mesada Óptima Proyectada</p>
-                    <p class="kpi-value">$2.398.306</p>
-                </div>
-                <div class="glass-panel text-center gold-border">
-                    <p class="text-xs text-muted uppercase">Opción Recomendada</p>
-                    <p class="kpi-value text-white text-xl mt-4">Escenario 1 (Ago 2026)</p>
-                </div>
-                <div class="glass-panel text-center">
-                    <p class="text-xs text-muted uppercase">Mesada Base (IBL)</p>
-                    <p class="kpi-value" style="color: white; font-size: 1.5rem; margin-top: 0.8rem;">$3.328.669</p>
-                </div>
-                <div class="glass-panel text-center">
-                    <p class="text-xs text-muted uppercase">Bonificación Semanas (TR)</p>
-                    <p class="kpi-value">+7,50%</p>
-                    <p class="text-xs text-muted">265,11 Semanas Excedentes</p>
-                </div>
-            </div>
+        <!-- Contenido Principal Dinámico -->
+        <main class="flex-1 p-4 lg:p-8 max-w-7xl mx-auto w-full space-y-6">
 
-            <!-- Fila 2 (Layout 7:5 - Gráfico Definido) -->
-            <div class="grid grid-cols-1 md-grid-layout-7-5">
-                <div class="glass-panel flex flex-col justify-between">
-                    <div class="flex justify-between items-center mb-2">
-                        <h4 class="font-bold text-gold">Comparativa: Mesada Bruta vs. Inversión Requerida</h4>
-                        <span class="text-xs text-muted">(Valores en COP)</span>
+            <section id="tab-resumen" class="tab-content space-y-6">
+                <!-- Subcabecera Obligatoria -->
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 glass-panel p-5 rounded-2xl border-l-4 border-l-gold">
+                    <div>
+                        <div class="flex items-center space-x-2 text-xs font-bold text-gold uppercase tracking-wider mb-1">
+                            <i class="fa-solid fa-circle-check"></i>
+                            <span>Estudio Pensional Especializado</span>
+                        </div>
+                        <h2 class="text-xl lg:text-2xl font-extrabold text-slate-100">Christian Méndez Navarro</h2>
+                        <p class="text-xs text-slate-400 mt-0.5">Cédula de Ciudadanía: <span class="text-slate-200 font-semibold">51.906.024</span> | Fecha de Nacimiento: <span class="text-slate-200 font-semibold">01/08/1967</span> | Fecha del Estudio: <span class="text-slate-200 font-semibold">31 de Julio de 2026</span></p>
                     </div>
-                    <div style="position: relative; height: 320px; width: 100%;">
-                        <canvas id="chartResumen"></canvas>
+                    <div class="bg-gold/10 border border-gold/30 px-4 py-2 rounded-xl text-right">
+                        <span class="text-[10px] text-slate-400 uppercase tracking-widest block font-bold">Elaborado por</span>
+                        <span class="text-xs font-extrabold text-gold">ACOSTA DIAZ & ABOGADOS</span>
                     </div>
                 </div>
 
-                <div class="glass-panel flex flex-col justify-between">
-                    <h4 class="font-bold text-gold mb-4">Hallazgos Relevantes y Alertas Auditadas</h4>
-                    <div class="flex flex-col gap-2">
-                        <div class="alert-item">
-                            <div class="alert-icon">1</div>
-                            <div>
-                                <p class="font-bold text-sm">Vacíos en Historia Laboral</p>
-                                <p class="text-xs text-muted">Existen periodos en $0 o sin registrar (Agosto 2025 - Junio 2026). Reclamar ante Colpensiones antes de radicar la pensión.</p>
+                <!-- Banner Conclusión Principal -->
+                <div class="bg-gradient-to-r from-blue-950/60 to-slate-900 border border-blue-500/30 p-5 rounded-2xl flex items-start space-x-4">
+                    <div class="p-3 bg-blue-500/20 text-blue-400 rounded-xl text-xl mt-0.5">
+                        <i class="fa-solid fa-lightbulb"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-bold text-blue-300 uppercase tracking-wider">Conclusión Ejecutiva Principal</h3>
+                        <p class="text-sm text-slate-300 mt-1 leading-relaxed">
+                            El análisis demuestra que el <strong class="text-gold">Escenario 1 (Agosto 2026)</strong> es la opción óptima y de mayor rentabilidad. Al mes de agosto de 2026, el asegurado ya consolida la mesada máxima proyectada de <strong class="text-slate-100">$2.398.306 COP</strong> bajo el promedio de los últimos 10 años, evitando una inversión innecesaria de <strong class="text-slate-100">$16.076.549 COP</strong> en aportes adicionales y el costo de oportunidad de posponer su retiro.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Grid de 4 KPIs Fijos -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="glass-panel p-5 rounded-2xl relative overflow-hidden group hover:border-gold/50 transition">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-xs font-bold text-slate-400 uppercase">Mesada Óptima / Máxima</span>
+                            <div class="w-9 h-9 rounded-xl bg-gold/10 text-gold flex items-center justify-center text-sm">
+                                <i class="fa-solid fa-sack-dollar"></i>
                             </div>
                         </div>
+                        <div class="text-2xl font-extrabold text-slate-100">$2.398.306</div>
+                        <p class="text-[11px] text-gold mt-1 font-semibold flex items-center space-x-1">
+                            <i class="fa-solid fa-check"></i> <span>Tasa Reemplazo 72,05%</span>
+                        </p>
+                    </div>
 
-                        <div class="alert-item">
-                            <div class="alert-icon">2</div>
-                            <div>
-                                <p class="font-bold text-sm">Tope de Tasa de Reemplazo</p>
-                                <p class="text-xs text-muted">Cotizar hasta Diciembre de 2028 (Escenario 2) no incrementa el valor de la mesada por el límite del cálculo IBL a 10 años.</p>
+                    <div class="glass-panel p-5 rounded-2xl relative overflow-hidden group hover:border-gold/50 transition border-gold/40 bg-slate-900/90">
+                        <div class="absolute top-0 right-0 bg-gold text-darkbg text-[9px] font-extrabold px-2.5 py-0.5 rounded-bl-lg uppercase tracking-wider">Recomendada</div>
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-xs font-bold text-slate-400 uppercase">Opción Más Eficiente</span>
+                            <div class="w-9 h-9 rounded-xl bg-gold/20 text-gold flex items-center justify-center text-sm">
+                                <i class="fa-solid fa-star"></i>
                             </div>
                         </div>
+                        <div class="text-2xl font-extrabold gold-gradient-text">Escenario 1 (2026)</div>
+                        <p class="text-[11px] text-slate-300 mt-1">Inversión adicional: <span class="text-gold font-bold">$0 COP</span></p>
+                    </div>
 
-                        <div class="alert-item">
-                            <div class="alert-icon">3</div>
-                            <div>
-                                <p class="font-bold text-sm">Costo de Oportunidad</p>
-                                <p class="text-xs text-muted">El Escenario 2 exige un desembolso futuro de $16.076.549 sin generar retorno extra. El retiro en 2026 resulta financieramente óptimo.</p>
+                    <div class="glass-panel p-5 rounded-2xl relative overflow-hidden group hover:border-gold/50 transition">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-xs font-bold text-slate-400 uppercase">IBL Promedio Base</span>
+                            <div class="w-9 h-9 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-sm">
+                                <i class="fa-solid fa-chart-line"></i>
                             </div>
                         </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- PESTAÑA 2: ESCENARIOS COMPARATIVOS -->
-        <div id="tab-escenarios" class="tab-content">
-            <div class="grid grid-cols-1 md-grid-cols-2 mb-4">
-                <!-- Escenario 1 -->
-                <div class="glass-panel gold-border relative">
-                    <div style="position:absolute; top:-10px; right:-10px; background:var(--gold); color:#000; padding:4px 12px; border-radius:12px; font-weight:bold; font-size:0.75rem;">RECOMENDADO</div>
-                    <h4 class="text-xl font-bold text-gold mb-1">Escenario 1 (E1)</h4>
-                    <p class="text-sm text-muted mb-4">Proyección a Agosto de 2026</p>
-                    
-                    <div class="flex justify-between mb-2 border-b" style="border-color: var(--panel-border); padding-bottom: 8px;">
-                        <span class="text-muted">Total Semanas:</span>
-                        <span class="font-bold">1.515,11</span>
-                    </div>
-                    <div class="flex justify-between mb-2 border-b" style="border-color: var(--panel-border); padding-bottom: 8px;">
-                        <span class="text-muted">IBL:</span>
-                        <span class="font-bold">$3.328.669</span>
-                    </div>
-                    <div class="flex justify-between mb-2 border-b" style="border-color: var(--panel-border); padding-bottom: 8px;">
-                        <span class="text-muted">Tasa Reemplazo (TR):</span>
-                        <span class="font-bold text-gold-light">72,05%</span>
-                    </div>
-                    <div class="flex justify-between mb-2 border-b" style="border-color: var(--panel-border); padding-bottom: 8px;">
-                        <span class="text-muted">Mesada Bruta:</span>
-                        <span class="font-bold text-xl">$2.398.306</span>
-                    </div>
-                    <div class="flex justify-between mt-4">
-                        <span class="text-muted">Inversión Futura:</span>
-                        <span class="font-bold text-success">$0 (Ya causadas)</span>
-                    </div>
-                </div>
-
-                <!-- Escenario 2 -->
-                <div class="glass-panel">
-                    <h4 class="text-xl font-bold mb-1">Escenario 2 (E2)</h4>
-                    <p class="text-sm text-muted mb-4">Proyección a Diciembre de 2028</p>
-                    
-                    <div class="flex justify-between mb-2 border-b" style="border-color: var(--panel-border); padding-bottom: 8px;">
-                        <span class="text-muted">Total Semanas:</span>
-                        <span class="font-bold">1.686,68</span>
-                    </div>
-                    <div class="flex justify-between mb-2 border-b" style="border-color: var(--panel-border); padding-bottom: 8px;">
-                        <span class="text-muted">IBL:</span>
-                        <span class="font-bold">$3.328.669</span>
-                    </div>
-                    <div class="flex justify-between mb-2 border-b" style="border-color: var(--panel-border); padding-bottom: 8px;">
-                        <span class="text-muted">Tasa Reemplazo (TR):</span>
-                        <span class="font-bold text-gold-light">72,05%</span>
-                    </div>
-                    <div class="flex justify-between mb-2 border-b" style="border-color: var(--panel-border); padding-bottom: 8px;">
-                        <span class="text-muted">Mesada Bruta:</span>
-                        <span class="font-bold text-xl">$2.398.306</span>
-                    </div>
-                    <div class="flex justify-between mt-4">
-                        <span class="text-muted">Inversión Futura (Trabajador):</span>
-                        <span class="font-bold text-danger">-$16.076.549</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="glass-panel">
-                <h4 class="font-bold text-gold mb-4">Matriz de Incrementos Marginales (E2 vs E1)</h4>
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Concepto</th>
-                                <th>Escenario 1 (2026)</th>
-                                <th>Escenario 2 (2028)</th>
-                                <th>Diferencia Marginal</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>Semanas Cotizadas</td>
-                                <td>1.515,11</td>
-                                <td>1.686,68</td>
-                                <td class="text-success font-bold">+171,57 semanas</td>
-                            </tr>
-                            <tr>
-                                <td>Mesada Resultante</td>
-                                <td>$2.398.306</td>
-                                <td>$2.398.306</td>
-                                <td class="font-bold">$0 (Neutral)</td>
-                            </tr>
-                            <tr>
-                                <td>Inversión Extra Requerida</td>
-                                <td>$0</td>
-                                <td>$16.076.549</td>
-                                <td class="text-danger font-bold">-$16.076.549</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- PESTAÑA 3: LIQUIDACIÓN TÉCNICA -->
-        <div id="tab-liquidacion" class="tab-content">
-            <div class="grid grid-cols-1 md-grid-layout-7-5">
-                <div class="glass-panel">
-                    <h4 class="font-bold text-gold mb-4">Desglose Matemático - Tasa de Reemplazo (TR)</h4>
-                    <p class="text-sm text-muted mb-4">Aplicación Ley 797 de 2003 y sentencias jurisprudenciales vigentes.</p>
-                    
-                    <div class="formula-box mb-4">
-                        TR = R + PA<br><br>
-                        <span class="text-sm text-muted">Donde:</span><br>
-                        R = 65.5 - 0.5 × (IBL / S.M.L.V.)<br>
-                        PA = ⌊(Semanas Totales - Semanas Mínimas) / 50⌋ × 1.5%
+                        <div class="text-2xl font-extrabold text-slate-100">$3.328.669</div>
+                        <p class="text-[11px] text-slate-400 mt-1">Últimos 10 Años</p>
                     </div>
 
-                    <div class="grid grid-cols-1 md-grid-cols-2 gap-4 mt-4">
-                        <div class="p-4" style="background: rgba(255,255,255,0.02); border-radius: 8px;">
-                            <p class="text-xs text-muted uppercase">Cálculo Escenario 1 (2026)</p>
-                            <p class="font-bold mt-2">Semanas Excedentes: 265,11</p>
-                            <p class="text-sm">5 múltiplos de 50 semanas</p>
-                            <p class="font-bold text-gold mt-2">PA = +7,50%</p>
+                    <div class="glass-panel p-5 rounded-2xl relative overflow-hidden group hover:border-gold/50 transition">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-xs font-bold text-slate-400 uppercase">Excedente Semanas (E1)</span>
+                            <div class="w-9 h-9 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center text-sm">
+                                <i class="fa-solid fa-business-time"></i>
+                            </div>
                         </div>
-                        <div class="p-4" style="background: rgba(255,255,255,0.02); border-radius: 8px;">
-                            <p class="text-xs text-muted uppercase">Cálculo Escenario 2 (2028)</p>
-                            <p class="font-bold mt-2">Semanas Excedentes: 486,68</p>
-                            <p class="text-sm">9 múltiplos de 50 semanas</p>
-                            <p class="font-bold text-gold mt-2">PA = +13,50%</p>
+                        <div class="text-2xl font-extrabold text-slate-100">1.515,11</div>
+                        <p class="text-[11px] text-blue-400 mt-1 font-semibold">+265,11 sems sobre mínimo (+7,5% PA)</p>
+                    </div>
+                </div>
+
+                <!-- Layout Dividido 7:5 (Chart + Hallazgos) -->
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    <!-- Gráfico (7 cols) -->
+                    <div class="lg:col-span-7 glass-panel p-6 rounded-2xl flex flex-col justify-between">
+                        <div class="flex items-center justify-between mb-4">
+                            <div>
+                                <h3 class="text-base font-bold text-slate-100">Comparativa Financiera de Escenarios</h3>
+                                <p class="text-xs text-slate-400">Mesada Bruta vs Inversión en Seguridad Social</p>
+                            </div>
+                            <span class="text-xs font-bold bg-slate-800 text-gold px-3 py-1 rounded-xl border border-slate-700">Colpensiones RPM</span>
+                        </div>
+                        <div class="relative h-72 w-full">
+                            <canvas id="mainChart"></canvas>
                         </div>
                     </div>
-                </div>
 
-                <div class="glass-panel">
-                    <h4 class="font-bold text-gold mb-4">Normatividad y Sentencias Aplicadas</h4>
-                    <div class="flex flex-col gap-2">
-                        <div class="p-3 border border-gray-700 rounded-lg flex items-center gap-4" style="border-color: var(--panel-border);">
-                            <span class="tag gold">Ley 797/03</span>
-                            <span class="text-sm">Fórmula base de Tasa de Reemplazo e IBL.</span>
-                        </div>
-                        <div class="p-3 border border-gray-700 rounded-lg flex items-center gap-4" style="border-color: var(--panel-border);">
-                            <span class="tag">C-197/23</span>
-                            <span class="text-sm">Régimen aplicable (Menciones estructurales).</span>
-                        </div>
-                        <div class="p-3 border border-gray-700 rounded-lg flex items-center gap-4" style="border-color: var(--panel-border);">
-                            <span class="tag">SL138/24</span>
-                            <span class="text-sm">Cálculo en días calendario.</span>
-                        </div>
-                    </div>
-                    
-                    <div class="mt-6">
-                        <h4 class="font-bold mb-2">Comparativo de Ventanas de Tiempo</h4>
-                        <div class="table-container">
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>Ventana</th>
-                                        <th>IBL</th>
-                                        <th>TR</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr style="background: rgba(212, 175, 55, 0.1);">
-                                        <td class="font-bold text-gold">Últimos 10 Años</td>
-                                        <td>$3.328.669</td>
-                                        <td>72,05%</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Toda la Vida</td>
-                                        <td class="text-muted">No Favorable</td>
-                                        <td class="text-muted">-</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- PESTAÑA 4: RETORNO DE INVERSIÓN (RIM) -->
-        <div id="tab-retorno" class="tab-content">
-            <div class="glass-panel mb-4">
-                <h4 class="font-bold text-gold mb-2">Análisis de Retorno de Inversión (RIM)</h4>
-                <p class="text-sm text-muted mb-4">Indicador de meses necesarios para recuperar el capital invertido en Seguridad Social mediante el cobro de la Mesada Neta.</p>
-                
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Escenario</th>
-                                <th>Mesada Bruta</th>
-                                <th>Descuento Salud (12%)</th>
-                                <th>Mesada Neta</th>
-                                <th>Inversión Trabajador</th>
-                                <th>RIM (Meses)</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr class="gold-border" style="background: rgba(212, 175, 55, 0.05);">
-                                <td class="font-bold text-gold">Escenario 1 (2026)</td>
-                                <td>$2.398.306</td>
-                                <td class="text-danger">-$287.797</td>
-                                <td class="font-bold">$2.110.509</td>
-                                <td>$0</td>
-                                <td class="font-extrabold text-success text-lg">0,0 meses</td>
-                            </tr>
-                            <tr>
-                                <td>Escenario 2 (2028)</td>
-                                <td>$2.398.306</td>
-                                <td class="text-danger">-$287.797</td>
-                                <td class="font-bold">$2.110.509</td>
-                                <td>$16.076.549</td>
-                                <td class="font-bold text-lg">7,62 meses</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 md-grid-cols-2">
-                <div class="glass-panel">
-                    <h4 class="font-bold text-gold mb-2">Simulación de Flujo de Caja (Costo de Oportunidad)</h4>
-                    <p class="text-sm text-muted mb-4">Al postergar la pensión 28 meses (de Ago 2026 a Dic 2028), el asegurado deja de percibir:</p>
-                    <div class="text-center p-6 border rounded-lg" style="border-color: var(--gold); background: rgba(212,175,55,0.05);">
-                        <p class="text-lg">28 meses × $2.110.509 (Mesada Neta)</p>
-                        <p class="text-3xl font-extrabold text-danger mt-2">-$59.094.252</p>
-                        <p class="text-xs text-muted mt-2">Capital no percibido (Lucro cesante pensional)</p>
-                    </div>
-                </div>
-                <div class="glass-panel flex flex-col justify-center">
-                    <div class="alert-item m-0">
-                        <div class="alert-icon" style="color:var(--success); background: rgba(16, 185, 129, 0.2);">!</div>
+                    <!-- Hallazgos y Alertas Técnicas (5 cols) -->
+                    <div class="lg:col-span-5 glass-panel p-6 rounded-2xl space-y-4 flex flex-col justify-between">
                         <div>
-                            <p class="font-bold text-sm">Veredicto Financiero</p>
-                            <p class="text-sm text-muted mt-1">El <strong>Escenario 1</strong> es superior. Al no requerir flujo de caja adicional para aportes futuros, el periodo de retorno es inmediato y evita el costo de oportunidad de posponer el beneficio por 28 meses.</p>
+                            <h3 class="text-base font-bold text-slate-100 mb-3 flex items-center space-x-2">
+                                <i class="fa-solid fa-triangle-exclamation text-gold"></i>
+                                <span>Hallazgos & Alertas Técnicas</span>
+                            </h3>
+                            <div class="space-y-3">
+                                <div class="bg-slate-900/80 p-3.5 rounded-xl border border-slate-800">
+                                    <div class="flex items-center space-x-2 text-xs font-bold text-gold mb-1">
+                                        <i class="fa-solid fa-1"></i>
+                                        <span>Corrección de Periodos Omitidos</span>
+                                    </div>
+                                    <p class="text-xs text-slate-300 leading-relaxed">
+                                        Se subsanaron vacíos en historia laboral entre agosto de 2025 y junio de 2026, permitiendo consolidar el IBL real de liquidación.
+                                    </p>
+                                </div>
+                                <div class="bg-slate-900/80 p-3.5 rounded-xl border border-slate-800">
+                                    <div class="flex items-center space-x-2 text-xs font-bold text-gold mb-1">
+                                        <i class="fa-solid fa-2"></i>
+                                        <span>Neutralidad Nominal de Mesada</span>
+                                    </div>
+                                    <p class="text-xs text-slate-300 leading-relaxed">
+                                        Pese a cotizar 28 meses adicionales en el Escenario 2, la mesada se mantiene inalterada ($2.398.306) por las reglas de la Tasa de Reemplazo.
+                                    </p>
+                                </div>
+                                <div class="bg-slate-900/80 p-3.5 rounded-xl border border-slate-800">
+                                    <div class="flex items-center space-x-2 text-xs font-bold text-gold mb-1">
+                                        <i class="fa-solid fa-3"></i>
+                                        <span>Erosión por Inversión Futura</span>
+                                    </div>
+                                    <p class="text-xs text-slate-300 leading-relaxed">
+                                        El Escenario 2 exige un desembolso propio de $16.076.549 COP, generando un periodo de retorno (RIM) de 7,62 meses sin incremento en mesada.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-[11px] text-slate-400 text-center pt-2 border-t border-slate-800">
+                            Marco Legal: Ley 797 de 2003 | Sentencia C-197/23
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
+            </section>
 
-        <!-- PESTAÑA 5: HISTORIAL -->
-        <div id="tab-historial" class="tab-content">
-            <div class="glass-panel">
-                <div class="flex flex-col md-flex-row justify-between items-center mb-4 gap-4">
-                    <h4 class="font-bold text-gold">Cronograma y Resumen de Cotizaciones</h4>
-                    <input type="text" id="searchInput" class="search-bar m-0 md:w-1/3" style="width: 100%; max-width: 300px; margin: 0;" placeholder="Buscar periodo o empresa..." onkeyup="filterTable()">
+            <section id="tab-escenarios" class="tab-content hidden space-y-6">
+                <!-- Subcabecera Obligatoria -->
+                <div class="flex items-center justify-between glass-panel p-4 rounded-2xl border-l-4 border-l-gold">
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-100">Análisis Multi-Escenario (E1 vs E2)</h2>
+                        <p class="text-xs text-slate-400">Evaluación cuantitativa y comparativa de alternativas de retiro</p>
+                    </div>
+                    <span class="text-xs font-bold bg-gold/10 text-gold px-3 py-1 rounded-xl border border-gold/30">Elaborado por: ACOSTA DIAZ & ABOGADOS</span>
                 </div>
-                
-                <p class="text-sm text-muted mb-4">Mostrando periodos clave auditados (Énfasis en inconsistencias detectadas).</p>
-                
-                <div class="table-container" style="max-height: 520px; overflow-y: auto;">
-                    <table id="historialTable">
-                        <thead style="position: sticky; top: 0; z-index: 10;">
-                            <tr>
-                                <th>Periodo (Inicio - Fin)</th>
-                                <th>Empresa / Aportante</th>
-                                <th>Días</th>
-                                <th>IBC Reportado</th>
-                                <th>Estado / Novedad</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>01/01/2020 - 31/07/2025</td>
-                                <td>Múltiples Empleadores</td>
-                                <td>2010</td>
-                                <td>Promedio Histórico</td>
-                                <td><span class="tag" style="background: rgba(16,185,129,0.2); color: var(--success);">Validado</span></td>
-                            </tr>
-                            <tr style="background: rgba(239, 68, 68, 0.1);">
-                                <td>01/08/2025 - 30/06/2026</td>
-                                <td>Vacío Registral Colpensiones</td>
-                                <td>330</td>
-                                <td>$0</td>
-                                <td><span class="tag" style="background: rgba(239,68,68,0.2); color: var(--danger);">Inconsistencia / En ceros</span></td>
-                            </tr>
-                            <tr>
-                                <td>01/07/2026 - 31/07/2026</td>
-                                <td>Empleador Actual</td>
-                                <td>30</td>
-                                <td>$3.328.669 (Estimado)</td>
-                                <td><span class="tag" style="background: rgba(16,185,129,0.2); color: var(--success);">Validado</span></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
 
-        <!-- PESTAÑA 6: DICTAMEN ESTRATÉGICO -->
-        <div id="tab-dictamen" class="tab-content">
-            <div class="glass-panel gold-border mb-4 text-center p-6">
-                <h2 class="text-3xl font-extrabold text-gold mb-2">DICTAMEN TÉCNICO EJECUTIVO</h2>
-                <p class="text-lg mb-4">Caso: Christian Méndez Navarro | C.C. 51.906.024</p>
-                <div style="max-width: 800px; margin: 0 auto; text-align: left; line-height: 1.6;" class="text-muted">
-                    <p class="mb-4">El presente análisis técnico arroja elementos objetivos para facilitar la toma de decisiones. Se evaluó la continuidad vs. retiro concluyendo que al mes de <strong>Agosto de 2026 (Escenario 1)</strong>, el afiliado consolida su mesada máxima posible de <strong>$2.398.306</strong> basada en el tramo de los últimos 10 años.</p>
-                    <p>Si el objetivo es maximizar el flujo de caja inmediato y evitar la erogación de nuevos aportes ($16.076.549), el análisis numérico señala una marcada eficiencia en la opción de 2026. Aportar hasta 2028 no refleja una mejora en la mesada final.</p>
-                </div>
-            </div>
+                <!-- Tarjetas Comparativas Lado a Lado -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Escenario 1 (Recomendado) -->
+                    <div class="glass-panel p-6 rounded-2xl border-2 border-gold relative overflow-hidden shadow-xl bg-slate-900/90">
+                        <div class="absolute top-0 right-0 bg-gold text-darkbg text-[10px] font-extrabold px-3 py-1 rounded-bl-xl uppercase tracking-wider">
+                            Opción Óptima / Recomendada
+                        </div>
+                        <div class="flex items-center space-x-3 mb-4">
+                            <div class="w-10 h-10 rounded-xl bg-gold/20 text-gold flex items-center justify-center font-extrabold text-base">
+                                E1
+                            </div>
+                            <div>
+                                <h3 class="text-base font-bold text-slate-100">Escenario 1: Proyección a Agosto 2026</h3>
+                                <p class="text-xs text-slate-400">Retiro inmediato con corrección de periodos</p>
+                            </div>
+                        </div>
 
-            <div class="grid grid-cols-1 md-grid-cols-3 mb-6">
-                <div class="glass-panel text-center">
-                    <div class="text-gold mb-2"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
-                    <h4 class="font-bold mb-1">Rentabilidad</h4>
-                    <p class="text-xs text-muted">El Escenario 1 garantiza el cobro del 100% de la mesada calculada sin costos adicionales de capital.</p>
-                </div>
-                <div class="glass-panel text-center gold-border" style="background: rgba(212,175,55,0.05);">
-                    <div class="text-gold mb-2"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
-                    <h4 class="font-bold mb-1">Costo-Beneficio</h4>
-                    <p class="text-xs text-muted">Evita el desembolso de $16.076.549 y la pérdida de 28 meses de mesadas no cobradas.</p>
-                </div>
-                <div class="glass-panel text-center">
-                    <div class="text-gold mb-2"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
-                    <h4 class="font-bold mb-1">Velocidad de Retorno</h4>
-                    <p class="text-xs text-muted">Retorno inmediato (0 meses) al no requerir flujo de caja adicional en el futuro.</p>
-                </div>
-            </div>
+                        <div class="space-y-3.5 my-6">
+                            <div class="flex justify-between items-center py-2 border-b border-slate-800 text-xs">
+                                <span class="text-slate-400">IBL Promedio (Últimos 10 Años):</span>
+                                <span class="font-bold text-slate-100">$3.328.669 COP</span>
+                            </div>
+                            <div class="flex justify-between items-center py-2 border-b border-slate-800 text-xs">
+                                <span class="text-slate-400">Tasa de Reemplazo (TR):</span>
+                                <span class="font-bold text-gold">72,05%</span>
+                            </div>
+                            <div class="flex justify-between items-center py-2 border-b border-slate-800 text-xs">
+                                <span class="text-slate-400">Mesada Pensional Bruta:</span>
+                                <span class="font-bold text-slate-100">$2.398.306 COP</span>
+                            </div>
+                            <div class="flex justify-between items-center py-2 border-b border-slate-800 text-xs">
+                                <span class="text-slate-400">Descuento Salud Obligatorio (12%):</span>
+                                <span class="font-bold text-red-400">-$287.797 COP</span>
+                            </div>
+                            <div class="flex justify-between items-center py-2 border-b border-slate-800 text-xs">
+                                <span class="text-slate-400">Mesada Pensional Neta:</span>
+                                <span class="font-bold text-emerald-400 text-sm">$2.110.509 COP</span>
+                            </div>
+                            <div class="flex justify-between items-center py-2 border-b border-slate-800 text-xs">
+                                <span class="text-slate-400">Semanas Cotizadas:</span>
+                                <span class="font-bold text-slate-100">1.515,11 sems</span>
+                            </div>
+                            <div class="flex justify-between items-center py-2 text-xs">
+                                <span class="text-slate-400">Inversión Seguridad Social Adicional:</span>
+                                <span class="font-bold text-gold">$0 COP (Ya causadas)</span>
+                            </div>
+                        </div>
 
-            <!-- Certificación Footer -->
-            <div class="glass-panel text-center" style="background: #0f172a;">
-                <p class="text-xs text-muted uppercase tracking-widest mb-2">Certificación Oficial del Estudio</p>
-                <h3 class="text-xl font-bold text-white mb-1">ACOSTA DIAZ & ABOGADOS</h3>
-                <p class="text-sm text-muted">Firma y Responsabilidad Técnica del Estudio Pensional</p>
-                <div class="mt-4 inline-block px-4 py-2 border border-gray-600 rounded text-xs text-muted">
-                    Documento auditado y transformado digitalmente por Su Pensión Plus
-                </div>
-            </div>
-        </div>
+                        <div class="bg-gold/10 p-3.5 rounded-xl border border-gold/30 text-center">
+                            <p class="text-xs font-bold text-gold">Retorno de Inmediato (RIM: 0 meses) | Cero endeudamiento</p>
+                        </div>
+                    </div>
 
+                    <!-- Escenario 2 -->
+                    <div class="glass-panel p-6 rounded-2xl relative overflow-hidden">
+                        <div class="flex items-center space-x-3 mb-4">
+                            <div class="w-10 h-10 rounded-xl bg-slate-800 text-slate-300 flex items-center justify-center font-extrabold text-base border border-slate-700">
+                                E2
+                            </div>
+                            <div>
+                                <h3 class="text-base font-bold text-slate-100">Escenario 2: Proyección a Diciembre 2028</h3>
+                                <p class="text-xs text-slate-400">Continuación de cotizaciones por 28 meses</p>
+                            </div>
+                        </div>
+
+                        <div class="space-y-3.5 my-6">
+                            <div class="flex justify-between items-center py-2 border-b border-slate-800 text-xs">
+                                <span class="text-slate-400">IBL Promedio (Últimos 10 Años):</span>
+                                <span class="font-bold text-slate-100">$3.328.669 COP</span>
+                            </div>
+                            <div class="flex justify-between items-center py-2 border-b border-slate-800 text-xs">
+                                <span class="text-slate-400">Tasa de Reemplazo (TR):</span>
+                                <span class="font-bold text-slate-100">72,05%</span>
+                            </div>
+                            <div class="flex justify-between items-center py-2 border-b border-slate-800 text-xs">
+                                <span class="text-slate-400">Mesada Pensional Bruta:</span>
+                                <span class="font-bold text-slate-100">$2.398.306 COP</span>
+                            </div>
+                            <div class="flex justify-between items-center py-2 border-b border-slate-800 text-xs">
+                                <span class="text-slate-400">Descuento Salud Obligatorio (12%):</span>
+                                <span class="font-bold text-red-400">-$287.797 COP</span>
+                            </div>
+                            <div class="flex justify-between items-center py-2 border-b border-slate-800 text-xs">
+                                <span class="text-slate-400">Mesada Pensional Neta:</span>
+                                <span class="font-bold text-emerald-400 text-sm">$2.110.509 COP</span>
+                            </div>
+                            <div class="flex justify-between items-center py-2 border-b border-slate-800 text-xs">
+                                <span class="text-slate-400">Semanas Cotizadas:</span>
+                                <span class="font-bold text-slate-100">1.686,68 sems (+171,57)</span>
+                            </div>
+                            <div class="flex justify-between items-center py-2 text-xs">
+                                <span class="text-slate-400">Inversión Seguridad Social (Trabajador):</span>
+                                <span class="font-bold text-red-400">$16.076.549 COP</span>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-800/80 p-3.5 rounded-xl border border-slate-700 text-center">
+                            <p class="text-xs font-bold text-slate-300">Retorno de Inversión (RIM): 7,62 meses</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabla Matriz de Incrementos Marginales -->
+                <div class="glass-panel p-6 rounded-2xl overflow-hidden">
+                    <h3 class="text-base font-bold text-slate-100 mb-4">Matriz de Incrementos Marginales y Eficiencia</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="border-b border-slate-700 text-xs font-bold text-slate-400 uppercase">
+                                    <th class="py-3 px-4">Indicador / Variable</th>
+                                    <th class="py-3 px-4">Escenario 1 (2026)</th>
+                                    <th class="py-3 px-4">Escenario 2 (2028)</th>
+                                    <th class="py-3 px-4">Impacto / Diferencia</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-800 text-xs text-slate-300">
+                                <tr>
+                                    <td class="py-3.5 px-4 font-semibold text-slate-100">Semanas Totales</td>
+                                    <td class="py-3.5 px-4">1.515,11</td>
+                                    <td class="py-3.5 px-4">1.686,68</td>
+                                    <td class="py-3.5 px-4 text-blue-400 font-bold">+171,57 semanas</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-3.5 px-4 font-semibold text-slate-100">Mesada Bruta</td>
+                                    <td class="py-3.5 px-4">$2.398.306 COP</td>
+                                    <td class="py-3.5 px-4">$2.398.306 COP</td>
+                                    <td class="py-3.5 px-4 text-gold font-bold">$0 COP (Sin variación)</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-3.5 px-4 font-semibold text-slate-100">Inversión Trabajador</td>
+                                    <td class="py-3.5 px-4">$0 COP</td>
+                                    <td class="py-3.5 px-4">$16.076.549 COP</td>
+                                    <td class="py-3.5 px-4 text-red-400 font-bold">Desembolso Extra</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-3.5 px-4 font-semibold text-slate-100">Costo Total Empleador + Empleado</td>
+                                    <td class="py-3.5 px-4">$0 COP</td>
+                                    <td class="py-3.5 px-4">$57.272.706 COP</td>
+                                    <td class="py-3.5 px-4 text-red-400 font-bold">Alto costo de oportunidad</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <section id="tab-liquidacion" class="tab-content hidden space-y-6">
+                <!-- Subcabecera Obligatoria -->
+                <div class="flex items-center justify-between glass-panel p-4 rounded-2xl border-l-4 border-l-gold">
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-100">Liquidación Técnica IBL & Fórmulas Actuariales</h2>
+                        <p class="text-xs text-slate-400">Desglose matemático y normativo del régimen pensional</p>
+                    </div>
+                    <span class="text-xs font-bold bg-gold/10 text-gold px-3 py-1 rounded-xl border border-gold/30">Elaborado por: ACOSTA DIAZ & ABOGADOS</span>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    <!-- Columna Izquierda: Fórmula TR -->
+                    <div class="lg:col-span-6 glass-panel p-6 rounded-2xl space-y-4">
+                        <h3 class="text-base font-bold text-slate-100 mb-2 flex items-center space-x-2">
+                            <i class="fa-solid fa-square-root-variable text-gold"></i>
+                            <span>Estructura Matemática de la Tasa de Reemplazo</span>
+                        </h3>
+                        <p class="text-xs text-slate-300 leading-relaxed">
+                            Bajo la Ley 797 de 2003 y jurisprudencia aplicable, la Tasa de Reemplazo (<span class="text-gold font-semibold">TR</span>) se compone de un porcentaje base (<span class="text-gold font-semibold">R</span>) y puntos adicionales por semanas excedentes (<span class="text-gold font-semibold">PA</span>):
+                        </p>
+
+                        <div class="bg-slate-900/90 p-4 rounded-xl border border-slate-800 text-center space-y-2">
+                            <div class="text-sm font-extrabold text-gold tracking-wide">TR = R + PA</div>
+                            <div class="text-xs text-slate-300">
+                                <div><strong class="text-slate-100">R</strong> = 65.5 - (0.5 × S) <span class="text-[11px] text-slate-400">(S = IBL en SMLMV)</span></div>
+                                <div><strong class="text-slate-100">PA</strong> = ⌊(Semanas - Mínimas) / 50⌋ × 1.5%</div>
+                            </div>
+                        </div>
+
+                        <div class="space-y-2.5 pt-2">
+                            <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800 flex justify-between items-center text-xs">
+                                <span class="text-slate-400">IBL Liquidado:</span>
+                                <span class="font-bold text-slate-100">$3.328.669 COP</span>
+                            </div>
+                            <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800 flex justify-between items-center text-xs">
+                                <span class="text-slate-400">Porcentaje Base (R):</span>
+                                <span class="font-bold text-slate-100">64,55%</span>
+                            </div>
+                            <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800 flex justify-between items-center text-xs">
+                                <span class="text-slate-400">Puntos Adicionales Semanas (PA):</span>
+                                <span class="font-bold text-gold">+7,50% (5 múltiplos de 50)</span>
+                            </div>
+                            <div class="bg-gold/10 p-3 rounded-xl border border-gold/30 flex justify-between items-center text-xs font-bold">
+                                <span class="text-gold">Tasa de Reemplazo Total (TR):</span>
+                                <span class="text-gold text-sm">72,05%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Columna Derecha: Comparativa Ventanas e Historial -->
+                    <div class="lg:col-span-6 glass-panel p-6 rounded-2xl space-y-4 flex flex-col justify-between">
+                        <div>
+                            <h3 class="text-base font-bold text-slate-100 mb-2 flex items-center space-x-2">
+                                <i class="fa-solid fa-scale-balanced text-gold"></i>
+                                <span>Evaluación de Ventanas de Liquidación</span>
+                            </h3>
+                            <p class="text-xs text-slate-300 leading-relaxed mb-4">
+                                Se evaluó el promedio de toda la vida laboral versus el promedio de los últimos 10 años, determinando que este último otorga el máximo beneficio financiero al asegurado.
+                            </p>
+
+                            <div class="space-y-3">
+                                <div class="bg-slate-900/80 p-3.5 rounded-xl border border-gold/30">
+                                    <div class="flex justify-between items-center mb-1">
+                                        <span class="text-xs font-bold text-gold">Promedio Últimos 10 Años (Óptimo)</span>
+                                        <span class="text-xs font-extrabold text-slate-100">$2.398.306 COP</span>
+                                    </div>
+                                    <p class="text-[11px] text-slate-400">Seleccionado por arrojar la mesada pensional más alta y favorable.</p>
+                                </div>
+                                <div class="bg-slate-900/80 p-3.5 rounded-xl border border-slate-800">
+                                    <div class="flex justify-between items-center mb-1">
+                                        <span class="text-xs font-bold text-slate-300">Promedio Toda la Vida Laboral</span>
+                                        <span class="text-xs font-extrabold text-slate-300">Inferior</span>
+                                    </div>
+                                    <p class="text-[11px] text-slate-400">Descartado por menor rendimiento financiero.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Badges de Sentencias -->
+                        <div class="pt-4 border-t border-slate-800">
+                            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-2">Normativa & Jurisprudencia Aplicada</span>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="px-2.5 py-1 rounded-lg bg-gold/10 text-gold text-xs font-bold border border-gold/30">Ley 797 de 2003</span>
+                                <span class="px-2.5 py-1 rounded-lg bg-blue-500/10 text-blue-400 text-xs font-bold border border-blue-500/30">Sentencia C-197/23</span>
+                                <span class="px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300 text-xs font-bold border border-slate-700">Corrección Historial Laboral</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="tab-retorno" class="tab-content hidden space-y-6">
+                <!-- Subcabecera Obligatoria -->
+                <div class="flex items-center justify-between glass-panel p-4 rounded-2xl border-l-4 border-l-gold">
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-100">Retorno de Inversión (RIM) & Flujo de Caja</h2>
+                        <p class="text-xs text-slate-400">Análisis del tiempo de recuperación de aportes y capital invertido</p>
+                    </div>
+                    <span class="text-xs font-bold bg-gold/10 text-gold px-3 py-1 rounded-xl border border-gold/30">Elaborado por: ACOSTA DIAZ & ABOGADOS</span>
+                </div>
+
+                <!-- Tabla RIM Completa -->
+                <div class="glass-panel p-6 rounded-2xl overflow-hidden">
+                    <h3 class="text-base font-bold text-slate-100 mb-4">Tabla de Retorno de la Inversión por Escenario</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="border-b border-slate-700 text-xs font-bold text-slate-400 uppercase">
+                                    <th class="py-3 px-4">Escenario</th>
+                                    <th class="py-3 px-4">Valor Mesada Bruta</th>
+                                    <th class="py-3 px-4">Descuento Salud (12%)</th>
+                                    <th class="py-3 px-4">Valor Neto Mesada</th>
+                                    <th class="py-3 px-4">Inversión Total Trabajador</th>
+                                    <th class="py-3 px-4">Retorno (RIM)</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-800 text-xs text-slate-300">
+                                <tr>
+                                    <td class="py-3.5 px-4 font-bold text-slate-100">Escenario 1 (2026)</td>
+                                    <td class="py-3.5 px-4">$2.398.306</td>
+                                    <td class="py-3.5 px-4 text-red-400">-$287.797</td>
+                                    <td class="py-3.5 px-4 text-emerald-400 font-bold">$2.110.509</td>
+                                    <td class="py-3.5 px-4 text-gold font-bold">$0 (Ya causadas)</td>
+                                    <td class="py-3.5 px-4 font-bold text-gold">0,0 meses (Inmediato)</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-3.5 px-4 font-bold text-slate-100">Escenario 2 (2028)</td>
+                                    <td class="py-3.5 px-4">$2.398.306</td>
+                                    <td class="py-3.5 px-4 text-red-400">-$287.797</td>
+                                    <td class="py-3.5 px-4 text-emerald-400 font-bold">$2.110.509</td>
+                                    <td class="py-3.5 px-4 text-red-400 font-bold">$16.076.549</td>
+                                    <td class="py-3.5 px-4 font-bold text-blue-400">7,62 meses (~8 meses)</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Explicación de Resultados y Simulación de Flujo -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="glass-panel p-6 rounded-2xl space-y-3">
+                        <h3 class="text-base font-bold text-slate-100 flex items-center space-x-2">
+                            <i class="fa-solid fa-chart-pie text-gold"></i>
+                            <span>Interpretación Financiera (RIM)</span>
+                        </h3>
+                        <p class="text-xs text-slate-300 leading-relaxed">
+                            <strong class="text-gold">Escenario 1:</strong> Al no requerir nuevas erogaciones de capital a partir de agosto de 2026, la recuperación de la inversión acumulada es inmediata (0 meses), maximizando el flujo de caja disponible del asegurado.
+                        </p>
+                        <p class="text-xs text-slate-300 leading-relaxed">
+                            <strong class="text-blue-400">Escenario 2:</strong> El trabajador compromete <strong class="text-slate-100">$16.076.549 COP</strong> en aportes propios. Si bien el periodo de recuperación contable es de 7,62 meses de mesadas netas, no contempla el costo de oportunidad de haber dejado de percibir 28 mesadas íntegras entre 2026 y 2028.
+                        </p>
+                    </div>
+
+                    <div class="glass-panel p-6 rounded-2xl space-y-3">
+                        <h3 class="text-base font-bold text-slate-100 flex items-center space-x-2">
+                            <i class="fa-solid fa-shield-heart text-gold"></i>
+                            <span>Aportes a Seguridad Social y FSP</span>
+                        </h3>
+                        <p class="text-xs text-slate-300 leading-relaxed">
+                            Los aportes proyectados en el Escenario 2 incluyen cotizaciones obligatorias a Salud (12%), Pensión (16%) y Fondo de Solidaridad Pensional cuando aplique, distribuidos entre el empleador y el trabajador conforme a la ley laboral colombiana.
+                        </p>
+                        <div class="bg-slate-900/80 p-3.5 rounded-xl border border-slate-800 text-center">
+                            <span class="text-xs font-bold text-gold">Recomendación: Priorizar el retiro en Agosto de 2026</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="tab-historial" class="tab-content hidden space-y-6">
+                <!-- Subcabecera Obligatoria -->
+                <div class="flex items-center justify-between glass-panel p-4 rounded-2xl border-l-4 border-l-gold">
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-100">Cronograma & Historial de Cotizaciones</h2>
+                        <p class="text-xs text-slate-400">Registro detallado y corrección de periodos en historia laboral</p>
+                    </div>
+                    <span class="text-xs font-bold bg-gold/10 text-gold px-3 py-1 rounded-xl border border-gold/30">Elaborado por: ACOSTA DIAZ & ABOGADOS</span>
+                </div>
+
+                <!-- Barra de Búsqueda y Contador -->
+                <div class="glass-panel p-4 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div class="relative w-full sm:w-96">
+                        <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                        </span>
+                        <input type="text" id="table-search" onkeyup="filterTable()" placeholder="Buscar por periodo, estado o novedad..." 
+                            class="w-full pl-10 pr-4 py-2.5 bg-slate-900/80 border border-slate-700 rounded-xl text-slate-100 focus:outline-none focus:border-gold transition text-xs">
+                    </div>
+                    <div class="text-xs text-slate-400 font-semibold">
+                        Registros Totales: <span id="record-count" class="text-gold font-bold">5</span> periodos clave evaluados
+                    </div>
+                </div>
+
+                <!-- Tabla Scrollable -->
+                <div class="glass-panel rounded-2xl overflow-hidden">
+                    <div class="max-h-[520px] overflow-y-auto">
+                        <table id="history-table" class="w-full text-left border-collapse">
+                            <thead class="sticky top-0 bg-[#0F172A] border-b border-slate-700 z-10">
+                                <tr class="text-xs font-bold text-slate-400 uppercase">
+                                    <th class="py-3 px-4">Periodo / Rango</th>
+                                    <th class="py-3 px-4">Administradora</th>
+                                    <th class="py-3 px-4">Estado Original</th>
+                                    <th class="py-3 px-4">Acción / Subsanación</th>
+                                    <th class="py-3 px-4">Semanas Acumuladas</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-800 text-xs text-slate-300">
+                                <tr class="hover:bg-slate-800/40 transition">
+                                    <td class="py-3.5 px-4 font-bold text-slate-100">Agosto 2025 - Junio 2026</td>
+                                    <td class="py-3.5 px-4">Colpensiones</td>
+                                    <td class="py-3.5 px-4"><span class="px-2.5 py-1 rounded-full bg-red-500/10 text-red-400 font-semibold">Reportado en $0 / Vacío</span></td>
+                                    <td class="py-3.5 px-4 text-gold font-semibold">Corrección y subsanación administrativa</td>
+                                    <td class="py-3.5 px-4">Incluidas en cálculo IBL</td>
+                                </tr>
+                                <tr class="hover:bg-slate-800/40 transition">
+                                    <td class="py-3.5 px-4 font-bold text-slate-100">Corte Escenario 1 (Agosto 2026)</td>
+                                    <td class="py-3.5 px-4">Colpensiones</td>
+                                    <td class="py-3.5 px-4"><span class="px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 font-semibold">Consolidado</span></td>
+                                    <td class="py-3.5 px-4 text-slate-300">Cumplimiento total de requisitos de edad y semanas</td>
+                                    <td class="py-3.5 px-4 font-bold text-slate-100">1.515,11 sems</td>
+                                </tr>
+                                <tr class="hover:bg-slate-800/40 transition">
+                                    <td class="py-3.5 px-4 font-bold text-slate-100">Periodo Intermedio (Sept 2026 - Dic 2028)</td>
+                                    <td class="py-3.5 px-4">Colpensiones</td>
+                                    <td class="py-3.5 px-4"><span class="px-2.5 py-1 rounded-full bg-blue-500/10 text-blue-400 font-semibold">Proyectado (28 meses)</span></td>
+                                    <td class="py-3.5 px-4 text-slate-300">Aportes voluntarios a cargo del trabajador</td>
+                                    <td class="py-3.5 px-4">+171,57 sems adicionales</td>
+                                </tr>
+                                <tr class="hover:bg-slate-800/40 transition">
+                                    <td class="py-3.5 px-4 font-bold text-slate-100">Corte Escenario 2 (Diciembre 2028)</td>
+                                    <td class="py-3.5 px-4">Colpensiones</td>
+                                    <td class="py-3.5 px-4"><span class="px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 font-semibold">Proyectado Máximo</span></td>
+                                    <td class="py-3.5 px-4 text-slate-300">Finalización de aportes continuos</td>
+                                    <td class="py-3.5 px-4 font-bold text-slate-100">1.686,68 sems</td>
+                                </tr>
+                                <tr class="hover:bg-slate-800/40 transition">
+                                    <td class="py-3.5 px-4 font-bold text-slate-100">Requisito Mínimo Ley</td>
+                                    <td class="py-3.5 px-4">Colpensiones</td>
+                                    <td class="py-3.5 px-4"><span class="px-2.5 py-1 rounded-full bg-gold/10 text-gold font-semibold">Requerido</span></td>
+                                    <td class="py-3.5 px-4 text-slate-300">1.250 semanas (E1) / 1.200 semanas (E2)</td>
+                                    <td class="py-3.5 px-4 font-bold text-gold">Superado con amplio margen</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <section id="tab-dictamen" class="tab-content hidden space-y-6">
+                <!-- Subcabecera Obligatoria -->
+                <div class="flex items-center justify-between glass-panel p-4 rounded-2xl border-l-4 border-l-gold">
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-100">Dictamen Estratégico & Certificación Oficial</h2>
+                        <p class="text-xs text-slate-400">Veredicto técnico final y conclusiones de asesoría financiera</p>
+                    </div>
+                    <span class="text-xs font-bold bg-gold/10 text-gold px-3 py-1 rounded-xl border border-gold/30">Elaborado por: ACOSTA DIAZ & ABOGADOS</span>
+                </div>
+
+                <!-- Tarjeta Dorada de Dictamen -->
+                <div class="glass-panel p-8 rounded-2xl border-2 border-gold/60 gold-border-glow space-y-5 bg-gradient-to-br from-slate-900 via-slate-900 to-amber-950/20">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-12 h-12 rounded-2xl bg-gold/20 text-gold flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-award"></i>
+                        </div>
+                        <div>
+                            <span class="text-xs font-extrabold text-gold uppercase tracking-widest">Dictamen Técnico Definitivo</span>
+                            <h3 class="text-xl font-extrabold text-slate-100">Recomendación Estratégica para Christian Méndez Navarro</h3>
+                        </div>
+                    </div>
+
+                    <p class="text-sm text-slate-300 leading-relaxed">
+                        Con base en el análisis cuantitativo, la proyección de IBL, la tasa de reemplazo y el retorno de la inversión (RIM), se emite dictamen favorable para la radicación y disfrute de la pensión de vejez en el <strong class="text-gold">Escenario 1 (Agosto de 2026)</strong>.
+                    </p>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
+                        <div class="bg-slate-900/90 p-4 rounded-xl border border-gold/30">
+                            <div class="text-xs font-bold text-gold uppercase mb-1">Mayor Rentabilidad</div>
+                            <p class="text-xs text-slate-300">Escenario 1 (Agosto 2026). Garantiza el cobro íntegro de la mesada sin incurrir en costos de capital.</p>
+                        </div>
+                        <div class="bg-slate-900/90 p-4 rounded-xl border border-gold/30">
+                            <div class="text-xs font-bold text-gold uppercase mb-1">Mejor Costo-Beneficio</div>
+                            <p class="text-xs text-slate-300">Escenario 1 (Agosto 2026). Evita el desembolso de $16.076.549 COP y el costo de oportunidad.</p>
+                        </div>
+                        <div class="bg-slate-900/90 p-4 rounded-xl border border-gold/30">
+                            <div class="text-xs font-bold text-gold uppercase mb-1">Retorno Inmediato</div>
+                            <p class="text-xs text-slate-300">Escenario 1 (Agosto 2026). Recuperación de capital instantánea (0 meses de espera adicional).</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tarjeta de Certificación Oficial de la Empresa Liquidadora -->
+                <div class="glass-panel p-6 rounded-2xl flex flex-col md:flex-row items-center justify-between gap-6 border-l-4 border-l-gold">
+                    <div class="space-y-2">
+                        <div class="flex items-center space-x-2 text-gold text-xs font-bold uppercase tracking-wider">
+                            <i class="fa-solid fa-stamp"></i>
+                            <span>Certificación Profesional Garantizada</span>
+                        </div>
+                        <h4 class="text-base font-bold text-slate-100">Estudio Pensional Validado y Auditado</h4>
+                        <p class="text-xs text-slate-400 leading-relaxed max-w-2xl">
+                            Este estudio fue elaborado con rigor técnico y financiero bajo los estándares de la ley colombiana. Quedamos a su entera disposición para el acompañamiento legal y administrativo ante Colpensiones.
+                        </p>
+                    </div>
+                    <div class="text-right bg-slate-900/80 p-4 rounded-xl border border-slate-800 min-w-[240px]">
+                        <span class="text-[11px] text-slate-400 block">Firma Responsable:</span>
+                        <span class="text-sm font-extrabold text-gold block mt-1">ACOSTA DIAZ & ABOGADOS</span>
+                        <span class="text-[10px] text-slate-400 block mt-0.5">Fecha del Estudio: 31 de Julio de 2026</span>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+
+        <!-- Footer Principal -->
+        <footer class="glass-panel border-t border-cardborder py-4 px-4 text-center text-xs text-slate-400">
+            <p>SU PENSIÓN PLUS © 2026 — Todos los derechos reservados. | Desarrollado por <span class="text-gold font-bold">ACOSTA DIAZ & ABOGADOS</span></p>
+        </footer>
     </div>
 
-    <!-- SCRIPTS LÓGICOS -->
     <script>
-        // 1. Lógica de Autenticación
-        function validateLogin() {
-            const user = document.getElementById('username').value.trim();
-            const pass = document.getElementById('password').value.trim();
-            const errorMsg = document.getElementById('login-error');
+        // Validación de Login
+        function validateLogin(event) {
+            event.preventDefault();
+            const userIn = document.getElementById('login-user').value.trim();
+            const passIn = document.getElementById('login-pass').value.trim();
+            const errorDiv = document.getElementById('login-error');
 
-            if(user === '51906024' && pass === '6024') {
-                document.getElementById('login-screen').style.display = 'none';
-                document.getElementById('main-dashboard').style.display = 'block';
-                initCharts();
+            // Cédula: 51906024 o 51.906.024 -> últimos 4 dígitos: 9024
+            const validUsers = ['51906024', '51.906.024'];
+            const validPass = '9024';
+
+            if (validUsers.includes(userIn) && passIn === validPass) {
+                errorDiv.classList.add('hidden');
+                document.getElementById('login-screen').classList.add('hidden');
+                document.getElementById('main-dashboard').classList.remove('hidden');
+                initChart();
             } else {
-                errorMsg.style.display = 'block';
+                errorDiv.classList.remove('hidden');
             }
         }
 
-        // 2. Navegación de Pestañas
-        function switchTab(tabId, btnElement) {
-            const contents = document.querySelectorAll('.tab-content');
-            contents.forEach(content => content.classList.remove('active'));
-
-            const btns = document.querySelectorAll('.tab-btn');
-            btns.forEach(btn => btn.classList.remove('active'));
-
-            document.getElementById(tabId).classList.add('active');
-            if (btnElement) {
-                btnElement.classList.add('active');
-            }
+        // Cierre de Sesión
+        function logout() {
+            document.getElementById('login-user').value = '';
+            document.getElementById('login-pass').value = '';
+            document.getElementById('login-error').classList.add('hidden');
+            document.getElementById('main-dashboard').classList.add('hidden');
+            document.getElementById('login-screen').classList.remove('hidden');
         }
 
-        // 3. Gráfico Altamente Definido (Chart.js)
-        let resumenChartInstance = null;
-        function initCharts() {
-            if (typeof Chart === 'undefined') return;
-            const canvas = document.getElementById('chartResumen');
-            if (!canvas) return;
+        // Navegación entre Pestañas
+        function switchTab(tabId) {
+            const tabs = document.querySelectorAll('.tab-content');
+            tabs.forEach(t => t.classList.add('hidden'));
 
-            const ctx = canvas.getContext('2d');
-            
-            if (resumenChartInstance) {
-                resumenChartInstance.destroy();
-            }
+            const buttons = document.querySelectorAll('.tab-btn');
+            buttons.forEach(b => {
+                b.classList.remove('bg-gold', 'text-darkbg', 'shadow-md');
+                b.classList.add('text-slate-300', 'hover:bg-slate-800');
+            });
 
-            Chart.defaults.color = '#94A3B8';
-            Chart.defaults.font.family = "'Plus Jakarta Sans', sans-serif";
+            document.getElementById('tab-' + tabId).classList.remove('hidden');
+            const activeBtn = document.getElementById('btn-tab-' + tabId);
+            activeBtn.classList.remove('text-slate-300', 'hover:bg-slate-800');
+            activeBtn.classList.add('bg-gold', 'text-darkbg', 'shadow-md');
 
-            resumenChartInstance = new Chart(ctx, {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Inicialización de Gráfico Chart.js
+        let mainChartInstance = null;
+        function initChart() {
+            if (mainChartInstance) return;
+            const ctx = document.getElementById('mainChart').getContext('2d');
+            mainChartInstance = new Chart(ctx, {
                 type: 'bar',
                 data: {
                     labels: ['Escenario 1 (Agosto 2026)', 'Escenario 2 (Diciembre 2028)'],
                     datasets: [
                         {
-                            label: 'Mesada Bruta Mensual',
+                            label: 'Mesada Bruta (COP)',
                             data: [2398306, 2398306],
                             backgroundColor: '#D4AF37',
-                            borderColor: '#FDE047',
-                            borderWidth: 1,
-                            borderRadius: 6,
-                            barPercentage: 0.5
+                            borderRadius: 8
                         },
                         {
-                            label: 'Inversión Adicional Requerida',
+                            label: 'Inversión Seguridad Social (COP)',
                             data: [0, 16076549],
-                            backgroundColor: '#EF4444',
-                            borderColor: '#DC2626',
-                            borderWidth: 1,
-                            borderRadius: 6,
-                            barPercentage: 0.5
+                            backgroundColor: '#3B82F6',
+                            borderRadius: 8
                         }
                     ]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    devicePixelRatio: window.devicePixelRatio || 2,
                     plugins: {
                         legend: {
-                            position: 'top',
                             labels: {
-                                boxWidth: 12,
-                                padding: 15,
-                                font: { size: 12, weight: '600' }
-                            }
-                        },
-                        tooltip: {
-                            backgroundColor: 'rgba(15, 23, 42, 0.95)',
-                            titleColor: '#D4AF37',
-                            borderColor: 'rgba(212, 175, 55, 0.3)',
-                            borderWidth: 1,
-                            padding: 12,
-                            callbacks: {
-                                label: function(context) {
-                                    let label = context.dataset.label || '';
-                                    if (label) label += ': ';
-                                    if (context.parsed.y !== null) {
-                                        label += new Intl.NumberFormat('es-CO', { 
-                                            style: 'currency', 
-                                            currency: 'COP', 
-                                            maximumFractionDigits: 0 
-                                        }).format(context.parsed.y);
-                                    }
-                                    return label;
-                                }
+                                color: '#94A3B8',
+                                font: { family: 'Plus Jakarta Sans', size: 11 }
                             }
                         }
                     },
                     scales: {
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: '#94A3B8', font: { family: 'Plus Jakarta Sans', size: 11 } }
+                        },
                         y: {
-                            beginAtZero: true,
-                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
-                            ticks: {
-                                font: { size: 11 },
+                            grid: { color: '#1E293B' },
+                            ticks: { 
+                                color: '#94A3B8', 
+                                font: { family: 'Plus Jakarta Sans', size: 11 },
                                 callback: function(value) {
                                     return '$' + (value / 1000000).toFixed(1) + 'M';
                                 }
                             }
-                        },
-                        x: {
-                            grid: { display: false },
-                            ticks: { font: { size: 11, weight: '600' } }
                         }
                     }
                 }
             });
         }
 
-        // 4. Búsqueda en Tabla Historial
+        // Filtro de Tabla en Tiempo Real
         function filterTable() {
-            const input = document.getElementById("searchInput");
-            const filter = input.value.toUpperCase();
-            const table = document.getElementById("historialTable");
-            const tr = table.getElementsByTagName("tr");
+            const input = document.getElementById('table-search').value.toLowerCase();
+            const table = document.getElementById('history-table');
+            const rows = table.getElementsByTagName('tr');
+            let count = 0;
 
-            for (let i = 1; i < tr.length; i++) {
-                let tdArray = tr[i].getElementsByTagName("td");
-                let match = false;
-                for(let j = 0; j < tdArray.length; j++){
-                    if (tdArray[j]) {
-                        if (tdArray[j].innerHTML.toUpperCase().indexOf(filter) > -1) {
-                            match = true;
-                            break;
-                        }
-                    }
+            for (let i = 1; i < rows.length; i++) {
+                const rowText = rows[i].textContent.toLowerCase();
+                if (rowText.includes(input)) {
+                    rows[i].style.display = '';
+                    count++;
+                } else {
+                    rows[i].style.display = 'none';
                 }
-                tr[i].style.display = match ? "" : "none";
             }
+            document.getElementById('record-count').textContent = count;
         }
     </script>
 </body>
