@@ -101,7 +101,7 @@
                         <input type="password" id="login-pass" required placeholder="****" 
                             class="w-full pl-10 pr-4 py-3 bg-slate-900/80 border border-slate-700 rounded-xl text-slate-100 focus:outline-none focus:border-gold transition text-sm tracking-widest">
                     </div>
-                    <p class="text-[11px] text-slate-500 mt-1">Últimos 4 dígitos de su Cédula (Ej: 9024)</p>
+                    <p class="text-[11px] text-slate-500 mt-1">Últimos 4 dígitos de su Cédula (Ej: 6024)</p>
                 </div>
 
                 <div id="login-error" class="hidden bg-red-500/10 border border-red-500/30 text-red-400 text-xs p-3 rounded-lg text-center font-medium">
@@ -800,9 +800,9 @@
             const passIn = document.getElementById('login-pass').value.trim();
             const errorDiv = document.getElementById('login-error');
 
-            // Cédula: 51906024 o 51.906.024 -> últimos 4 dígitos: 9024
+            // Cédula: 51906024 o 51.906.024 -> últimos 4 dígitos: 6024
             const validUsers = ['51906024', '51.906.024'];
-            const validPass = '9024';
+            const validPass = '6024';
 
             if (validUsers.includes(userIn) && passIn === validPass) {
                 errorDiv.classList.add('hidden');
