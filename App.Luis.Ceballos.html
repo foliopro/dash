@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal Ejecutivo - Estudio Pensional | Su Pensión Plus</title>
+    <!-- Chart.js para gráficos ejecutivos -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg-main: #070B14;
+            --panel-bg: rgba(15, 23, 42, 0.85);
+            --border-gold: #D4AF37;
+            --text-gold: #FDE047;
+            --text-light: #F8FAFC;
+            --text-muted: #94A3B8;
+            --accent-blue: #1E3A8A;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-light);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* LOGIN SCREEN */
+        #login-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 1rem;
+        }
+
+        .login-card {
+            background: var(--panel-bg);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 16px;
+            padding: 2.5rem 2rem;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+            text-align: center;
+        }
+
+        .login-logo {
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 1rem;
+            border: 2px solid var(--border-gold);
+        }
+
+        .login-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-light);
+            margin-bottom: 0.25rem;
+            letter-spacing: 0.5px;
+        }
+
+        .login-subtitle {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            text-align: left;
+            margin-bottom: 1.25rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--border-gold);
+            margin-bottom: 0.4rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: rgba(2, 6, 23, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: var(--text-light);
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .form-control:focus {
+            border-color: var(--border-gold);
+        }
+
+        .btn-gold {
+            width: 100%;
+            padding: 0.85rem;
+            background: linear-gradient(135deg, #D4AF37, #AA820A);
+            color: #000;
+            font-weight: 700;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            transition: opacity 0.2s, transform 0.1s;
+            margin-top: 0.5rem;
+        }
+
+        .btn-gold:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        .login-error {
+            color: #EF4444;
+            font-size: 0.8rem;
+            margin-top: 0.75rem;
+            display: none;
+        }
+
+        .login-footer-firm {
+            margin-top: 2rem;
+            border-top: 1px solid rgba(255,255,255,0.08);
+            padding-top: 1rem;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .login-footer-firm strong {
+            display: block;
+            font-size: 15px;
+            color: var(--text-gold);
+            margin-top: 0.2rem;
+        }
+
+        /* MAIN DASHBOARD */
+        #main-dashboard {
+            display: none;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header {
+            background: var(--panel-bg);
+            border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+            padding: 1rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        @media(min-width: 768px) {
+            header {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+            }
+        }
+
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .header-logo {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 1px solid var(--border-gold);
+        }
+
+        .header-brand h1 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-light);
+        }
+
+        .header-brand span {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            display: block;
+        }
+
+        .header-lawyer {
+            text-align: right;
+        }
+
+        .header-lawyer span {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            display: block;
+        }
+
+        .header-lawyer strong {
+            font-size: 16px;
+            color: var(--text-gold);
+        }
+
+        /* NAVIGATION TABS */
+        nav {
+            background: rgba(2, 6, 23, 0.9);
+            padding: 0.5rem 1rem;
+            display: flex;
+            gap: 0.5rem;
+            overflow-x: auto;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            white-space: nowrap;
+        }
+
+        nav::-webkit-scrollbar {
+            height: 4px;
+        }
+        nav::-webkit-scrollbar-thumb {
+            background: var(--border-gold);
+            border-radius: 2px;
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 0.6rem 1rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .tab-btn:hover {
+            color: var(--text-light);
+            background: rgba(255,255,255,0.05);
+        }
+
+        .tab-btn.active {
+            color: #000;
+            background: var(--border-gold);
+        }
+
+        /* CONTAINER CONTENT */
+        main {
+            flex: 1;
+            padding: 1.5rem;
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* CARDS & PANELS */
+        .card {
+            background: var(--panel-bg);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        }
+
+        .card-gold {
+            border: 1px solid rgba(212, 175, 55, 0.4);
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(30, 41, 59, 0.9));
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-gold);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* GRIDS */
+        .grid-4 {
+            display: grid;
+            grid-template-columns: repeat(1, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        @media(min-width: 640px) { .grid-4 { grid-template-columns: repeat(2, 1fr); } }
+        @media(min-width: 1024px) { .grid-4 { grid-template-columns: repeat(4, 1fr); } }
+
+        .kpi-card {
+            background: rgba(15, 23, 42, 0.9);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 10px;
+            padding: 1.2rem;
+            text-align: center;
+        }
+
+        .kpi-title {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+            letter-spacing: 0.5px;
+        }
+
+        .kpi-value {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-gold);
+        }
+
+        /* TABLES */
+        .table-responsive {
+            overflow-x: auto;
+            margin-top: 1rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.9rem;
+        }
+
+        th, td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+
+        th {
+            background: rgba(2, 6, 23, 0.6);
+            color: var(--text-gold);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+        }
+
+        tr:hover td {
+            background: rgba(255,255,255,0.02);
+        }
+
+        /* FORMULAS & TEXT */
+        .formula-box {
+            background: #020617;
+            border-left: 4px solid var(--border-gold);
+            padding: 1rem;
+            font-family: monospace;
+            font-size: 0.85rem;
+            color: var(--text-gold);
+            border-radius: 0 8px 8px 0;
+            margin: 1rem 0;
+            overflow-x: auto;
+        }
+
+        p {
+            line-height: 1.6;
+            color: #CBD5E1;
+            margin-bottom: 1rem;
+            font-size: 0.95rem;
+        }
+
+        ul {
+            margin-left: 1.5rem;
+            margin-bottom: 1rem;
+            color: #CBD5E1;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+            line-height: 1.5;
+        }
+
+        footer {
+            text-align: center;
+            padding: 1.5rem;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            border-top: 1px solid rgba(255,255,255,0.05);
+            background: var(--panel-bg);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 0. PANTALLA DE ACCESO Y SEGURIDAD -->
+    <div id="login-screen">
+        <div class="login-card">
+            <img src="https://i.ibb.co/DfxRv2Sd/logo-02.jpg" alt="Logo Su Pensión Plus" class="login-logo">
+            <div class="login-title">SU PENSIÓN PLUS</div>
+            <div class="login-subtitle">Portal Privado de Liquidaciones Pensionales</div>
+            
+            <form id="auth-form" onsubmit="validateLogin(event)">
+                <div class="form-group">
+                    <label for="user-input">Usuario (No. Cédula)</label>
+                    <input type="password" id="user-input" class="form-control" value="16643359" required placeholder="*********" autocomplete="off">
+                </div>
+                <div class="form-group">
+                    <label for="pass-input">Contraseña (Últimos 4 dígitos)</label>
+                    <input type="password" id="pass-input" class="form-control" value="3359" required placeholder="****" autocomplete="current-password">
+                </div>
+                <button type="submit" class="btn-gold">Ingresar al Portal Ejecutivo</button>
+                <div id="login-error" class="login-error">Credenciales no válidas. Intente de nuevo por favor</div>
+            </form>
+
+            <div class="login-footer-firm">
+                Estudio elaborado por:
+                <strong>ABOGADO ROBINSON VALENCIA</strong>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN DASHBOARD CONTAINER -->
+    <div id="main-dashboard">
+        <!-- HEADER -->
+        <header>
+            <div class="header-brand">
+                <img src="https://i.ibb.co/DfxRv2Sd/logo-02.jpg" alt="Logo" class="header-logo">
+                <div>
+                    <h1>SU PENSIÓN PLUS</h1>
+                    <span>Sistema Integral de Asesoría Actuarial y Pensional</span>
+                </div>
+            </div>
+            <div class="header-lawyer">
+                <span>Firma / Abogado Responsable:</span>
+                <strong>ABOGADO ROBINSON VALENCIA</strong>
+            </div>
+        </header>
+
+        <!-- NAVIGATION TABS -->
+        <nav>
+            <button class="tab-btn active" onclick="switchTab('tab-bienvenida', this)">Bienvenida</button>
+            <button class="tab-btn" onclick="switchTab('tab-resumen', this)">1. Resumen Ejecutivo</button>
+            <button class="tab-btn" onclick="switchTab('tab-escenarios', this)">2 & 3. Escenarios</button>
+            <button class="tab-btn" onclick="switchTab('tab-detalles', this)">4. Detalles del Cliente</button>
+            <button class="tab-btn" onclick="switchTab('tab-liquidacion', this)">9 & 10. Estudio & Tasa de Reemplazo</button>
+            <button class="tab-btn" onclick="switchTab('tab-conclusiones', this)">13 & 14. Conclusiones y Firma</button>
+        </nav>
+
+        <!-- MAIN BODY CONTENT -->
+        <main>
+            <!-- PESTAÑA 0: BIENVENIDA -->
+            <div id="tab-bienvenida" class="tab-content active">
+                <div class="card card-gold">
+                    <div class="card-title">🌟 Bienvenida y Contextualización del Caso</div>
+                    <p>Estimado cliente y/o profesional del derecho, le damos la bienvenida al portal ejecutivo de asesoría pensional. Este entorno interactivo ha sido estructurado para presentar con rigurosidad matemática y jurídica el estudio actuarial del asegurado.</p>
+                    <p><strong>Asegurado:</strong> Luis Hernando Ceballos (Cédula No. 16.643.359)</p>
+                    <p><strong>Fecha de Emisión del Estudio:</strong> 28/09/2026</p>
+                    <p><strong>Firma Responsable:</strong> Abogado Robinson Valencia</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">🎯 Objetivo del Estudio Pensional</div>
+                    <p>El presente informe técnico tiene como propósito fundamental evaluar el impacto financiero y jurídico de la reliquidación pensional al cumplir el hito de 1.300 semanas cotizadas, determinando con precisión milimétrica la mesada óptima bajo la normativa del Régimen de Prima Media (Colpensiones).</p>
+                </div>
+            </div>
+
+            <!-- PESTAÑA 1: RESUMEN EJECUTIVO -->
+            <div id="tab-resumen" class="tab-content">
+                <div class="grid-4">
+                    <div class="kpi-card">
+                        <div class="kpi-title">Mesada Óptima / Máxima</div>
+                        <div class="kpi-value">$2.122.730</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-title">Opción Recomendada</div>
+                        <div class="kpi-value">Toda la Vida</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-title">IBL Máximo</div>
+                        <div class="kpi-value">$3.282.910</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-title">Tasa de Reemplazo</div>
+                        <div class="kpi-value">64,66%</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">📊 Comparativa Gráfica de Mesadas por Periodo Promediado</div>
+                    <div style="position: relative; height:280px; width:100%">
+                        <canvas id="chartResumen"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PESTAÑA 2 & 3: ESCENARIOS -->
+            <div id="tab-escenarios" class="tab-content">
+                <div class="card card-gold">
+                    <div class="card-title">Escenario E1: Reliquidación Pensional</div>
+                    <p><strong>Descripción del Escenario:</strong> Reliquidación pensional al cumplimiento de 1.300 semanas a diciembre 31 de 2027. Las 1.300 semanas se cumplen en diciembre de 2027 y se solicita pensión en enero de 2028.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Matriz Comparativa de Resultados por Escenario</div>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Periodo de Promedio</th>
+                                    <th>Ingreso Base Liquidación (IBL)</th>
+                                    <th>Tasa de Reemplazo</th>
+                                    <th>Mesada Pensional</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Toda la Vida (Opción Más Favorable)</strong></td>
+                                    <td>$3.282.910</td>
+                                    <td>64,66%</td>
+                                    <td><strong style="color:var(--text-gold);">$2.122.730</strong></td>
+                                </tr>
+                                <tr>
+                                    <td>Últimos 10 Años</td>
+                                    <td>$2.445.130</td>
+                                    <td>64,87%</td>
+                                    <td>$1.948.756</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PESTAÑA 4: DETALLES DEL CLIENTE -->
+            <div id="tab-detalles" class="tab-content">
+                <div class="card">
+                    <div class="card-title">📋 Detalles del Asegurado</div>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Detalle</th>
+                                    <th>Información del Asegurado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Nombre del Cliente</strong></td>
+                                    <td>Luis Hernando Ceballos</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>No. Cédula</strong></td>
+                                    <td>16.643.359</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Fecha de Nacimiento</strong></td>
+                                    <td>04/09/1959</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Fecha de Liquidación / Causación</strong></td>
+                                    <td>01/01/2028</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Base IPC</strong></td>
+                                    <td>IPC Base 2018</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PESTAÑA 9 & 10: ESTUDIO PENSIONAL & TASA DE REEMPLAZO -->
+            <div id="tab-liquidacion" class="tab-content">
+                <div class="card">
+                    <div class="card-title">⚙️ Descripción Técnica y Normativa</div>
+                    <p>El estudio pensional se desarrolló bajo los parámetros estrictos de la <strong>Ley 797 de 2003</strong>. Los cálculos matemáticos y actuariales se realizaron considerando tanto el promedio de toda la vida laboral como el de los últimos 10 años, incorporando la totalidad de las semanas cotizadas de acuerdo con la jurisprudencia aplicable (Sentencia SL3501/2022).</p>
+                </div>
+
+                <div class="card card-gold">
+                    <div class="card-title">🧮 Cálculo Detallado de la Tasa de Reemplazo (Ley 797/2003)</div>
+                    <p>La tasa de reemplazo se calcula de acuerdo con el artículo 10 de la Ley 797 de 2003. Su fórmula base decrece en función del nivel de ingresos calculado en salarios mínimos, y se incrementa en un 1,5% por cada 50 semanas adicionales cotizadas que excedan el umbral mínimo.</p>
+                    
+                    <div class="formula-box">
+TR = R + PA<br>
+R = 65,5 - (0,5 × S) [Donde S = IBL / Salario Mínimo del año de Pensión]<br>
+R = 65,5 - 0,5 × ($3.282.910 / $1.948.756) = 64,66%<br>
+PA = 0,00% (Semanas adicionales equivalentes a cero en el umbral base)<br>
+TR Final = 64,66%
+                    </div>
+                </div>
+            </div>
+
+            <!-- PESTAÑA 13 & 14: CONCLUSIONES Y FIRMA -->
+            <div id="tab-conclusiones" class="tab-content">
+                <div class="card">
+                    <div class="card-title">📌 Conclusiones del Estudio Técnico-Actuarial</div>
+                    <ul>
+                        <li>De acuerdo con nuestra reliquidación, la mesada pensional arroja un valor de <strong>$2.122.730</strong>, fundamentada en un Ingreso Base de Liquidación (IBL) de <strong>$3.282.910</strong> y una tasa de reemplazo de <strong>64,66%</strong>.</li>
+                        <li>La opción más favorable para el peticionario se obtuvo mediante el promedio de <strong>Toda la Vida</strong>.</li>
+                        <li>La presente liquidación se estructuró jurídicamente bajo los mandatos de la <strong>Ley 797 de 2003</strong> y aplicando la <strong>Sentencia SL3501/2022</strong>, la cual contempla el cómputo integral de la historia laboral y todas las semanas cotizadas por el afiliado.</li>
+                        <li>Se recomienda utilizar este estudio técnico-actuarial como soporte idóneo en las actuaciones administrativas o judiciales pertinentes para salvaguardar los derechos pensionales del señor Luis Hernando Ceballos.</li>
+                    </ul>
+                </div>
+
+                <div class="card card-gold" style="text-align: center;">
+                    <div class="card-title" style="justify-content: center;">✍️ Firma y Certificación Oficial</div>
+                    <p>Esperamos que este estudio haya resuelto las dudas planteadas sobre este escenario. Quedamos a su entera disposición para atender cualquier inquietud o aclaración adicional que requiera.</p>
+                    <p style="margin-top: 1.5rem;">Cordialmente,</p>
+                    <strong style="font-size: 1.2rem; color: var(--text-gold); display: block; margin-top: 0.5rem;">ABOGADO ROBINSON VALENCIA</strong>
+                    <span style="color: var(--text-muted); font-size: 0.85rem;">Asesoría Pensional y Financiera – Actuario</span>
+                    <span style="color: var(--text-muted); font-size: 0.8rem; display: block; margin-top: 0.5rem;">Fecha de Impresión: 28/09/2026</span>
+                </div>
+            </div>
+        </main>
+
+        <!-- FOOTER -->
+        <footer>
+            SU PENSIÓN PLUS © 2026 — Todos los derechos reservados. Sistema de Asesoría Actuarial Avanzada.
+        </footer>
+    </div>
+
+    <!-- JAVASCRIPT DE CONTROL -->
+    <script>
+        function validateLogin(event) {
+            event.preventDefault();
+            const user = document.getElementById('user-input').value.trim();
+            const pass = document.getElementById('pass-input').value.trim();
+            const errorDiv = document.getElementById('login-error');
+
+            // Credenciales validadas según cédula: 16643359 / Pass: 3359
+            if (user === "16643359" && pass === "3359") {
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('main-dashboard').style.display = 'flex';
+                initChart();
+            } else {
+                errorDiv.style.display = 'block';
+            }
+        }
+
+        function switchTab(tabId, btnElement) {
+            // Ocultar todas las pestañas
+            const tabs = document.querySelectorAll('.tab-content');
+            tabs.forEach(tab => tab.classList.remove('active'));
+
+            // Desactivar todos los botones
+            const buttons = document.querySelectorAll('.tab-btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+
+            // Activar la pestaña y botón seleccionados
+            document.getElementById(tabId).classList.add('active');
+            btnElement.classList.add('active');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        let chartInitialized = false;
+        function initChart() {
+            if (chartInitialized) return;
+            const ctx = document.getElementById('chartResumen').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Toda la Vida', 'Últimos 10 Años'],
+                    datasets: [{
+                        label: 'Mesada Pensional (COP)',
+                        data: [2122730, 1948756],
+                        backgroundColor: ['#D4AF37', '#3B82F6'],
+                        borderColor: ['#FDE047', '#60A5FA'],
+                        borderWidth: 1,
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { color: '#F8FAFC' } }
+                    },
+                    scales: {
+                        y: {
+                            ticks: { color: '#94A3B8' },
+                            grid: { color: 'rgba(255,255,255,0.05)' }
+                        },
+                        x: {
+                            ticks: { color: '#F8FAFC' },
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+            chartInitialized = true;
+        }
+    </script>
+</body>
+</html>
